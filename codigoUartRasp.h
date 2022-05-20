@@ -3,7 +3,7 @@
 #include <fcntl.h>
 #include <termios.h>
 
-void uartRasp (int b){
+void uartRasp (unsigned char teste){
 
     int uart0_filestream = -1; //Retorno de erro da função Open - 
 
@@ -34,7 +34,7 @@ void uartRasp (int b){
 
     p_tx_buffer = &tx_buffer[0];
 
-    //*p_tx_buffer++ = b ;
+    //*p_tx_buffer++ = teste ;
     
     //
     *p_tx_buffer++ ='O';
@@ -65,7 +65,7 @@ void uartRasp (int b){
     }
     else{
         rx_buffer[rx_length] = '\0';
-        printf("Mensagem de comprimento %d: %c\n", rx_length, rx_buffer);
+        printf("Mensagem de comprimento %d: %s\n", rx_length, rx_buffer);
     }
 
     close(uart0_filestream);
