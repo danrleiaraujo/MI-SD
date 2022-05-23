@@ -1,14 +1,14 @@
 //configuracao uart fpga - receptor 
 
 module UART_receiver(
-            input clk,
-            input RxD,
-            output reg Rx_done=0,
-            //output reg RxD_data_ready = 0,
-            output reg [7:0] RxD_data = 8'd0  // data received, valid only (for one clock cycle) when RxD_data_ready is asserted
+  input clk,
+  input RxD,
+  output reg Rx_done=0,
+  //output reg RxD_data_ready = 0,
+  output reg [7:0] RxD_data = 8'd0  // data received, valid only (for one clock cycle) when RxD_data_ready is asserted
 
-              // asserted when no data has been received for a while
-            //output reg RxD_endofpacket = 0  // asserted for one clock cycle when a packet has been detected (i.e. RxD_idle is going high)
+  // asserted when no data has been received for a while
+  //output reg RxD_endofpacket = 0  // asserted for one clock cycle when a packet has been detected (i.e. RxD_idle is going high)
 );
 
 parameter ClkFrequency = 100000000; // 100MHz
@@ -42,13 +42,13 @@ reg RxD_bit = 1'b1;
 always @(posedge clk)
 if(OversamplingTick)
 begin
-            if(RxD_sync[1]==1'b1 && Filter_cnt!=2'b11) Filter_cnt <= Filter_cnt + 1'd1;
-            else
-            if(RxD_sync[1]==1'b0 && Filter_cnt!=2'b00) Filter_cnt <= Filter_cnt - 1'd1;
+  if(RxD_sync[1]==1'b1 && Filter_cnt!=2'b11) Filter_cnt <= Filter_cnt + 1'd1;
+  else
+  if(RxD_sync[1]==1'b0 && Filter_cnt!=2'b00) Filter_cnt <= Filter_cnt - 1'd1;
 
-            if(Filter_cnt==2'b11) RxD_bit <= 1'b1;
-            else
-            if(Filter_cnt==2'b00) RxD_bit <= 1'b0;
+  if(Filter_cnt==2'b11) RxD_bit <= 1'b1;
+  else
+  if(Filter_cnt==2'b00) RxD_bit <= 1'b0;
 end
 
 // and decide when is the good time to sample the RxD line

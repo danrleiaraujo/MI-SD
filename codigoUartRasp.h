@@ -34,9 +34,9 @@ void uartRasp (unsigned char teste){
 
     p_tx_buffer = &tx_buffer[0];
 
-    //*p_tx_buffer++ = teste ;
+    *p_tx_buffer++ = teste ;
     
-    //
+    /*
     *p_tx_buffer++ ='O';
     *p_tx_buffer++ ='l';
     *p_tx_buffer++ ='a';
@@ -46,6 +46,7 @@ void uartRasp (unsigned char teste){
     *p_tx_buffer++ ='n';
     *p_tx_buffer++ ='d';
     *p_tx_buffer++ ='o';
+    */
 
     // Envio do TX - Uart
     int count = write (uart0_filestream, &tx_buffer[0], (p_tx_buffer-&tx_buffer[0]));

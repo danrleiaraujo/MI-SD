@@ -12,7 +12,7 @@
 void main() {
 
     int resposta=0;
-    unsigned char teste;
+    unsigned char b;
     setlocale(LC_ALL,"Portuguese");
     
     
@@ -24,22 +24,25 @@ void main() {
         printf("3 - Umidade:\n");
         scanf("%d",&resposta);
         if(resposta == 1){
-            teste = '3';
-            printf("Você selecionou Situação Atual do Sensor! = 0x0%c", teste);
+            b = '3';
+            printf("Você selecionou Situação Atual do Sensor! = 0x0%c\n", b);
         }
         else if(resposta == 2){
-            teste = '4';
-            printf("Você selecionou Temperatura! = 0x0%c", teste);
+            b = '4';
+            printf("Você selecionou Temperatura! = 0x0%c\n", b);
         }
         else if(resposta == 3){
-            teste = '5';
-            printf("Você selecionou Umidade! = 0x0%c", teste);
+            b = '5';
+            printf("Você selecionou Umidade! = 0x0%c\n", b);
         }
         else{
             printf("Erro - Digite um comando válido!\n\n");
             getchar ();
+            resposta = 0;
         }
     }
-    uartRasp(teste);
+
+    
+    uartRasp(b);
 
 }
