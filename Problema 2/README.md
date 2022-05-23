@@ -1,5 +1,5 @@
 <div id="inicio">
-    <h1>Sistema de comunicação serial com o Raspberry PI Zero, FPGA Cyclone IV e Sensor DHT11</h1>
+    <h1>Comunicação serial com o Raspberry PI Zero, FPGA Cyclone IV e Sensor DHT11</h1>
 	<p align="justify"> 
 		Este projeto foi desenvolvido para a avaliação do Problema 2 da disciplina MI - Sistemas Digitais da Universidade Estadual de Feira de Santana, consiste na implementação de um protótipo de sistema para medição de temperatura e umidade atravéz do sensor <a href="https://www.mouser.com/datasheet/2/758/DHT11-Technical-Data-Sheet-Translated-Version-1143054.pdf">DHT11</a>. O protótipo realiza a leitura dos dados enviados pelo sensor por meio da <a href="https://www.macnicadhw.com.br/sites/default/files/documents/downloads/manual_mercurioiv_v2.pdf">FPGA Cyclone 4</a> e, estabelece uma comunicação serial RS-232 com o SBC Raspberry Pi Zero, o qual faz requisições e recebe os dados como resposta. 	
 	</p><br>
