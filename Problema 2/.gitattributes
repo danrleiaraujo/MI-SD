@@ -1,5 +1,2 @@
 # Auto detect text files and perform LF normalization
 * text=auto
-* linguist-vendored
-*.c linguist-detectable=true
-*.verilog linguist-detectable=true
