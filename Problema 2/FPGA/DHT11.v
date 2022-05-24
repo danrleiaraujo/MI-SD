@@ -8,18 +8,24 @@
 //////////////////////////////////////////////////////////////////////////////////
 `timescale 1ns / 1ps
 module DHT11(
+	//pino de entrada
 	input CLK,  //100 MHz
-	input EN,
+	input EN, 
 	input RST,	 
+	
+	//pino tristate
 	inout DHT_DATA,
+
+	//pinos de saída com 8 bits
 	output [7:0] HUM_INT,
 	output [7:0] HUM_FLOAT,
 	output [7:0] TEMP_INT,
 	output [7:0] TEMP_FLOAT,
 	output [7:0] CRC,
-	output WAIT,
-	output DEBUG,
-	output error
+
+	output WAIT, //pino pra informar se a estrutura está aguardando
+	output DEBUG, //pino para debug para testes
+	output error //pino para debug para erros
 );
 
 
