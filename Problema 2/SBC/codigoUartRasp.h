@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <unistd.h>
-#include <fcntl.h>
-#include <termios.h>
+#include <fcntl.h> //O cabeçalho deve definir as seguintes solicitações e argumentos para uso pelas funções fcntl () e open () .
+#include <termios.h> //O cabeçalho contém as definições usadas pelas interfaces de E/S do terminal 
 
 void uartRasp (unsigned char teste){
 
@@ -36,18 +36,6 @@ void uartRasp (unsigned char teste){
 
     *p_tx_buffer++ = teste ;
     
-    /*
-    *p_tx_buffer++ ='O';
-    *p_tx_buffer++ ='l';
-    *p_tx_buffer++ ='a';
-    *p_tx_buffer++ =' ';
-    *p_tx_buffer++ ='M';
-    *p_tx_buffer++ ='u';
-    *p_tx_buffer++ ='n';
-    *p_tx_buffer++ ='d';
-    *p_tx_buffer++ ='o';
-    */
-
     // Envio do TX - Uart
     int count = write (uart0_filestream, &tx_buffer[0], (p_tx_buffer-&tx_buffer[0]));
     printf("Escrevendo na UART ...\n");
