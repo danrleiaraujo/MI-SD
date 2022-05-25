@@ -1,7 +1,7 @@
 //configuracao da uart da fpga - transmissor
 
 
-module UART_transmitter(
+module uart_fpga_transmissor(
             input clk,
             input TxD_start,
             input [7:0] TxD_data,
@@ -18,7 +18,7 @@ wire TxD_busy;
 
 /////////////////////////////////////Baud tick Generartor/////////////////////
 wire BitTick;
-BaudTickGen #(ClkFrequency, Baud) tickgen(.clk(clk), .enable(TxD_busy), .tick(BitTick));
+uart_fpga_geradorBaud #(ClkFrequency, Baud) tickgen(.clk(clk), .enable(TxD_busy), .tick(BitTick));
 //`endif
 //////////////////////////////////////////////////////////////////
 reg [3:0] TxD_state = 0;
@@ -31,8 +31,8 @@ begin
             if(TxD_ready & TxD_start)
                         begin TxD_shift <= TxD_data; end
             else
-            if(TxD_state[3] & BitTick)                                                                                         //Data bits(byte) sending
-                        begin TxD_shift <= (TxD_shift >> 1); end                //input byte is sening in each clock cycle one by one
+            if(TxD_state[3] & BitTick)                                          //Data bits(byte) sending
+                        begin TxD_shift <= (TxD_shift >> 1); end          //input byte is sening in each clock cycle one by one
             case(TxD_state)                                                                                                                                  //counting each bit
                         4'b0000 : if(TxD_start)
                                                             begin

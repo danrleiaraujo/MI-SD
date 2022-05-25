@@ -1,3 +1,4 @@
+`timescale 1ns / 1ps
 //////////////////////////////////////////////////////////////////////////////////
 // Matéria: MI- SD
 // Integrantes: Danrlei Almeida Araujo;
@@ -6,7 +7,7 @@
 // Sensor :    DHT11;
 // Descrição: Configuração do DHT11 em verilog //
 //////////////////////////////////////////////////////////////////////////////////
-`timescale 1ns / 1ps
+
 module DHT11(
 	//pino de entrada
 	input CLK,  //100 MHz
@@ -25,15 +26,14 @@ module DHT11(
 
 	output WAIT, //pino pra informar se a estrutura está aguardando
 	output DEBUG, //pino para debug para testes
-	output error //pino para debug para erros
-);
-
-
+	output error // pino para debug para erros
+	);
+	
 	reg DHT_OUT, DIR, WAIT_REG, DEBUG_REG;  //Registrador de saída	
 	reg [25:0] COUNTER; //Contador de ciclos para gerar delays
 	reg [5:0] index;
 	reg [39:0] INTDATA; //registrador de dados interno
-	reg error;
+	reg errorReg;
 	wire [39:0] DHT_IN;
 	
 	//wire DHT_IN;
@@ -49,8 +49,7 @@ TRIS TRIS_DATA(
     .DIR(DIR),
     .SEND(DHT_OUT),
     .READ(DHT_IN)
-    );
-
+    );	
 	
 	assign HUM_INT[7] = INTDATA[0];
 	assign HUM_INT[6] = INTDATA[1];
@@ -97,7 +96,7 @@ TRIS TRIS_DATA(
 	assign CRC[1] =  INTDATA[38];
 	assign CRC[0] =  INTDATA[39];
 
-	 reg [3:0] STATE;
+	 reg [3:0] STATE; //maquina de estados
 	 
 	 //Definição de estados
 	 parameter S0=1, S1=2, S2=3, S3=4, S4=5, S5=6, S6=7, S7=8, S8=9, S9=10, STOP=0, START=11;
@@ -115,7 +114,7 @@ TRIS TRIS_DATA(
 			  COUNTER <= 26'b00000000000000000000000000;	
 			  INTDATA <= 40'b0000000000000000000000000000000000000000;
 			  DIR <= 1'b1;			   //Configura pino saida
-			  error <= 1'b0;
+			  errorReg <= 1'b0;
 			  STATE <= START;
 		 end else begin
 		 
@@ -140,7 +139,7 @@ TRIS TRIS_DATA(
 					   DIR <= 1'b1;	
 					   DHT_OUT <= 1'b1;
 						WAIT_REG <= 1'b1;
-						error <= 1'b0;
+						errorReg <= 1'b0;
 						if (COUNTER < 1800000)							// -- b111001111110111100000 --100.000.000/2 = 50.000.000 -> 1/50.000.000 = 0,00002ms --> 18ms/0,00002 = 900000 ciclos)
 						begin
 							COUNTER <= COUNTER +1'b1;
@@ -185,7 +184,7 @@ TRIS TRIS_DATA(
 						end else begin
 						  if ( DHT_IN == 1'b1 )  											//Se ultrapassa o limite de 40uS -- erro de inicializacao do DHT11
 						  begin						  																	
-							   error <= 1'b1;
+							   errorReg <= 1'b1;
 								COUNTER <= 26'b00000000000000000000000000;
 							   STATE <=STOP;
 						  end else begin
@@ -205,7 +204,7 @@ TRIS TRIS_DATA(
 						end else begin
 					      if ( DHT_IN == 1'b0)
 							begin
-							   error <= 1'b1;
+							   errorReg <= 1'b1;
 								COUNTER <= 26'b00000000000000000000000000;	
 							   STATE <=STOP;
 							end else begin 
@@ -225,12 +224,12 @@ TRIS TRIS_DATA(
 						end else begin
 						   if ( DHT_IN == 1'b1)
 							begin
-							   error <= 1'b1;
+							   errorReg <= 1'b1;
 								COUNTER <= 26'b00000000000000000000000000;	
 							   STATE <=STOP;
 							end else begin 
 								STATE <= S6;  
-								error <= 1'b0;
+								errorReg <= 1'b0;
 								index <= 6'b000000; //reseta indexador
 								COUNTER <= 26'b00000000000000000000000000;															
 							end
@@ -246,7 +245,7 @@ TRIS TRIS_DATA(
 							//DIR <= 1'b0;
 								STATE <= S7;
 							end else begin
-							   error <= 1'b1;
+							   errorReg <= 1'b1;
 								COUNTER <= 26'b00000000000000000000000000;	
 							   STATE <=STOP;							
 							end
@@ -265,7 +264,7 @@ TRIS TRIS_DATA(
 								STATE <= S7;	
 							end else begin
 								COUNTER <=  26'b00000000000000000000000000;
-								error <= 1'b1;
+								errorReg <= 1'b1;
 								STATE <= STOP;
 							end
 						end
@@ -292,7 +291,7 @@ TRIS TRIS_DATA(
 										COUNTER <= 26'b00000000000000000000000000;
 										STATE <= S9;
 									end else begin		
-										error <= 1'b0;									
+										errorReg <= 1'b0;									
 										STATE <= STOP;
 									end										
 									
@@ -304,7 +303,7 @@ TRIS TRIS_DATA(
 									
 									if (COUNTER > 3200000) //Caso mais de 80uS de espera, aborta
 									begin
-									   error <= 1'b1;
+									   errorReg <= 1'b1;
 										STATE <= STOP;
 									end
 						end
@@ -325,18 +324,18 @@ TRIS TRIS_DATA(
 							WAIT_REG <= 1'b0;
 							COUNTER <= 26'b00000000000000000000000000;	
 							DIR <= 1'b1;			   //Configura pino saida	
-							error <= 1'b0;							
+							errorReg <= 1'b0;							
 							index <= 6'b000000;	
 						end else begin
 						  if ( COUNTER < 3200000 )   //Se error, mantem estrutura bloqueada por 3,2 ms at� DHT finalizar e sinaliza erro
 						  begin
 						      INTDATA <= 40'b0000000000000000000000000000000000000000;
 								COUNTER <= COUNTER + 1'b1;
-								error <= 1'b1;
+								errorReg <= 1'b1;
 								WAIT_REG <= 1'b1;
 								DIR <= 1'b0;			   //Configura pino said
 						  end else begin
-								error <= 1'b0;				//volta error a 0 para resetar tudo
+								errorReg <= 1'b0;				//volta error a 0 para resetar tudo
 						  end
 						end
 					   	
