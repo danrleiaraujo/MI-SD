@@ -21,7 +21,6 @@
         <li><a href="#requisitos"> <b>Requisitos Atendidos</b> </a> </li>
 		<li><a href="#implementacao"> <b>Implementação</b> </a> </li>
         <li><a href="#metodologia"> <b>Metodologia</b> </a> </li>
-
 	</ul>	
 </div>
 
