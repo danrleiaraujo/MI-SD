@@ -88,36 +88,36 @@
 
 <div id="metodologia">
     <h1>Metodologia</h1>
-    <p><b>Interação com usuário:</b></p>
-    <p>
+   <h3><p><b>Interação com usuário:</b></p></h3>
+    <p align="justify"> 
         Para interagir com os usuários, no arquivo "/SBC/telaUser.c" foi criada uma tela interface em linguagem C que interage com a Raspberry,  onde o usuário tem 3 opções de seleção em relação ao sensor DHT11, onde a resposta deve ser dada pela escolha de um número de 1 a 3:
     <p>   
         <p>1. Situação atual do sensor</p>
         <p>2. Temperatura</p>
         <p>3. Umidade</p>
-    <p>A partir da seleção do usuário, é enviado um código para a função "uartRasp(código)", essa função é encontrada na biblioteca importada "codigoUartRasp.h". Nessa biblioteca que criamos (também em C), é processada a UART da Raspberry, que é configurada a partir desta biblioteca.
+    <p align="justify"> A partir da seleção do usuário, é enviado um código para a função "uartRasp(código)", essa função é encontrada na biblioteca importada "codigoUartRasp.h". Nessa biblioteca que criamos (também em C), é processada a UART da Raspberry, que é configurada a partir desta biblioteca.
     </p>
-    <p><b>Biblioteca da UART da Raspberry:</b></p>
+    <h3><p><b>Biblioteca da UART da Raspberry:</b></p></h3>
     <p>
         No arquivo "SBC/codigoUartRasp.h", utilizamos as bibliotecas "fcntl.h" e "termios.h" para manipulação da UART.
     <p>   
-    <p>
+    <p align="justify"> 
         Começamos tentando o acesso através da variável "uart0_filestream" utilizando a função "open()". da verificando se deu erro na abertura da UART, caso não ocorra erro, começamos a manipulação da UART. Utilizamos as flags para configuração do BaudRate, paridade e tamanho da mensagem.
     </p>
-    <p>
+    <p align="justify"> 
         Em seguida, verificamos o envio da mensagem na UART e o recebimento, caso dê algum erro recebemos uma mensagem sinalizando, para confirmar que foi enviado e recebido corretamente nós recebemos uma mensagem e também o comprimento da mensagem.
     </p>
     <p>
         Para fazer o teste de entrada e saída de dados é necessário colocar a UART em loopback.
     </p>
-    <p><b>UART da FPGA:</b></p>
+    <h3><p><b>UART da FPGA:</b></p></h3>
     <p>
         Para manipulação da UART foi utilizada a linguagem de programação Verilog. Nos arquivos "FPGA/uart_fpga_transmissor.v" e "FPGA/uart_fpga_receptor.v", temos as variáveis para inicialização da UART, como o clock, start e os dados. 
     <p>   
-    <p>
+    <p align="justify"> 
         Logo abaixo é iniciado o processo de envio ou recebimento de dados, determinando a frequência de clock e o BaudRate da UART. E em seguida é feita o envio ou recebimento dos dados, que são 10 bits.
     </p>
-    <p><b>DHT11 na FPGA:</b></p>
+    <h3><p><b>DHT11 na FPGA:</b></p></h3>
     <p>
 	O sensor DHT11 possui 4 pinos:
     </p>   
@@ -125,11 +125,11 @@
 	<ul>
 		<li><b>VCC</b></li>
 		<li><b>DATA</b></li>
-		<li><b>NULL</b></li>>
+		<li><b>NULL</b></li>
 		<li><b>GND</b></li>
 	</ul>	
     </p>
-    <p>
+    <p align="justify"> 
 	O DATA, é o pino de dados caracteriza-se como entrada e saída, ou seja um TRISTATE, este recebe as requisições e realiza o envio dos dados ao MCU (Micro-computer Unite). Ele recebe sinais de humidade e temperatura de tipo int e float. Para a configuração do mesmo, foi necessário a criação de uma máquina de estados, onde seria responsável pela leitura dos 40 bits, guardadas em registradores e tratamento de possíveis erros, como o travamento do sensor.
     </p>
 	
