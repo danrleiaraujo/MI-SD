@@ -89,17 +89,13 @@
 <div id="metodologia">
     <h1>Metodologia</h1>
     <p><b>Interação com usuário:</b></p>
-	<ul>
-		<li>O código deverá ser escrito em linguagem C :heavy_check_mark:</li>
-		<li>Capacidade de interligação com até 32 sensores :heavy_multiplication_x:</li>
-		<li>Mecanismo de controle de status de funcionamento dos sensores :heavy_multiplication_x:</li>
-        <li>Apenas o SBC será capaz de iniciar uma comunicação :heavy_check_mark:</li>
-	</ul>
-    <p><b>FPGA:</b></p>
-		<li>O código deverá ser escrito em Verilog :heavy_check_mark:</li>
-		<li>Deverá ser capaz de ler e interpretar comandos oriundos do SBC :heavy_multiplication_x:</li>
-    <ul>
-	</ul>
+    <p>
+        Para interagir com os usuários, foi criada uma tela interface em linguagem C, onde o usuário tem 3 opções de seleção, onde a resposta é dada de 1 a 3:
+        1. Situação atual do sensor
+        2. Temperatura
+        3. Umidade
+        A partir da seleção do usuário
+    </p>
 </div>
     
 </div>
