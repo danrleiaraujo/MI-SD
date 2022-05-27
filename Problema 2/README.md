@@ -108,22 +108,31 @@
         Em seguida, verificamos o envio da mensagem na UART e o recebimento, caso dê algum erro recebemos uma mensagem sinalizando, para confirmar que foi enviado e recebido corretamente nós recebemos uma mensagem e também o comprimento da mensagem.
     </p>
     <p>
-        Para fazer o teste de entrada e saída de dados é     necessário colocar a UART em loopback.
+        Para fazer o teste de entrada e saída de dados é necessário colocar a UART em loopback.
     </p>
     <p><b>UART da FPGA:</b></p>
     <p>
-        Para manipulação da UART foi utilizada a linguagem de programação Verilog. Nnos arquivos "FPGA/uart_fpga_transmissor.v" e "FPGA/uart_fpga_receptor.v", temos as variáveis para inicialização da UART, como o clock, start e os dados. 
+        Para manipulação da UART foi utilizada a linguagem de programação Verilog. Nos arquivos "FPGA/uart_fpga_transmissor.v" e "FPGA/uart_fpga_receptor.v", temos as variáveis para inicialização da UART, como o clock, start e os dados. 
     <p>   
     <p>
-        Logo abaixo é iniciado o processo de envio ou recebimento de dados, determinando a frequencia de clock e o BaudRate da UART. E em seguida é feita o envio ou recebimento dos dados, que são 10 bits.
+        Logo abaixo é iniciado o processo de envio ou recebimento de dados, determinando a frequência de clock e o BaudRate da UART. E em seguida é feita o envio ou recebimento dos dados, que são 10 bits.
     </p>
     <p><b>DHT11 na FPGA:</b></p>
     <p>
-        Para manipulação da UART foi utilizada a linguagem de programação Verilog. Nnos arquivos "FPGA/uart_fpga_transmissor.v" e "FPGA/uart_fpga_receptor.v", temos as variáveis para inicialização da UART, como o clock, start e os dados. 
-    <p>   
+	O sensor DHT11 possui 4 pinos:
+    </p>   
     <p>
-        Logo abaixo é iniciado o processo de envio ou recebimento de dados, determinando a frequencia de clock e o BaudRate da UART. E em seguida é feita o envio ou recebimento dos dados, que são 10 bits.
+	<ul>
+		<li><b>VCC</b></li>
+		<li><b>DATA</b></li>
+		<li><b>NULL</b></li>>
+		<li><b>GND</b></li>
+	</ul>	
     </p>
+    <p>
+	O DATA, é o pino de dados caracteriza-se como entrada e saída, ou seja um TRISTATE, este recebe as requisições e realiza o envio dos dados ao MCU (Micro-computer Unite). Ele recebe sinais de humidade e temperatura de tipo int e float. Para a configuração do mesmo, foi necessário a criação de uma máquina de estados, onde seria responsável pela leitura dos 40 bits, guardadas em registradores e tratamento de possíveis erros, como o travamento do sensor.
+    </p>
+	
 </div>
     
 </div>
