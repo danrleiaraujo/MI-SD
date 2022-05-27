@@ -91,10 +91,12 @@
     <p><b>Interação com usuário:</b></p>
     <p>
         Para interagir com os usuários, foi criada uma tela interface em linguagem C, onde o usuário tem 3 opções de seleção, onde a resposta é dada de 1 a 3:
-        1. Situação atual do sensor
-        2. Temperatura
-        3. Umidade
-        A partir da seleção do usuário
+    <p>   
+        <p>1. Situação atual do sensor</p>
+        <p>2. Temperatura</p>
+        <p>3. Umidade</p>
+    <p>A partir da seleção do usuário
+    </p>
     </p>
 </div>
     
