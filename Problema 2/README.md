@@ -95,9 +95,9 @@
         <p>1. Situação atual do sensor</p>
         <p>2. Temperatura</p>
         <p>3. Umidade</p>
-    <p>A partir da seleção do usuário
+    <p>A partir da seleção do usuário, é enviado um código para a função "uartRasp(código)", essa função é encontrada na biblioteca importada "codigoUartRasp.h". Nessa biblioteca que criamos (também em C), é processada a UART da Raspberry, que é configurada a partir desta biblioteca.
     </p>
-    </p>
+    
 </div>
     
 </div>
