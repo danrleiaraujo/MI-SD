@@ -90,12 +90,22 @@
     <h1>Metodologia</h1>
     <p><b>Interação com usuário:</b></p>
     <p>
-        Para interagir com os usuários, foi criada uma tela interface em linguagem C, onde o usuário tem 3 opções de seleção, onde a resposta é dada de 1 a 3:
+        Para interagir com os usuários, no arquivo "/SBC/telaUser.c" foi criada uma tela interface em linguagem C que interage com a Raspberry,  onde o usuário tem 3 opções de seleção em relação ao sensor DHT11, onde a resposta deve ser dada pela escolha de um número de 1 a 3:
     <p>   
         <p>1. Situação atual do sensor</p>
         <p>2. Temperatura</p>
         <p>3. Umidade</p>
     <p>A partir da seleção do usuário, é enviado um código para a função "uartRasp(código)", essa função é encontrada na biblioteca importada "codigoUartRasp.h". Nessa biblioteca que criamos (também em C), é processada a UART da Raspberry, que é configurada a partir desta biblioteca.
+    </p>
+    <p><b>Biblioteca da UART da Raspberry:</b></p>
+    <p>
+        No arquivo "SBC/codigoUartRasp.h", utilizamos as bibliotecas "fcntl.h" e "termios.h" para manipulação da UART.
+    <p>   
+    <p>
+        Começamos tentando o acesso através da variável "uart0_filestream" utilizando a função "open()". da verificando se deu erro na abertura da UART, caso não ocorra erro, começamos a manipulação da UART. Utilizamos as flags para configuração do BaudRate, paridade e tamanho da mensagem.
+    </p>
+    <p>
+        Em seguida, verificamos o envio da mensagem na UART e o recebimento, caso dê algum erro recebemos uma mensagem sinalizando, para confirmar que foi enviado e recebido corretamente nós recebemos uma mensagem e também o comprimento da mensagem.
     </p>
     
 </div>
