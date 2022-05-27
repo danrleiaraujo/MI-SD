@@ -1,7 +1,7 @@
 <div id="inicio">
     <h1>Comunicação serial com o Raspberry PI Zero, FPGA Cyclone IV e Sensor DHT11</h1>
 	<p align="justify"> 
-		Este projeto foi desenvolvido para a avaliação do Problema 2 da disciplina MI - Sistemas Digitais da Universidade Estadual de Feira de Santana, consiste na implementação de um protótipo de sistema para medição de temperatura e umidade atravéz do sensor <a href="https://www.mouser.com/datasheet/2/758/DHT11-Technical-Data-Sheet-Translated-Version-1143054.pdf">DHT11</a>. O protótipo realiza a leitura dos dados enviados pelo sensor por meio da <a href="https://www.macnicadhw.com.br/sites/default/files/documents/downloads/manual_mercurioiv_v2.pdf">FPGA Cyclone 4</a> e, estabelece uma comunicação serial RS-232 com o SBC Raspberry Pi Zero, o qual faz requisições e recebe os dados como resposta. 	
+		Este projeto foi desenvolvido para a avaliação do Problema 2 da disciplina MI - Sistemas Digitais da Universidade Estadual de Feira de Santana, consiste na implementação de um protótipo de sistema para medição de temperatura e umidade atravéz do sensor <a href="https://www.mouser.com/datasheet/2/758/DHT11-Technical-Data-Sheet-Translated-Version-1143054.pdf">DHT11</a>. O protótipo realiza a leitura dos dados enviados pelo sensor por meio da <a href="https://www.macnicadhw.com.br/sites/default/files/documents/downloads/manual_mercurioiv_v2.pdf">FPGA Cyclone 4</a> e, estabelece uma comunicação serial RS-232 com o SBC Raspberry Pi Zero, o qual faz requisições e recebe os dados como resposta. 	p
 	</p><br>
     <p>
         O sistema foi dividido em duas partes: 
@@ -85,4 +85,21 @@
     <p>
         Crie um projeto no <it>Altera Quartus Prime Lite Edition 21</it>, especificamente para a família EP4CE30F23 e importe os seguintes arquivos: 
     </p>
+
+<div id="metodologia">
+    <h1>Metodologia</h1>
+    <p><b>Interação com usuário:</b></p>
+	<ul>
+		<li>O código deverá ser escrito em linguagem C :heavy_check_mark:</li>
+		<li>Capacidade de interligação com até 32 sensores :heavy_multiplication_x:</li>
+		<li>Mecanismo de controle de status de funcionamento dos sensores :heavy_multiplication_x:</li>
+        <li>Apenas o SBC será capaz de iniciar uma comunicação :heavy_check_mark:</li>
+	</ul>
+    <p><b>FPGA:</b></p>
+		<li>O código deverá ser escrito em Verilog :heavy_check_mark:</li>
+		<li>Deverá ser capaz de ler e interpretar comandos oriundos do SBC :heavy_multiplication_x:</li>
+    <ul>
+	</ul>
+</div>
+    
 </div>
