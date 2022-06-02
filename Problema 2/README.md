@@ -1,7 +1,7 @@
 <div id="inicio">
     <h1>Comunicação serial com o Raspberry PI Zero, FPGA Cyclone IV e Sensor DHT11</h1>
 	<p align="justify"> 
-		Este projeto foi desenvolvido para a avaliação do Problema 2 da disciplina MI - Sistemas Digitais da Universidade Estadual de Feira de Santana, consiste na implementação de um protótipo de sistema para medição de temperatura e umidade atravéz do sensor <a href="https://www.mouser.com/datasheet/2/758/DHT11-Technical-Data-Sheet-Translated-Version-1143054.pdf">DHT11</a>. O protótipo realiza a leitura dos dados enviados pelo sensor por meio da <a href="https://www.macnicadhw.com.br/sites/default/files/documents/downloads/manual_mercurioiv_v2.pdf">FPGA Cyclone 4</a> e, estabelece uma comunicação serial RS-232 com o SBC Raspberry Pi Zero, o qual faz requisições e recebe os dados como resposta. 	
+		Este projeto foi desenvolvido para a avaliação do Problema 2 da disciplina MI - Sistemas Digitais da Universidade Estadual de Feira de Santana, consiste na implementação de um protótipo de sistema para medição de temperatura e umidade atravéz do sensor <a href="https://www.mouser.com/datasheet/2/758/DHT11-Technical-Data-Sheet-Translated-Version-1143054.pdf">DHT11</a>. O protótipo realiza a leitura dos dados enviados pelo sensor por meio da <a href="https://www.macnicadhw.com.br/sites/default/files/documents/downloads/manual_mercurioiv_v2.pdf">FPGA Cyclone 4</a> e, estabelece uma comunicação serial RS-232 com o SBC Raspberry Pi Zero, o qual faz requisições e recebe os dados como resposta. 	p
 	</p><br>
     <p>
         O sistema foi dividido em duas partes: 
@@ -20,6 +20,7 @@
 		<li><a href="#recursos-utilizados"> <b>Recursos Utilizados</b> </a></li>
         <li><a href="#requisitos"> <b>Requisitos Atendidos</b> </a> </li>
 		<li><a href="#implementacao"> <b>Implementação</b> </a> </li>
+        <li><a href="#metodologia"> <b>Metodologia</b> </a> </li>
 	</ul>	
 </div>
 
@@ -84,4 +85,54 @@
     <p>
         Crie um projeto no <it>Altera Quartus Prime Lite Edition 21</it>, especificamente para a família EP4CE30F23 e importe os seguintes arquivos: 
     </p>
+
+<div id="metodologia">
+    <h1>Metodologia</h1>
+   <h3><p><b>Interação com usuário:</b></p></h3>
+    <p align="justify"> 
+        Para interagir com os usuários, no arquivo "/SBC/telaUser.c" foi criada uma tela interface em linguagem C que interage com a Raspberry,  onde o usuário tem 3 opções de seleção em relação ao sensor DHT11, onde a resposta deve ser dada pela escolha de um número de 1 a 3:
+    <p>   
+        <p>1. Situação atual do sensor</p>
+        <p>2. Temperatura</p>
+        <p>3. Umidade</p>
+    <p align="justify"> A partir da seleção do usuário, é enviado um código para a função "uartRasp(código)", essa função é encontrada na biblioteca importada "codigoUartRasp.h". Nessa biblioteca que criamos (também em C), é processada a UART da Raspberry, que é configurada a partir desta biblioteca.
+    </p>
+    <h3><p><b>Biblioteca da UART da Raspberry:</b></p></h3>
+    <p>
+        No arquivo "SBC/codigoUartRasp.h", utilizamos as bibliotecas "fcntl.h" e "termios.h" para manipulação da UART.
+    <p>   
+    <p align="justify"> 
+        Começamos tentando o acesso através da variável "uart0_filestream" utilizando a função "open()". da verificando se deu erro na abertura da UART, caso não ocorra erro, começamos a manipulação da UART. Utilizamos as flags para configuração do BaudRate, paridade e tamanho da mensagem.
+    </p>
+    <p align="justify"> 
+        Em seguida, verificamos o envio da mensagem na UART e o recebimento, caso dê algum erro recebemos uma mensagem sinalizando, para confirmar que foi enviado e recebido corretamente nós recebemos uma mensagem e também o comprimento da mensagem.
+    </p>
+    <p>
+        Para fazer o teste de entrada e saída de dados é necessário colocar a UART em loopback.
+    </p>
+    <h3><p><b>UART da FPGA:</b></p></h3>
+    <p>
+        Para manipulação da UART foi utilizada a linguagem de programação Verilog. Nos arquivos "FPGA/uart_fpga_transmissor.v" e "FPGA/uart_fpga_receptor.v", temos as variáveis para inicialização da UART, como o clock, start e os dados. 
+    <p>   
+    <p align="justify"> 
+        Logo abaixo é iniciado o processo de envio ou recebimento de dados, determinando a frequência de clock e o BaudRate da UART. E em seguida é feita o envio ou recebimento dos dados, que são 10 bits.
+    </p>
+    <h3><p><b>DHT11 na FPGA:</b></p></h3>
+    <p>
+	O sensor DHT11 possui 4 pinos:
+    </p>   
+    <p>
+	<ul>
+		<li><b>VCC</b></li>
+		<li><b>DATA</b></li>
+		<li><b>NULL</b></li>
+		<li><b>GND</b></li>
+	</ul>	
+    </p>
+    <p align="justify"> 
+	O DATA, é o pino de dados caracteriza-se como entrada e saída, ou seja um TRISTATE, este recebe as requisições e realiza o envio dos dados ao MCU (Micro-computer Unite). Ele recebe sinais de humidade e temperatura de tipo int e float. Para a configuração do mesmo, foi necessário a criação de uma máquina de estados, onde seria responsável pela leitura dos 40 bits, guardadas em registradores e tratamento de possíveis erros, como o travamento do sensor.
+    </p>
+	
+</div>
+    
 </div>
