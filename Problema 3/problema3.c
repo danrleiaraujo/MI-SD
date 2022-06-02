@@ -1,7 +1,7 @@
 /* -----------------------------------------------------------------------------------------------------------------------------            
         Problema 3: 
                 Danrlei Almeida Araujo
-                Evelyn Suzarte 
+                Evelyn Suzarte Fernandes
 
         * Leitura do DHT11;
         * Escrita no LCD;
