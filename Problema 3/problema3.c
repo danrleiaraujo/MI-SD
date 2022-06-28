@@ -57,54 +57,58 @@
 void read_dht11_dat();
 void printaLCD(char linhaSup[], char linhaInf[]);
 
-/*---------------Struct - Histórico-------------*/
+/*---------------Structs-------------*/
 struct historico{
         int dht11_dat[5];
         char horario[9];
 };
+
+/*struct historico{
+        char linha[100];
+        int nLinha;
+};*/
+
+
 /*----------------------MAIN------------------------*/
 int main(){
 	//setlocale(LC_ALL,"Portuguese");
 
-        int lcd, v =0;
-        struct historico novoHist, atualHist;
+        historico *novoHist;
+
+        int lcd, v =0, tam_alloc=100;
 
         wiringPiSetup();                     // inicia biblioteca wiringPi
-        pinMode(dipSwitch0, INPUT);                // configura pino da led como saida
-        pinMode(dipSwitch1, INPUT);                // configura pino da led como saida
-        pinMode(dipSwitch2, INPUT);                // configura pino da led como saida
-        pinMode(dipSwitch3, INPUT);                // configura pino da led como saida
+        
+	novoHist = (historico *) malloc (tam_alloc*sizeof(historico));
+
+        /*Configurando os pinos do switch como entrada*/
+        pinMode(dipSwitch0, INPUT);               
+        pinMode(dipSwitch1, INPUT);                
+        pinMode(dipSwitch2, INPUT);               
+        pinMode(dipSwitch3, INPUT);                
+
         pinMode(led, OUTPUT);                // configura pino da led como saida
+
         int estadoLED = 0;                   //variável para a verificação da led 
-    
-        //pullUpDnControl(botao, PUD_UP);      // configura resistor pull-up no pino 7
         
         while(1){  //Looping enquanto for verdadeiro
-                if(digitalRead(dipSwitch0) == HIGH){          // detecta se a chave foi pressionada
-                        estadoLED = 1;                       // inverte o estado do LED
-                        digitalWrite(1, estadoLED); 
-                
-                //imprime estado do LED
-                if(estadoLED == 1)                               
-                        printf("LED aceso\n");
-                if(estadoLED == 0)    
-                        printf("LED apagado\n");
 
-                delay(20);                                    // aguarda 20 ms
-                estadoLED = 0;
-                }   
-        }
-       
-
-        /*while (1){ //Looping para leitura
-
-                /*if (dipSwitch0 ==HIGH){
-                        //read_dht11_dat();
-                        printaLCD("Leu","Dht11");
+        /*-------------------------------Futuro--------------------------------/
+                /*if (dipSwitch0 ==LOW){
+                        read_dht11_dat();
+                        printf("Leu DHT11");
                 }
-
-                //else if(dipSwitch1 == HIGH)
-                        //read_lumi_pres();
+                else if(dipSwitch1 == LOW){
+                        read_lumi();
+                        printf("Leu luminosidade");
+                }
+                else if(dipSwitch2 == LOW){
+                        read_pres();
+                        printf("Leu pressão");
+                }
+                else if(dipSwitch3 == LOW){
+                        printf("Histórico");
+                }
                 else{
                         printaLCD("PBL - 3","SISTEMAS DIGITAIS");
                 }
@@ -113,12 +117,31 @@ int main(){
                 //read_dht11_dat(); //Chama a função do DHT11
         	//strftime(novoHist.horario);
                 delay(1000);
-        }*/
+        */
 
+
+                /*--------------------------Teste com LED'S--------------------------------------*/
+                if(digitalRead(dipSwitch0) == LOW){          // detecta se a chave foi acionada
+                        estadoLED = 1;                       // estado do led é igual a 1 (liga)
+                }
+                else{
+                        estadoLED = 0;                  // estado do led é igual a 0 (Desliga)
+                }
+                digitalWrite(1, estadoLED); //Manda o sinal pra led 
+                /*-------------------------imprime estado do LED------------------------*/
+                if(estadoLED == 1)                               
+                        printf("LED aceso\n");
+                if(estadoLED == 0)    
+                        printf("LED apagado\n");
+                delay(200);                                    // aguarda 200 ms
+                /*----------------------------------------------------------------------------*/
+        }
+	free(novoHist);
         return(0);
 }
 
 
+/*-----------------------Função para ler o DHT11-----------------------------------*/
 void read_dht11_dat(){
         int lcd, dht11_dat[5] = {0, 0, 0, 0, 0}; //dados do dht11 
         uint8_t laststate = HIGH, counter = 0, j = 0, i; //int sem sinal de 8 bits
@@ -172,7 +195,6 @@ void read_dht11_dat(){
                 /*Escrita no LCD*/
                 lcdPosition(lcd, 0, 0); //Seleciona a linha superior;
                 lcdPrintf(lcd, "Umid: %d.%d %%\n", dht11_dat[0], dht11_dat[1]);//Leitura de Umidade em %;
-
                 lcdPosition(lcd, 0, 1);//Seleciona a linha inferior;
                 lcdPrintf(lcd, "Temp: %d.0 C", dht11_dat[2]); //Leitura em Celsius;
                 
@@ -185,6 +207,7 @@ void read_dht11_dat(){
         //return dht11_dat;
 }
 
+/*----------------Função para ler o imprimir no lcd------------------*/
 void printaLCD(char dadoSup[],char dadoInf[]){ //Impressão no lcd
         int lcd;
         wiringPiSetup();
@@ -240,30 +263,67 @@ int addHist (historico add){ //Add nova leitura no final do arquivo
 	return(1);
 }
 
-void lerHist (historico add){ // Lê arquivo com o hist. de leitura
-        int i = 0;
-        FILE *file;
-        char conteudo[LINHAS*(16*2)];
-        char *str[LINHAS];
+void carregarHist (historico hist[]){ 
+	int i = 0;
+	FILE *file;
+	file = fopen("historico.txt", "r"); 
 
-        file = fopen("historico.txt", "rt"); 
-
-        if (file == NULL) // Se nao conseguiu ler	
-                printf("Problemas na leitura do arquivo\n");
-        else
-                fread(&conteudo, sizeof(char), (LINHAS*(16*2)), file);
-        fclose(file);
-
-        printf("%s",conteudo);
-
-        //Separacao de strings = 
-        for (i=0;i<LINHAS;i++){
-                if(i ==0)
-                        str[i] = strtok(conteudo,"\n");
-                else{
-                        str[i] = strtok(NULL,"\n");
-                }
-        }
-        return *str;
+	if (file == NULL){ // Se nao conseguiu ler	
+	    printf("Problemas na leitura do arquivo\n");
+	}
+	else{	
+		while (feof(file) == 0){
+			fgets (hist[i].linha, 100, file);
+			hist[i].nLinha = i;
+			i++;
+		}
+	}
+	fclose(file);
 }
+
+void atualizaHist (historico hist[], int dht11_dat[]){
+	int i=0, tam_alloc=100;
+	char umidade[] = "UR ", divisor[]=".", percento[] = "% ", temperatura[] = "T ", celcius[] = "0C",linhaNova[16], dht11[5][5], conversao;
+        historico *novoHist;
+	novoHist = (historico *) malloc (tam_alloc*sizeof(historico)); //aloca espaço
+	memset(linhaNova, 0, 16); //Limpa a variavel para criação;
+	
+	//Convencao de int pra char
+	for(i = 0; i<5; i++)
+		sprintf(dht11[i], "%d", dht11_dat[i]);
+		
+	//Confeccao da nova linha
+	strcpy(linhaNova,umidade);
+	strcat(linhaNova,dht11[0]);
+	strcat(linhaNova,divisor);
+	strcat(linhaNova,dht11[1]);
+	strcat(linhaNova,percento);
+	strcat(linhaNova,temperatura);
+	strcat(linhaNova,dht11[2]);
+	strcat(linhaNova,divisor);
+	strcat(linhaNova,celcius);
+	strcat(linhaNova,"\n");
+	   
+	//Salva na aux
+    for (i=0;i<10;i++){
+    	if(i == 9){
+			strcpy(novoHist[i].linha, linhaNova);
+			novoHist[i].nLinha = i;
+		}
+		else{
+			strcpy(novoHist[i].linha, hist[i+1].linha);
+			novoHist[i].nLinha = i;
+		}
+    }
+	    
+    //Salva de volta na variavel hist
+	for (i=0;i<10;i++){
+			strcpy(hist[i].linha, novoHist[i].linha);
+    }
+    
+	free(novoHist); //libera o espaco da auxiliar
+	
+    return;
+}
+
 */
