@@ -34,4 +34,22 @@ int main(){
         }   
     }
     return 0;
+
+                /*--------------------------Teste com LED'S--------------------------------------
+                if(digitalRead(dipSwitch0) == LOW){          // detecta se a chave foi acionada
+                        estadoLED = 1;                       // estado do led é igual a 1 (liga)
+                }
+                else{
+                        estadoLED = 0;                  // estado do led é igual a 0 (Desliga)
+                }
+                digitalWrite(1, estadoLED); //Manda o sinal pra led 
+                /*-------------------------imprime estado do LED------------------------
+                if(estadoLED == 1)                               
+                        printf("LED aceso\n");
+                if(estadoLED == 0)    
+                        printf("LED apagado\n");
+                delay(200);                                    // aguarda 200 ms
+                ----------------------------------------------------------------------------*/
+
+
 }

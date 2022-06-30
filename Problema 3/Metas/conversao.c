@@ -9,7 +9,6 @@
 #include <linux/i2c-dev.h>
 #include <sys/ioctl.h>
 #include <fcntl.h>
-
 #include "ads1115_rpi.h"
 
 void main(void) {
@@ -23,7 +22,6 @@ void main(void) {
 	while(1){
 		printf("CH_0 = %.2f V | ", readVoltage(0));
 		printf("CH_1 = %.2f V | ", readVoltage(1));
-		printf("CH_2 = %.2f V \n", readVoltage(2));
 	}
 
 	//return EXIT_SUCCESS;
