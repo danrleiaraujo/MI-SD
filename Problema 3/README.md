@@ -75,6 +75,6 @@
     <p> 
 	<h3><p><b>Salvamento do histórico:</b></p></h3>
 	<p align="justify"> 
-       Para salvamento dos dados em um histórico, foi gerado um arquivo .txt onde a cada medição é feito uma sobrescrita nos dados, mantendo salvo as 10 últimas medições. 
+       Para visualização dos dados em um histórico, foi gerado um arquivo .txt onde a cada medição é feito uma sobrescrita nos dados, mantendo salvo as 10 últimas medições. 
     <p> 
 </div>
