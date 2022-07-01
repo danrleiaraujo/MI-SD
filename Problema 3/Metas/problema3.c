@@ -20,7 +20,7 @@
 
 int dht11_dat[5] = {0, 0, 0, 0, 0}; //dados do dht11
 #define MAXTIMINGS 85 //maximo de tempo
-#define DHTPIN 5  //pinagem do dht11 
+#define DHTPIN 4  //pinagem do dht11 
 
 
 
