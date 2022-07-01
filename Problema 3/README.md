@@ -40,14 +40,41 @@
 	<ul>
 		<li>Requisito ok :heavy_check_mark:</li>
 		<li>Em construção 🚧</li>
-		<li>Requisito incompleto :heavy_multiplication_x:</li>
+		<li>Requisito incompleto :heavy_multiplication_x:</li>	
+		<li>Código escrito em linguagem C :heavy_check_mark:</li>
+		<li>Uso do protocolo MQTT:heavy_multiplication_x:</li>
+		<li>Interface baseada em display LCD, botões e chaves:heavy_check_mark:</li>
+		<li>Interface em forma de aplicativo para Desktop ou Smartphone.:heavy_multiplication_x:</li>
+		<li>Apresentar informações sobre a conexão com a estação de medição na IHM local:heavy_check_mark:</li>
+		<li>apresentar informações sobre a conexão com a estação de medição na IHM remotamente :heavy_multiplication_x:</li>
 	</ul>
 </div>
 
 <div id="implementacao">
-
+	<h1>Implementação</h1>
+	<ul><p align="justify"> 
+    	<li> Para implementação do código foi utilizada a linguagem C.
+		<li>Para a interface WEB do usuário foi utilizada o código em linguagem HTML.
+    <p> 
+	<h3>
 </div>
 
 <div id="metodologia">
-
+	<h1>Metodologia</h1>
+	<h3><p><b>Interação com usuário:</b></p></h3>
+	<p align="justify"> 
+        O usuário se comunica com o sistema de duas formas: através da interface WEB e pelos botões conectados na placa Raspberry Pi Zero, onde qualquer escolha feita é selecionada através de um Dip Switch e exibida na tela LCD conectada.
+    <p> 
+	<h3><p><b>Uso das chaves:</b></p></h3>
+	<p align="justify"> 
+        O Dip Switch utilizado é numerado de 1 a 4. Cada um dos números leva a uma opção para ser selecionada.
+		<li>Ao selecionar 1: exibe medição da umidade e temperatura com o uso do DHT11
+		<li>Ao selecionar 2: exibe medição da luminosidade
+		<li>Ao selecionar 3: exibe medição da pressão atmosférica
+		<li>Ao selecionar 4: visualização de histórico de medições
+    <p> 
+	<h3><p><b>Salvamento do histórico:</b></p></h3>
+	<p align="justify"> 
+       Para salvamento dos dados em um histórico, foi gerado um arquivo .txt onde a cada medição é feito uma sobrescrita nos dados, mantendo salvo as 10 últimas medições. 
+    <p> 
 </div>
