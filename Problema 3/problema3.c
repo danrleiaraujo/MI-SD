@@ -41,6 +41,8 @@
 typedef struct {
         char linha[100];
         int nLinha;
+        int dht11[5];
+        float pres, lumi;
 }historico;
 
 /*-------------------PINAGENS------------------------*/
@@ -72,69 +74,94 @@ typedef struct {
 
 
 /*--------------------Funções-------------------*/
-void read_dht11_dat(); /*Lê o dht11*/
-void printaLCD(char linhaSup[], char linhaInf[]); /*printa o lcd*/
-void criarHist(historico novo); /*cria o hist em um txt*/
-void addHist(historico novo); /*adiciona no final do arq txt*/
-void carregarHist (historico hist[]); /*Lê o historico*/
-void atualizaHist (historico hist[], int dht11[]); /*Atualiza oque leu do arq.*/
-void read_lumi (); //Le luminosidade
-void read_pres (); //le pressao
+void read_dht11_dat(historico novaLeitura[]); //Lê o dht11
+void printaLCD(char linhaSup[], char linhaInf[]); //printa o lcd
+void criarHist(historico hist[]); //cria o hist em um txt
+void addHist(historico hist[]); //adiciona no final do arq txt
+void carregarHisthistPL (historico hist[]); //Lê o historico da pressao e luminosidade
+void carregarHistDht11 (historico hist[]); //Lê o historico do dht11
+void atualizaHistPL (historico hist[],float pres, float lumi); //Atualiza oque leu do arq.
+void atualizaHistDht11 (historico hist[], int dht11[]); //Atualiza oque leu do arq.
+void read_pres_lumi (historico novaLeitura[]); //Le pressao e luminosidade
 
 
 /*----------------------MAIN------------------------*/
 int main(){
-        historico *novoHist;
-        int lcd, v =0, tam_alloc=100;
+        historico *novaLeitura, *histDht11, *histPL;
+        int lcd, v =0, tam_alloc=100, b = 0;
         wiringPiSetup();                     // inicia biblioteca wiringPi
-        
-	novoHist = (historico *) malloc (tam_alloc*sizeof(historico));
+        novaLeitura = (historico *) malloc (tam_alloc*sizeof(historico));
+        histDht11 = (historico *) malloc (tam_alloc*sizeof(historico));
+	histPL = (historico *) malloc (tam_alloc*sizeof(historico));
 
         /*Configurando os pinos do switch como entrada*/
         pinMode(dipSwitch0, INPUT);               
         pinMode(dipSwitch1, INPUT);                
         pinMode(dipSwitch2, INPUT);               
-        pinMode(dipSwitch3, INPUT);                
+        pinMode(dipSwitch3, INPUT); 
 
+        carregarHisthistPL(histPL);
+        carregarHistDht11(histDht11);
         while(1){  //Looping enquanto for verdadeiro
-                printf("%d valor da entrada do digitalRead(dipSwitch0)\n", digitalRead(dipSwitch0));
 
                 if (digitalRead(dipSwitch0) == LOW){
-                        printf("Leu DHT11");
-                        read_dht11_dat();
+                        printf("Leu DHT11\n");
+                        read_dht11_dat(novaLeitura);
+                        atualizaHist(histDht11, novaLeitura[0].dht11);
+                        criarHist(histDht11);
                         delay(1000);
                 }
                 else if(digitalRead(dipSwitch1)  == LOW){
-                        printf("Leu luminosidade");
-                        read_lumi();
+                        printf("Leu pressao e luminosidade\n");
+                        read_pres_lumi(novaLeitura);
+                        atualizaHistPL(histPL, novaLeitura[0].pres, novaLeitura[0].lumi);
                         delay(1000);
                 }
-                else if(digitalRead(dipSwitch2)  == LOW){
-                        printf("Leu pressão");
-                        read_pres();
+                else if(digitalRead(dipSwitch2)  == LOW){                        
+                        printf("Histórico Luminosidade e Pressao\n");
+                        printaLCD("Lumi e Press:", histPL[b].linha);
+                        if(digitalRead(botao1) == LOW && b > 0 ){  
+                                b--;
+                        }
+                        else if(digitalRead(botao2) == LOW && b > 9){
+                                b++;
+                        }
+                        else if(b == 10){
+                                b = 0;
+                        }
                         delay(1000);
+
                 }
                 else if(digitalRead(dipSwitch3)  == LOW){
-                        printf("Histórico");
+                        printf("Histórico DHT11\n");
+                        printaLCD(hist[b].nLinha, hist[b].linha);
+                        if(digitalRead(botao1) == LOW && b > 0 ){  
+                                b--;
+                        }
+                        else if(digitalRead(botao2) == LOW && b > 9){
+                                b++;
+                        }
+                        else if(b == 10){
+                                b = 0;
+                        }
                         delay(1000);
                 }
                 
                 else{
-                        printaLCD(" PBL - 3","SistemasDigitais");
+                        printaLCD("PBL - 3","SistemasDigitais");
                 }
-                
-                //novoHist.dht11_dat = 
-                //read_dht11_dat(); //Chama a função do DHT11
-        	//strftime(novoHist.horario);
+
                 delay(1000);
         /*------------------------------------------------------------------------------------------*/
         }
-	free(novoHist);
+	free(novaLeitura);
+	free(histDht11);
+	free(histPL);
         return(0);
 }
 
 /*-----------------------Função para ler o DHT11-----------------------------------*/
-void read_dht11_dat(){
+void read_dht11_dat (historico novaLeitura[]){
         int lcd, dht11_dat[5] = {0, 0, 0, 0, 0}; //dados do dht11 
         uint8_t laststate = HIGH, counter = 0, j = 0, i; //int sem sinal de 8 bits
         float f; 
@@ -179,11 +206,9 @@ void read_dht11_dat(){
                         j++;
                 }
          }
-        printf("\n%d - DHT11 [4]\n",dht11_dat[4]);
-        printf("\n%d - DHT11 [3]\n",dht11_dat[3]);
-        printf("\n%d - DHT11 [2]\n",dht11_dat[2]);
         if ( (j >= 40) && (dht11_dat[4] == ((dht11_dat[0] + dht11_dat[1] + dht11_dat[2] + dht11_dat[3]) & 0xFF) ) ) { 
-        // Se j for maior ou igual à 40 e o indice 4 do vetor for igual ao indice 0 + indice 1 + indice 2 + indice 3 AND bit-a-bit 0xFF faça:
+        /* Se j for maior ou igual à 40 e o indice 4 do vetor for igual ao indice 0 + indice 1 + indice 2 + indice 3 
+        AND bit-a-bit 0xFF faça:*/
                 //f = dht11_dat[2] * 9. / 5. + 32;
 
                 /*Escrita no LCD*/
@@ -196,6 +221,12 @@ void read_dht11_dat(){
                 /*Escrita no terminal*/
                 printf("Umidade: %d.%d %%\n", dht11_dat[0], dht11_dat[1]); //Leitura de Umidade
                 printf("Temperatura: %d.0 C \n", dht11_dat[2]); //Leitura em Celsius
+                
+                novaLeitura[0].dht11[0] = dht11_dat[0];
+                novaLeitura[0].dht11[1] = dht11_dat[1];
+                novaLeitura[0].dht11[2] = dht11_dat[2];
+                novaLeitura[0].dht11[3] = dht11_dat[3];
+                novaLeitura[0].dht11[4] = dht11_dat[4];
 
         }
         //return dht11_dat;
@@ -213,51 +244,68 @@ void printaLCD(char dadoSup[],char dadoInf[]){ //Impressão no lcd
         lcdPosition(lcd, 0, 1);//Seleciona a linha inferior;
         lcdPrintf(lcd, "%s", dadoInf);
 }
+
 /*------------------Função para Criar o historico------------------*/
-void criarHist (historico novo){ //Cria arquivo para histórico
+void criarHist (historico novo[]){ //Cria arquivo para histórico
 	FILE *file;
+        int x=0, i=0;
         file = fopen ("historico.txt","w"); // o ponteiro abre o arquivo com a funcão = "w" - criar ou anexar.
 	if (file == NULL){
                 printf("Erro ao criar o arquivo\n");
                 return;
 	}
-	else{/*
-                fprintf(file,"%d\t", novo.posicao);
-                fprintf(file,"%s\t", novo.horario);
-                fprintf(file,"%d", novo.dht11_dat[0]);
-                fprintf(file,"%d", novo.dht11_dat[1]);
-                fprintf(file,"%d", novo.dht11_dat[2]);
-                fprintf(file,"%d", novo.dht11_dat[3]);
-                fprintf(file,"%d\n", novo.dht11_dat[4]);
-		printf("Arquivo Criado com sucesso\n");*/
+	else{
+                while(novo[i].nLinha == i){
+                        i++;
+                }
+
+                while(x < i){
+                        fprintf(file,"%s", novo[x].linha);
+                        x++;
+                }
+                        printf("Arquivo Criado com sucesso\n");
 	}
 	fclose(file); //fecha a função.
 }
 /*------------------Função que adiciona no final do arq------------------*/
- void addHist (historico add){ //Add nova leitura no final do arquivo
+ void addHist (historico add[]){ //Add nova leitura no final do arquivo
 	FILE *file;
         file = fopen ("historico.txt","at"); // o ponteiro abre o arquivo com a funcão = "a" - acrescentar.
 	if (file == NULL){
                 printf("Erro ao abrir o arquivo\n");
                 return;
 	}
-	else{/*
-                fprintf(file,"%d\t", add.posicao);
-                fprintf(file,"%s\t", add.horario);
-                fprintf(file,"%d", add.dht11_dat[0]);
-                fprintf(file,"%d", add.dht11_dat[1]);
-                fprintf(file,"%d", add.dht11_dat[2]);
-                fprintf(file,"%d", add.dht11_dat[3]);
-                fprintf(file,"%d\n", add.dht11_dat[4]);
-		printf("Add no Arquivo com sucesso\n");*/
+	else{
+                while(novo[i].nLinha == i){
+                        i++;
+                }
+                fprintf(file,"%s", novo[i].linha);
 	}
 	fclose(file); //fecha a função.
 }
-/*------------------Função que lê o arq de hist------------------*/
-void carregarHist (historico hist[]){ 
+/*------------------Função que lê o arq de histDht11------------------*/
+void carregarHistDht11 (historico hist[]){ 
 	int i = 0;
 	FILE *file;
-	file = fopen("historico.txt", "r"); 
+	file = fopen("historicodht11.txt", "r"); 
+
+	if (file == NULL){ // Se nao conseguiu ler	
+	    printf("Problemas na leitura do arquivo\n");
+	}
+	else{	
+		while (feof(file) == 0){
+			fgets (hist[i].linha, 100, file);
+			hist[i].nLinha = i;
+			i++;
+		}
+	}
+	fclose(file);
+}
+/*------------------Função que lê o arq de hist da Lumi e Press------------------*/
+void carregarHistLP (historico hist[]){ 
+	int i = 0;
+	FILE *file;
+	file = fopen("historicolp.txt", "r"); 
 
 	if (file == NULL){ // Se nao conseguiu ler	
 	    printf("Problemas na leitura do arquivo\n");
@@ -272,9 +320,53 @@ void carregarHist (historico hist[]){
 	fclose(file);
 }
 /*------------------Função que atualiza oq foi lido------------------*/
-void atualizaHist (historico hist[], int dht11_dat[]){
+void atualizaHistPL (historico hist[], float pres, float lumi){
 	int i=0, tam_alloc=100;
-	char umidade[] = "UR ", divisor[]=".", percento[] = "% ", temperatura[] = "T ", celcius[] = "0C",linhaNova[16], dht11[5][5], conversao;
+        char medidaLumi[] = " W", divisor[] = "_", medidaPres[]=" Pa";
+
+        char linhaNova[16], pressao[5][5], lumin[5][5], conversao;
+        historico *novoHist;
+	novoHist = (historico *) malloc (tam_alloc*sizeof(historico)); //aloca espaço
+	
+        memset(linhaNova, 0, 16); //Limpa a variavel para criação;
+	
+	//Convencao de float pra char
+        sprintf(pressao, "%.2f",pres);
+        sprintf(lumin, "%.2f",lumi);
+		
+	//Confeccao da nova linha
+	strcpy(linhaNova,lumin);
+	strcpy(linhaNova,medidaLumi);
+	strcpy(linhaNova,divisor);
+	strcpy(linhaNova,pressao);
+	strcpy(linhaNova,medidaPres);
+	strcat(linhaNova,"\n");
+	   
+	//Salva na aux
+        for (i=0;i<10;i++){
+    	        if(i == 9){
+			strcpy(novoHist[i].linha, linhaNova);
+			novoHist[i].nLinha = i;
+		}
+		else{
+			strcpy(novoHist[i].linha, hist[i+1].linha);
+			novoHist[i].nLinha = i;
+		}
+        }
+	    
+        //Salva de volta na variavel hist
+	for (i=0;i<10;i++){
+                strcpy(hist[i].linha, novoHist[i].linha);
+        }
+    
+	free(novoHist); //libera o espaco da auxiliar
+	
+        return;
+}
+void atualizaHistDht11 (historico hist[], int dht11_dat[]){
+	int i=0, tam_alloc=100;
+	char umidade[] = "UR ", divisor[]=".", percento[] = "% ", temperatura[] = "T ", celcius[] = "0C";
+        char linhaNova[16], dht11[5][5], conversao;
         historico *novoHist;
 	novoHist = (historico *) malloc (tam_alloc*sizeof(historico)); //aloca espaço
 	memset(linhaNova, 0, 16); //Limpa a variavel para criação;
@@ -296,8 +388,8 @@ void atualizaHist (historico hist[], int dht11_dat[]){
 	strcat(linhaNova,"\n");
 	   
 	//Salva na aux
-    for (i=0;i<10;i++){
-    	if(i == 9){
+        for (i=0;i<10;i++){
+    	        if(i == 9){
 			strcpy(novoHist[i].linha, linhaNova);
 			novoHist[i].nLinha = i;
 		}
@@ -305,38 +397,19 @@ void atualizaHist (historico hist[], int dht11_dat[]){
 			strcpy(novoHist[i].linha, hist[i+1].linha);
 			novoHist[i].nLinha = i;
 		}
-    }
+        }
 	    
-    //Salva de volta na variavel hist
+        //Salva de volta na variavel hist
 	for (i=0;i<10;i++){
-			strcpy(hist[i].linha, novoHist[i].linha);
-    }
+                strcpy(hist[i].linha, novoHist[i].linha);
+        }
     
 	free(novoHist); //libera o espaco da auxiliar
 	
-    return;
+        return;
 }
-void read_lumi(void) {
-        int lcd;
-        wiringPiSetup();
-        lcd = lcdInit (2, 16, 4, LCD_RS, LCD_E, LCD_D4, LCD_D5, LCD_D6, LCD_D7, 0, 0, 0, 0);
 
-	if(openI2CBus("/dev/i2c-1") == -1){
-		return;
-	}
-
-	setI2CSlave(0x48);
-
-        printf("CH_0 = %.2f V | ", readVoltage(0) );
-
-        lcdPosition(lcd, 0, 0); //Seleciona a linha superior;
-        lcdPrintf(lcd, "Luminosidade");
-        lcdPosition(lcd, 0, 1);//Seleciona a linha inferior;
-        lcdPrintf(lcd, "CH_0 = %.2f V", readVoltage(0) ); 
-                
-
-}
-void read_pres (void) {
+void read_pres_lumi (historico novaLeitura[]) {
         int lcd;
         wiringPiSetup();
         lcd = lcdInit (2, 16, 4, LCD_RS, LCD_E, LCD_D4, LCD_D5, LCD_D6, LCD_D7, 0, 0, 0, 0);
@@ -347,11 +420,15 @@ void read_pres (void) {
 
         setI2CSlave(0x48);
 
-        printf("CH_1 = %.2f V | ", readVoltage(1) );
+        printf("Luminosidade = %.2f W", readVoltage(0));
+        printf("Pressao = %.2f Pa\n", readVoltage(1));
+
+        novaLeitura[0].lumi = readVoltage(0);
+        novaLeitura[0].pres = readVoltage(1);
 
         lcdPosition(lcd, 0, 0); //Seleciona a linha superior;
-        lcdPrintf(lcd, "Pressao");
-        lcdPosition(lcd, 0, 1);//Seleciona a linha inferior;
-        lcdPrintf(lcd, "CH_1 = %.2f V", readVoltage(1) ); 
+        lcdPrintf(lcd, "Luminosidade = %.2f W", readVoltage(0) ); //medida em Watts
 
+        lcdPosition(lcd, 0, 1);//Seleciona a linha inferior;
+        lcdPrintf(lcd, "Pressao = %.2f Pa", readVoltage(1) );  //Medida em Pascal
 }

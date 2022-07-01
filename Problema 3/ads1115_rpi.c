@@ -1,10 +1,3 @@
-/*
- * ads1115_rpi.c
- *
- *  Created on: 14 de fev de 2019
- *      Author: giobauermeister
- */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
