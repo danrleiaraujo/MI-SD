@@ -63,15 +63,26 @@
 	<h1>Metodologia</h1>
 	<h3><p><b>Interação com usuário:</b></p></h3>
 	<p align="justify"> 
-        O usuário se comunica com o sistema de duas formas: através da interface WEB e pelos botões conectados na placa Raspberry Pi Zero, onde qualquer escolha feita é selecionada através de um Dip Switch e exibida na tela LCD conectada.
+        O usuário se comunica com o sistema através dos botões conectados na placa Raspberry Pi Zero, onde qualquer escolha feita é selecionada através de um Dip Switch e exibida na tela LCD conectada na placa.
     <p> 
+	<h3><p><b>Funcionamento das medições:</b></p></h3>
+	<p align="justify"> 
+        Para fazer as medições foi utilizado um sensor DHT11, que faz as medições de temperatura e umidade do ar, e para as medições de luminosidade e pressão atmosférica foi usado o potenciômetro como um simulador dos sensores, mas para utilizar ele foi necessário utilizar a biblioteca "ads1115_rpi.h" e o arquivo "ads1115_rpi.c" para fazer a conversão dos dados analógicos para digitais.
+    <p>
 	<h3><p><b>Uso das chaves:</b></p></h3>
 	<p align="justify"> 
         O Dip Switch utilizado é numerado de 1 a 4. Cada um dos números leva a uma opção para ser selecionada.
 		<li>Ao selecionar 1: exibe medição da umidade e temperatura com o uso do DHT11
-		<li>Ao selecionar 2: exibe medição da luminosidade
-		<li>Ao selecionar 3: exibe medição da pressão atmosférica
-		<li>Ao selecionar 4: visualização de histórico de medições
+		<li>Ao selecionar 2: exibe medição da luminosidade e pressão atmosférica
+		<li>Ao selecionar 3: exibe histórico com as últimas 10 medições da luminosidade e pressão atmosférica 
+		<li>Ao selecionar 4: exibe histórico com as últimas 10 medições de umidade e temperatura do DHT11
+    <p>  
+	<h3><p><b>Processos feitos na área principal do código:</b></p></h3>
+	<p align="justify"> 
+        <li>No ínicio do código são inicializadas algumas várias necessárias para o funcionamento, inclusive a alocação de memória para o salvamento dos arquivos do histórico.
+		<li>Usando a função "pinMode()" é feita o inicialização dos pinos do Dip Switch como entrada de dados
+		<li>Um loop com "while" é feito enquanto for verdadeiro, ou seja, de forma que seja infinito. Dentro dele possui seleções das opções dos menus separados em "if", que dependendo da seleção do pino do Dip Switch ele acessa uma opção.
+		<li>Em cada opção é feita a chamada das funções respectivas para fazer as medições e para atualizar o histórico de tal medida. 
     <p> 
 	<h3><p><b>Salvamento do histórico:</b></p></h3>
 	<p align="justify"> 
