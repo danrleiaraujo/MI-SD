@@ -1,6 +1,6 @@
 <div id="inicio">
     <h1 id="titulo" align="center"> Problema 3 da disciplina MI - Sistemas Digitais.</h1>
-	<p id="descricao" align="center">Foi requisitado um protótipo de um sistema para monitoramento ambiental. O protótipo deve incluir todo o tratamento e controle de sensores analógicos e digitais, bem como uma IHM (interface Homem-Máquina) para apresentação das informações,  incluindo históricos dos dados. O protótipo deve ser desenvolvido num SBC (Raspberry Pi Zero) que medirá temperatura, umidade, pressão atmosférica e luminosidade. A IHM deve apresentar, em tempo real, as leituras atuais. Ela também deve permitir a visualização do histórico com as 10 últimas medições de cada sensor. O sistema deve permitir o ajuste local e remoto do intervalo de tempo que serão realizadas as medições.o</p>
+	<p id="descricao" align="justify">Foi requisitado um protótipo de um sistema para monitoramento ambiental. O protótipo deve incluir todo o tratamento e controle de sensores analógicos e digitais, bem como uma IHM (interface Homem-Máquina) para apresentação das informações,  incluindo históricos dos dados. O protótipo deve ser desenvolvido num SBC (Raspberry Pi Zero) que medirá temperatura, umidade, pressão atmosférica e luminosidade. A IHM deve apresentar, em tempo real, as leituras atuais. Ela também deve permitir a visualização do histórico com as 10 últimas medições de cada sensor. O sistema deve permitir o ajuste local e remoto do intervalo de tempo que serão realizadas as medições.o</p>
 </div>
 
 <div id="sumario">
@@ -38,9 +38,6 @@
 <div id="requisitos">
     <h1>Requisitos Atendidos</h1>
 	<ul>
-		<li>Requisito ok :heavy_check_mark:</li>
-		<li>Em construção 🚧</li>
-		<li>Requisito incompleto :heavy_multiplication_x:</li>	
 		<li>Código escrito em linguagem C :heavy_check_mark:</li>
 		<li>Uso do protocolo MQTT:heavy_multiplication_x:</li>
 		<li>Interface baseada em display LCD, botões e chaves:heavy_check_mark:</li>
@@ -89,3 +86,36 @@
        Para visualização dos dados em um histórico, foi gerado um arquivo .txt onde a cada medição é feito uma sobrescrita nos dados em formato de fila (FIFO), mantendo salvo as 10 últimas medições. Foi usado um ponteiro de struct para salvar os dados, onde "linha" é salvo as linhas que são lidas e o "nLinhas" que quando carrega o documento, conta quantas linhas tem. Existem dois históricos, o do DHT11 e dos Sensores de Luminosidade e Pressão. Para a atualização do histórcico os dados do DHT11, como são em formato "int", é feito uma conversão de dados para String.
     <p> 
 </div>
+### Pré-requisitos
+
+Antes de começar, você vai precisar ter:
+Um DHT11;
+Um conversor ads1115 analógico para digital;
+
+### 🎲 Rodando o código:
+
+```bash
+# Clone este repositório
+$ git clone <https://github.com/danrleiaraujo/MI-SD/tree/main/Problema%203>
+
+# Acesse a pasta do projeto no terminal/cmd
+$ cd problema3
+
+#Dê o comando para compilar:
+$ gcc -o problema3 problema3.c ads1115_rpi.c -lwiringPI -lwiringPiDev
+
+		
+#Dê o comando para Rodar:
+$ sudo ./problema3
+Obs. Verifique as pinagens dos sensores antes de rodar.
+		
+		
+### 🛠 Tecnologias
+
+As seguintes ferramentas foram usadas na construção do projeto:
+
+- [Expo](https://expo.io/)
+- [Node.js](https://nodejs.org/en/)
+- [React](https://pt-br.reactjs.org/)
+- [React Native](https://reactnative.dev/)
+- [TypeScript](https://www.typescriptlang.org/)
