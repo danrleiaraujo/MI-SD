@@ -15,9 +15,6 @@
 
                 Para mapeamento dos pinos:
                         gpio readall  
-
-                Para desligar a rasp
-                        sudo shutdown -h now
 ------------------------------------------------------------------------------------------------------------------------------------------*/
 
 #include <wiringPi.h>
