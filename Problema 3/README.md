@@ -86,11 +86,13 @@
        Para visualização dos dados em um histórico, foi gerado um arquivo .txt onde a cada medição é feito uma sobrescrita nos dados em formato de fila (FIFO), mantendo salvo as 10 últimas medições. Foi usado um ponteiro de struct para salvar os dados, onde "linha" é salvo as linhas que são lidas e o "nLinhas" que quando carrega o documento, conta quantas linhas tem. Existem dois históricos, o do DHT11 e dos Sensores de Luminosidade e Pressão. Para a atualização do histórcico os dados do DHT11, como são em formato "int", é feito uma conversão de dados para String.
     <p> 
 </div>
-### Pré-requisitos
-
-Antes de começar, você vai precisar ter:
-Um DHT11;
-Um conversor ads1115 analógico para digital;
+		
+<h2>Pré-requisitos</h2>
+<h3>Antes de começar, você vai precisar ter:</h3>
+<li>Um Raspberry Pi Zero</li>
+<li>Um DHT11.</li>
+<li>Um conversor ads1115 analógico para digital.</li>
+<li>Dois potênciometros (Para a simulação de sensores).</li>
 
 ### 🎲 Rodando o código:
 
