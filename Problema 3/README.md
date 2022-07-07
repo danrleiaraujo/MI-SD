@@ -86,6 +86,6 @@
     <p> 
 	<h3><p><b>Salvamento do histórico:</b></p></h3>
 	<p align="justify"> 
-       Para visualização dos dados em um histórico, foi gerado um arquivo .txt onde a cada medição é feito uma sobrescrita nos dados, mantendo salvo as 10 últimas medições. 
+       Para visualização dos dados em um histórico, foi gerado um arquivo .txt onde a cada medição é feito uma sobrescrita nos dados em formato de fila (FIFO), mantendo salvo as 10 últimas medições. Foi usado um ponteiro de struct para salvar os dados, onde "linha" é salvo as linhas que são lidas e o "nLinhas" que quando carrega o documento, conta quantas linhas tem. Existem dois históricos, o do DHT11 e dos Sensores de Luminosidade e Pressão. Para a atualização do histórcico os dados do DHT11, como são em formato "int", é feito uma conversão de dados para String.
     <p> 
 </div>
