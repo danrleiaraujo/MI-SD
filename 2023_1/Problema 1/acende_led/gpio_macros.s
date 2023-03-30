@@ -1,63 +1,61 @@
-@ Macros para acessar os pinos do GPIO
-
-
 .include "file_io.s"
 
-@ Macro nanoSleep para esperar 0.1 segundo
-@ Chama o serviço nanosleep do Linux, que é funcão 162.
-@ Passe uma referência para uma especificação de tempo em r0 e r1
-@ Primeiro é o tempo de entrada para esperar em segundos e nanossegundos.
-@ Segundo é o tempo restante para esperar se for interrompido
+.macro openDevmem
+   ldr r0, =devmem       @Caminho do devmem, /dev/mem
+	mov r1, #2            @
+	mov r2, #S_RDWR       @ Direitos de acesso a Leitura e Escrita
+	mov r7, #5            @sys_open
+	svc 0
+.endm
 
 .macro nanoSleep
-   ldr r0, =timespecsec
-   ldr r1, =timespecsec
-   mov r7, #sys_nanosleep
+    ldr r0, =timespecnano
+    ldr r1, =timespecnano
+    mov r7, #162 @sys_nanosleep
+    svc 0
+.endm
+
+
+@ Macro para mapear a memória dos registradores da GPIO
+.macro mapMem
+   mov r4, r0            @Mover descritor do arquivo de r0 para r4
+   mov r0, #0            @Deixar o SO escolher o mapeamento
+   ldr r1, =pagelen      @Tamanho da memoria de paginação
+   ldr r1, [r1]          @Carrega o valor no r1
+   mov r2, #(PROT_READ + PROT_WRITE)      @Proteção de leitra e escrita, valor 3 
+   mov r3, #MAP_SHARED   @Valor de MAP_SHARED é 1
+   ldr r5, =gpioaddr     @Valor base GPIO dividido por 0x1000
+   ldr r5, [r5]          @Carregar valor em r5
+   mov r7, #192          @ 192 é a syscall para sys_mmap2
    svc 0
 .endm
 
-.macro GPIOExport pin
-   openFile gpioexp, O_WRONLY          @O_WRONLY está em fileio.s, é a a flag para escrever em arquivo
-   mov r8, r0                          @ Salva o nome do arquivo
-   writeFile r8, \pin, #2              @Escreve o valor 2, no pino passado por "parametro" e passa o nome do arquivo a ser modificado (r8)
-   flushClose r8                       @Salva as alterações no disco rigido
+.macro GPIODirectionOut @pinSaida
+   @ldr r7, =pinSaida
+   ldr r6, [r8, #0x804]        @Acessar pinos com deslocamento 0x4 do endereço base
+                                @Valor padrão do 0x804 é 0x77777777 = 0111 0111 0111 0111 0111 0111 0111 0111
+                                @Para setar como saida o PA8 setar os bits 2:0 como 001 -> 0x77777771  
+                                @000 input, 001 output
+   lsl r6, r6, #4              @0x77777770 = 0111 0111 0111 0111 0111 0111 0111 0000
+   add r6, #1                  @0x77777771 = 0111 0111 0111 0111 0111 0111 0111 0001
+   str r6, [r8, #0x804]        @Carrega a configuração
 .endm
 
-.macro GPIODirectionOut pin       @Definir input ou output
-   ldr r1, =\pin            @copiar pin no padrão de nome de arquivo
-   ldr r2, =gpiopinfile     @Caminho para setar output ou input no pino
-   add r2, #20              @Adiona 20 ao endereço de r2 para poder acessar um offset especifico
-   ldrb r3, [r1], #1        @ Carrega o valor do pino no R3 e soma 1
-   strb r3, [r2], #1        @ Carrega o valor de r3 em r2 e adiciona 1
-   ldrb r3, [r1]             
-   strb r3, [r2]            
-   
-   openFile gpiopinfile, O_WRONLY         @Abrir arquivo com tipo escrita
-   mov r8, r0                             @ Salvar o nome do arquivo em r8
-   writeFile r8, outstr, #3               @Escrever o valor 'out' no arquivo de pino 
-   flushClose r8                          @Sincronizar alterações
+.macro GPIOTurnOn @pin
+   @Configurar PA_DAT -> Valor padrão = 0x00000000
+   @ldr r7, =pin
+   ldr r6, [r8, #0x810]       @Acessar pinos com deslocamento 0x10 do endereço base -> PA_DAT
+                              @Valor padrão do 0x810 é 0x00000000
+                              @Para setar o PA8 com saida logica alta, mudar o bit 8 para 1
+   add r6, #1                 @0x00000001 = 0000 0000 0000 0000 0000 0000 0000 0001
+   lsl r6, r6, #8             @0000 0000 0000 0000 0000 0000 1000 0000
+   str r6, [r8, #0x810]       @Carrega a configuração
 .endm
 
-.macro GPIOWrite pin, value   @Escrever valor no pino
-   ldr r1, =\pin              @copiar pin no padrão de nome de arquivo
-   ldr r2, =gpiovaluefile     @Caminho do arquivo para setar o valor
-   add r2, #20
-   ldrb r3, [r1], #1          @ Carrega o valor do pino no R3 e soma 1
-   strb r3, [r2], #1          @ Carrega o valor de r3 em r2 e adiciona 1
-   ldrb r3, [r1]
-   strb r3, [r2]
-   
-   openFile gpiovaluefile, O_WRONLY          @Abrir arquivo com tipo escrita
-   mov r8, r0                                @ Salvar o nome do arquivo em r8
-   writeFile r8, \value, #1                  @Escrever o valor 1 ou 0 no arquivo de saida
-   flushClose r8                             @Sincronizar alterações
+.macro GPIOTurnOff @pin
+   @Configurar PA_DAT -> Valor atual = 0000 0000 0000 0000 0000 0000 1000 0000
+   @ldr r7, =pin
+   ldr r6, [r8, #0x810]        @Acessar pinos com deslocamento 0x10 do endereço base -> PA_DAT                      
+   lsr r6, r6, #9              @0000 0000 0000 0000 0000 0000 0000 0000
+   str r6, [r8, #0x810]        @Carrega a configuração
 .endm
-
-.data
-  timespecsec: .word 0
-  timespecnano: .word 100000000
-  gpioexp: .asciz "/sys/class/gpio/export"
-  gpiopinfile: .asciz "/sys/class/gpio/gpioxx/direction"
-  gpiovaluefile: .asciz "/sys/class/gpio/gpioxx/value" 
-  outstr: .asciz "out"
-          .align 2      @ save users of this file having to do this.
