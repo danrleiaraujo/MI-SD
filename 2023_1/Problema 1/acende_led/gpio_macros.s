@@ -33,8 +33,18 @@
    svc 0
 .endm
 
-@Macro para colocar o pino PA8 como Saída:
+@Macro para colocar o pino PA9 como Saída:
 .macro GPIODirectionOut
+   @ PA Configure Register 1 (Default Value: 0x77777777)
+   @ Pn_CFG1: 
+   @          Port n Configure Register 1 (n from 0 to 6)
+   @               n 0x77777777 = 0111 0111 0111 0111 0111 0111 0111 0111
+   @          * 0x24
+   @          + 0x04 (OffSet do registrador 1) 
+   @          = 0x804
+   @
+   @          bit = 6:4  /  Default hexa = 0x7
+
    ldr r6, [r8, #0x804]        @Acessar pinos com deslocamento 0x4 do endereço base
                                @Valor padrão do 0x804 é 0x77777777 = 0111 0111 0111 0111 0111 0111 0111 0111
                                @Para setar como saida o PA8 setar os bits 2:0 como 001 -> 0x77777771  
@@ -44,7 +54,7 @@
    str r6, [r8, #0x804]        @Carrega a configuração
 .endm
 
-@Macro para colocar o valor do pino PA8 como 1
+@Macro para colocar o valor do pino PA9 como 1
 .macro GPIOTurnOn
    @Configurar PA_DAT -> Valor padrão = 0x00000000
    ldr r6, [r8, #0x810]       @Acessar pinos com deslocamento 0x10 do endereço base -> PA_DAT
@@ -56,10 +66,9 @@
 .endm
 
 
-@Macro para colocar o valor do pino PA8 como 0
+@Macro para colocar o valor do pino PA9 como 0
 .macro GPIOTurnOff 
    @Configurar PA_DAT -> Valor atual = 0000 0000 0000 0000 0000 0000 1000 0000
-   @ldr r7, =pin
    ldr r6, [r8, #0x810]        @Acessar pinos com deslocamento 0x10 do endereço base -> PA_DAT                      
    lsr r6, r6, #9              @0000 0000 0000 0000 0000 0000 0000 0000
    str r6, [r8, #0x810]        @Carrega a configuração
