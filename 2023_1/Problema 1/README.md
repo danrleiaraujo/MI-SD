@@ -52,8 +52,13 @@
 <div id="implementacao">
 	<h1>Implementação</h1>
 	<ul><p align="justify"> 
-    	<li> </li>
-		<li> </li>
+    	<h4> Para funcionamento, é necessária a implementação de alguns arquivos usados em conjunto.</h4>
+		<li>Sys_calls</li>
+		<h4> Dentro desse arquivo existem comandos para a invocação do sistema operacional para fazer tal ação. As System Calls,como são chamadas, são divididas em quatro grupos: chamadas de sistema para gerenciamento de processos, para gerenciamento de diretórios, para gerenciamento de arquivos e restantes. </h4>
+		<li>Gpio_macros</li>
+		<h4> Dentro desse arquivo existem comandos para a configuração dos pinos da GPIO.Sendo eles:  </h4>
+		<li>Arquivo_io</li>
+		<li>Principal (main)</li>
     <p> 
 	<h3>
 </div>
