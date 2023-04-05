@@ -53,12 +53,14 @@
 	<h1>Implementação</h1>
 	<ul><p align="justify"> 
     	<h4> Para funcionamento, é necessária a implementação de alguns arquivos usados em conjunto.</h4>
-		<li>Sys_calls</li>
-		<h4> Dentro desse arquivo existem comandos para a invocação do sistema operacional para fazer tal ação. As System Calls,como são chamadas, são divididas em quatro grupos: chamadas de sistema para gerenciamento de processos, para gerenciamento de diretórios, para gerenciamento de arquivos e restantes. </h4>
 		<li>Gpio_macros</li>
-		<h4> Dentro desse arquivo existem comandos para a configuração dos pinos da GPIO.Sendo eles:  </h4>
-		<li>Arquivo_io</li>
-		<li>Principal (main)</li>
+		<h4> Dentro desse arquivo existem comandos para a configuração dos pinos da GPIO, sendo eles: openDevmem, nanoSleep, mapMem, directionOut, turnOn, turnOff. Esses macros servem para fazer abertura de arquivo, direcionar o pino como saída, ligar e desligar. Nesse arquivo sãp chamadas algumas funções do arquivo "file_io".</h4>
+		<li>File_io</li>
+		<h4> Nesse arquivo existem comandos para a manipulação de arquivos, funções como leitura e escrita,e abertura e fechamento de arquivo. Nele é chamada as variáveis do arquivo "sys_calls" para acesso a manipulação de arquivos. </h4>
+		<li>Sys_calls</li>
+		<h4> Dentro desse arquivo existem comandos para a invocação do sistema operacional para fazer tal ação. As System Calls,como são chamadas, são divididas em quatro grupos: chamadas de sistema para gerenciamento de processos, para gerenciamento de diretórios, para gerenciamento de arquivos e restantes. Essas funções servem para ser o sistema ter permissões de acesso a recursos que o usuário comum não tem acesso. </h4>
+		<li>Main</li>
+		<h4>Nesse arquivo principal fizemos a chamada do arquivo "gpio_macros.s" para as configurações do pino e também é feita a declaração de algumas variáveis essenciais.</h4>
     <p> 
 	<h3>
 </div>
@@ -91,3 +93,5 @@ $ make
 		
 #Dê o comando para Rodar:
 $ sudo ./problema3
+
+
