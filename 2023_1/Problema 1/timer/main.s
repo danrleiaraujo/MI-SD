@@ -9,6 +9,25 @@
 @ ld -o main main.o
 @ sudo ./main
 
+
+@ Tabela de Bits - Asci
+@ 0011 0000 - 0
+@ 0011 0001 - 1
+@ 0011 0010 - 2
+@ 0011 0011 - 3
+@ 0011 0100 - 4
+@ 0011 0101 - 5
+@ 0011 0110 - 6
+@ 0011 0111 - 7
+@ 0011 1000 - 8
+@ 0011 1001 - 9
+
+@Clear display
+@ RS R/W DB7 DB6 DB5 DB4 DB3 DB2 DB1 DB0
+@  0  0   0   0   0   0   0   0   0   1
+
+
+
 @ watch GPIO readall -> Para monitorar o GPIO
 
 @ Endereço da Gpio 0x01C20800_
@@ -29,12 +48,7 @@ _start:
     movs r8, r0      @ Joga o mapeamento em r8
     GPIODirectionOut @ Direciona o pino para Saída
 
-loop: 
-    GPIOTurnOn       @ Coloca o pino em valor 1 ou seja, em sinal alto
-    nanoSleep        @ Função para esperar
-    GPIOTurnOff      @ Coloca o pino em valor 0 ou seja, em sinal baixo
-    nanoSleep        @ Função para esperar
-    b loop           @ Volta para função Loop
+
 
 _end: 
     mov r0, #0   @ Usa 0 como retorno do codigo
@@ -54,7 +68,7 @@ _end:
     devmem: .asciz "/dev/mem"
     
     @ Endereço de memória dos registradores da GPIO 
-    @  0x01C20800_ (Endereço)  / 4096 (pela quantidade de páginas) = 0x01C20
+    @  0x01C20800 (Endereço)  / 4096 (pela quantidade de páginas) = 0x01C20
     gpioaddr: .word 0x01C20
 
     @ Segundo o dataSheet o pino por padrão vem 0x77777777
@@ -66,16 +80,12 @@ _end:
     @ Tamanho da Página do mapeamento = 4096
     pagelen: .word 0x1000
 
-    @ OffSet para transformar o PA8 em Saída:
-    @ pinSaida: .word 0x804
-
-    @ Offset para ligar o pino
-    @ pin: .word 0x810
 
     @.align 4 @ Tamanho em bytes de dados
 
-    @ PA8: 
-        @.word 4
-        @.word 0
-        @.word 8
-        @.word 0x10
+
+     OffSet: 
+        .word 4
+        .word 0 @ offset to select register
+        .word 8 @ bit offset in select register
+        .word 0x10 @ bit offset in set & clr register

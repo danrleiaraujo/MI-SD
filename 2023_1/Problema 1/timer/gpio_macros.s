@@ -1,6 +1,24 @@
 @ Chama a biblioteca de entrada e saída de arquivos
 .include "file_io.s"
 
+@ Configuração de pinos do DISPLAY:
+@  Pinos Enable e Seleção de comandos:
+@     RS   -> PA2 : Pino -> 10:08 : Bits de configuração -> 0x00 : Offset
+@     E    -> PA18 : Pino -> 10:08 : Bits de configuração -> 0x08 : Offset
+
+@  OffSet para ligar ou desligar o pino:
+@     PA_DATA -> 0x10 -> Bits para mandar sinal alto ou baixo pro pino
+
+@  Pinos digitais:
+@     D5   -> PG9 : Pino -> 06:04 : Bits de configuração -> 0xDC : Offset
+@     D4   -> PG8 : Pino -> 02:00 : Bits de configuração -> 0xDC : Offset
+@     D6   -> PG6 : Pino -> 26:24 : Bits de configuração -> 0xD8 : Offset
+@     D7   -> PG7 : Pino -> 30:28 : Bits de configuração -> 0xD8 : Offset
+@     PG_DATA -> 0xE8 -> Bits para mandar sinal alto ou baixo pro pino
+
+@  OffSet para ligar ou desligar o pino:
+@     PG_DATA -> 0xE8 : Offset -> Bits para mandar sinal alto ou baixo pro pino
+
 @ Macro para abrir o Devmen
 .macro openDevmem
    ldr r0, =devmem       @ Caminho do devmem, /dev/mem
@@ -33,34 +51,45 @@
    svc 0
 .endm
 
-@Macro para colocar o pino PA8 como Saída:
-.macro GPIODirectionOut
-   ldr r6, [r8, #0x804]        @Acessar pinos com deslocamento 0x4 do endereço base
-                               @Valor padrão do 0x804 é 0x77777777 = 0111 0111 0111 0111 0111 0111 0111 0111
-                               @Para setar como saida o PA8 setar os bits 2:0 como 001 -> 0x77777771  
-                               @000 input, 001 output
-   lsl r6, r6, #4              @0x77777770 = 0111 0111 0111 0111 0111 0111 0111 0000
-   add r6, #1                  @0x77777771 = 0111 0111 0111 0111 0111 0111 0111 0001
-   str r6, [r8, #0x804]        @Carrega a configuração
-.endm
+.macro pins_display_saida
+   @ Setar pins do d7 e d6 como saída
+   @ O OffSet do GPIO é 0x800 
+   @ O OffSet dos pinos D6 e D7 0xD8
 
-@Macro para colocar o valor do pino PA8 como 1
-.macro GPIOTurnOn
-   @Configurar PA_DAT -> Valor padrão = 0x00000000
-   ldr r6, [r8, #0x810]       @Acessar pinos com deslocamento 0x10 do endereço base -> PA_DAT
-                              @Valor padrão do 0x810 é 0x00000000
-                              @Para setar o PA8 com saida logica alta, mudar o bit 8 para 1
-   add r6, #1                 @0x00000001 = 0000 0000 0000 0000 0000 0000 0000 0001
-   lsl r6, r6, #8             @0000 0000 0000 0000 0000 0000 1000 0000
-   str r6, [r8, #0x810]       @Carrega a configuração
-.endm
+   @ Então acrescento no final ficando 0x8D8
+   ldr r6, [r8, #0x8D8] @Carrego no Registrador RD o mapeamento com o offset 0x8D8
+   mov r7, #0xFF        @ Mando o valor ff para o registrador R7 ficando "000000ff"
+   lsl r7, r7, #24      @ Movo o valor para esquerda em 24bits que são os bits do D6 "ff000000"
+   bic r6, r6, r7       @ Dou um AND de bit a bit com o R6 e o R7 dando um clear nos bits deixando "00aaaaaa" (a é qualquer valor)
+   mov r7, #0x11        @ Movo o valor 11 para r7 deixando-o em 00000011
+   lsl r7, r7, #24      @ movo 24bits para esquerda deixando-o 11000000
+   orr r6, r6, r7       @ Dou um ORR em R6 e R7 transformando R6 em 11aaaaaa
+   str r6, [r8, #0x8D8] @ Salvo na memória os valores dos bits modificados no Endereço da gpio com o OffSet dos pinos
 
 
-@Macro para colocar o valor do pino PA8 como 0
-.macro GPIOTurnOff 
-   @Configurar PA_DAT -> Valor atual = 0000 0000 0000 0000 0000 0000 1000 0000
-   @ldr r7, =pin
-   ldr r6, [r8, #0x810]        @Acessar pinos com deslocamento 0x10 do endereço base -> PA_DAT                      
-   lsr r6, r6, #9              @0000 0000 0000 0000 0000 0000 0000 0000
-   str r6, [r8, #0x810]        @Carrega a configuração
+   @Setar d5 e d4 como saida
+   @ O OffSet dos pinos D8 e D9 0xDC
+   ldr r6, [r8, #0x8DC]
+   mov r7, #0xFF
+   bic r6, r6, r7
+   mov r7, #0x11
+   orr r6, r6, r7
+   str r6, [r8, #0x8DC]
+
+
+   @Setar E como saida
+   @ O OffSet dos pinos E 0x08 e RS 0x00
+   ldr r6, [r8, #0x808] @E
+   ldr r5, [r8, #0x800] @RS
+   
+   mov r7, #0xF00
+   bic r6, r6, r7
+   bic r5, r5, r7
+   
+   mov r7, #0x100
+   orr r6, r6, r7
+   orr r5, r5, r7
+
+   str r6, [r8, #0x808] @E
+   str r6, [r8, #0x800] @RS
 .endm
