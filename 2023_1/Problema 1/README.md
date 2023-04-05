@@ -1,5 +1,6 @@
 <div id="inicio">
     <h1 id="titulo" align="center"> Problema 1 da disciplina MI - Sistemas Digitais.</h1>
+	<h2 id="titulo" align="center"> Linguagem Assembly</h1>
 	<p id="descricao" align="justify"></p>
 </div>
 
@@ -38,7 +39,13 @@
     <h1>Requisitos Atendidos</h1>
 	<ul>
 		<li>Sequência de instruções em Assembly :heavy_check_mark:</li>
-		<li>:heavy_multiplication_x:</li>
+		<li>Códigos comentados:heavy_check_mark:</li>
+		<li>Script de compilação tipo Makefile para geração do código executável :heavy_check_mark:</li>
+		<li>Documentação no READ.ME do projeto no GitHub:heavy_check_mark:</li>
+		<li>O sistema deve permitir configurar o tempo de contagem:heavy_multiplication_x:</li>
+		<li>O sistema deve permitir configurar o tempo de contagem para o temporizador:heavy_multiplication_x:</li>
+		<li>Apresentação no timer na LCD :heavy_multiplication_x:</li>
+		<li>Criação da biblioteca(.o) com funções para manipulação do LCD :heavy_multiplication_x:</li>
 	</ul>
 </div>
 
