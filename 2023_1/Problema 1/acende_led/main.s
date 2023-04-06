@@ -11,8 +11,6 @@
 
 @ watch GPIO readall -> Para monitorar o GPIO
 
-@ Endereço da Gpio 0x01C20800_
-
 @ Constantes
 .equ PROT_READ, 1
 .equ PROT_WRITE, 2
@@ -60,20 +58,16 @@ _end:
     @ Segundo o dataSheet o pino por padrão vem 0x77777777
     padraoPin: .word 0x77777777
 
-    @ Padrão do pino para saida:
-    @ padraoSaidaPin: .word 0x00000000
-
     @ Tamanho da Página do mapeamento = 4096
     pagelen: .word 0x1000
 
-    @ OffSet para transformar o PA8 em Saída:
+    @ OffSet do registrador que está o PA8
     @ pinSaida: .word 0x804
 
-    @ Offset para ligar o pino
+    @ Offset para PA_DATA - > Registrador para ligar o pino
     @ pin: .word 0x810
 
-    @.align 4 @ Tamanho em bytes de dados
-
+    @ OffSet em vetor - > Pode ser dessa forma mas acaba utilizando memória e é uma espécie de armengue.
     @ PA8: 
         @.word 4
         @.word 0

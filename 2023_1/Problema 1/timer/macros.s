@@ -24,7 +24,7 @@
 @ Macro para abrir o Devmen
 .macro openDevmem
    ldr r0, =devmem       @ Caminho do devmem, /dev/mem
-	mov r1, #2            @
+	mov r1, #2            
 	mov r2, #S_RDWR       @ Direitos de acesso a Leitura e Escrita
 	mov r7, #5            @ sys_open
 	svc 0                 @ Indica ao linux que acabou os comandos
@@ -33,7 +33,7 @@
 @ Macro para esperar em nanosegundos:
 .macro nanoSleep
     ldr r0, =timespecnano        @ Passa a referencia de espera para r0 e r1 
-    ldr r1, =timespecnano        @
+    ldr r1, =timespecnano        
     mov r7, #162                 @ Chama a função de nanosleep do sistema -> sys_nanosleep
     svc 0                        @ Indica ao linux que acabou os comandos
 .endm
@@ -57,53 +57,53 @@
    @ Setar pins do d6 como saída
    @ O OffSet dos pinos D6 e D7 0xD8
    @ Então acrescento no final ficando 0x8D8
-   ldr r6, [r8, #0x8D8] @Carrego no Registrador RD o mapeamento com o offset 0x8D8
-   mov r1, #7              @ em binário 001
-   lsl r1, r1, #24
+   ldr r6, [r8, #0x8D8]    @Carrego no Registrador RD o mapeamento com o offset 0x8D8
+   mov r1, #7              @ Move em binário 111 para o registrador r7
+   lsl r1, r1, #24         @ desloca o valor em 24 casas para modificar os bits referentes ao D6
    bic r6, r6, r1          @ Dá um clear no r6 com os bits do r1
    mov r1, #1              @ Atualiza o valor de r1 para 001
-   lsl r1, r1, #24
-   orr r6, r6, r1          @ Dá um orr no bit do r6 em relação a r1 , deixando o ultimo bit 1   
-   str r6, [r8, #0x8D8] @ Salvo na memória os valores dos bits modificados no Endereço da gpio com o OffSet dos pinos
+   lsl r1, r1, #24         @ desloca o valor em 24 casas para modificar os bits referentes ao D6
+   orr r6, r6, r1          @ Dá um orr no bit do r6 em relação a r1 , deixando os bits 26->0, 25 ->0, 24->1   
+   str r6, [r8, #0x8D8]    @ Salvo na memória os valores dos bits modificados no Endereço da gpio com o OffSet dos pinos
 .endm
 
 .macro d7Out
    @ Setar pins do d7 como saída
    @ O OffSet dos pinos D6 e D7 0xD8
    @ Então acrescento no final ficando 0x8D8
-   ldr r6, [r8, #0x8D8] @Carrego no Registrador RD o mapeamento com o offset 0x8D8
-   mov r1, #7              @ em binário 001
-   lsl r1, r1, #28
+   ldr r6, [r8, #0x8D8]    @Carrego no Registrador RD o mapeamento com o offset 0x8D8
+   mov r1, #7              @ em binário 111
+   lsl r1, r1, #28         @ move o valor em 28 casas para modificar os bits referentes ao D7
    bic r6, r6, r1          @ Dá um clear no r6 com os bits do r1
    mov r1, #1              @ Atualiza o valor de r1 para 001
-   lsl r1, r1, #28
+   lsl r1, r1, #28         @ move o valor em 28 casas para modificar os bits referentes ao D7
    orr r6, r6, r1          @ Dá um orr no bit do r6 em relação a r1 , deixando o ultimo bit 1   
-   str r6, [r8, #0x8D8] @ Salvo na memória os valores dos bits modificados no Endereço da gpio com o OffSet dos pinos
+   str r6, [r8, #0x8D8]    @ Salvo na memória os valores dos bits modificados no Endereço da gpio com o OffSet dos pinos
 .endm
 
 .macro d4Out @PG8
    @Setando D4 como saída
    @ O OffSet dos pinos PG8 e PG9 0xDC
-   ldr r6, [r8, #0x8DC]
+   ldr r6, [r8, #0x8DC]    @ Carrega da memória os valores dos bits modificados no Endereço da gpio com o OffSet dos pinos
    mov r1, #7              @ em binário 111
    bic r6, r6, r1          @ Dá um clear no r6 com os bits do r1
    mov r1, #1              @ Atualiza o valor de r1 para 001
    orr r6, r6, r1          @ Dá um orr no bit do r6 em relação a r1 , deixando o ultimo bit 1    
-   str r6, [r8, #0x8DC]
+   str r6, [r8, #0x8DC]    @ Salvo na memória os valores dos bits modificados no Endereço da gpio com o OffSet dos pinos
 .endm
 
 
 .macro d5Out @PG9
    @Setar D5 como saída 
    @ O OffSet dos pinos PG8 e PG9 0xDC
-   ldr r6, [r8, #0x8DC]
+   ldr r6, [r8, #0x8DC]    @ Carrega da memória os valores dos bits modificados no Endereço da gpio com o OffSet dos pinos
    mov r1, #7              @ em binário 111
-   lsl r1, r1, #4 
+   lsl r1, r1, #4          @ desloca o valor em 4 casas para modificar os bits referentes ao D5
    bic r6, r6, r1          @ Dá um clear no r6 com os bits do r1
    mov r1, #1              @ Atualiza o valor de r1 para 001
-   lsl r1, r1, #4
+   lsl r1, r1, #4          @ desloca o valor em 4 casas para modificar os bits referentes ao D5
    orr r6, r6, r1          @ Dá um orr no bit do r6 em relação a r1 , deixando o ultimo bit 1    
-   str r6, [r8, #0x8DC]
+   str r6, [r8, #0x8DC]    @ Salvo na memória os valores dos bits modificados no Endereço da gpio com o OffSet dos pinos
 .endm
 
 
@@ -111,23 +111,24 @@
    @Setar E e RS como saída
    @ São o mesmo bit para a modificação - > 000>0< 0000 -> 8
    @ O OffSet dos pinos E 0x08 e RS 0x00
-   ldr r6, [r8, #0x808] @E
-   ldr r5, [r8, #0x800] @RS
+   ldr r6, [r8, #0x808] @ Carrega o mapeamendo com o offSet do registrador onde se encontra o pino do E 
+   ldr r5, [r8, #0x800] @ Carrega o mapeamendo com o offSet do registrador onde se encontra o pino do RS
    
-   mov r7, #7
-   lsl r7, r7, #8
-   bic r6, r6, r7
-   bic r5, r5, r7
-   
-   mov r7, #7
-   lsl r7, r7, #8
-   orr r6, r6, r7
-   orr r5, r5, r7
+   mov r7, #7           @ Move o valor 111 para o registrador r7
+   lsl r7, r7, #8       @ desloca o valor em 8 casas para modificar os bits aos pinos (por coencidencia são iguais)
+   bic r6, r6, r7       @ Dá um clear no r6 com os bits do r7
+   bic r5, r5, r7       @ Dá um clear no r5 com os bits do r7
 
-   str r6, [r8, #0x808] @E
-   str r6, [r8, #0x800] @RS
+   mov r7, #7           @ Move o valor 111 para o registrador r7
+   lsl r7, r7, #8       @ desloca o valor em 8 casas para modificar os bits aos pinos (por coencidencia são iguais)
+   orr r6, r6, r7       @ Dá um orr no r6 com os bits do r7
+   orr r5, r5, r7       @ Dá um orr no r5 com os bits do r7
+
+   str r6, [r8, #0x808] @ Salvo na memória os valores dos bits modificados
+   str r6, [r8, #0x800] @ Salvo na memória os valores dos bits modificados
 .endm
 
+@ Macro para setar todos os pinos do display como Saída
 .macro display_saida
    d4Out
    d5Out

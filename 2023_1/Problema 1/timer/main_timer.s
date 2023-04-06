@@ -58,9 +58,3 @@ _end:
 
     @ Tamanho da Página do mapeamento = 4096
     pagelen: .word 0x1000
-
-    @ OffSet para transformar o PA8 em Saída:
-    @ pinSaida: .word 0x804
-
-    @ Offset para ligar o pino
-    @ pin: .word 0x810

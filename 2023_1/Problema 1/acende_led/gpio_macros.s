@@ -33,17 +33,11 @@
    svc 0
 .endm
 
+@ Para achar o offSet é só somar o offSet do GPIO (0x800) 
+@ + o offSet do regitrador que se encontra o pino (neste caso 0x04)
+
 @Macro para colocar o pino PA9 como Saída:
 .macro GPIODirectionOut
-   @ PA Configure Register 1 (Default Value: 0x77777777)
-   @ Pn_CFG1: 
-   @          Port n Configure Register 1 (n from 0 to 6)
-   @               n 0x77777777 = 0111 0111 0111 0111 0111 0111 0111 0111
-   @          * 0x24
-   @          + 0x04 (OffSet do registrador 1) 
-   @          = 0x804
-   @          bit = 6:4  /  Default hexa = 0x7
-
    ldr r6, [r8, #0x804]    @ Carrega no r6 o endereço o offset do gpio e do registrador 1
    mov r1, #7              @ em binário 111
    bic r6, r6, r1          @ Dá um clear no r6 com os bits do r1
@@ -52,23 +46,25 @@
    str r6, [r8, #0x804]    @ Carrega a configuração
 .endm
 
+@ Para achar o offSet é só somar o offSet do GPIO (0x800) 
+@ + o offSet do regitrador que se encontra o pino (neste caso 0x010)
+
 @Macro para colocar o valor do pino PA8 como 1
 .macro GPIOTurnOn
-   ldr r6, [r8, #0x810]       @Acessar pinos com deslocamento 0x10 do endereço base -> PA_DAT
-   mov r1, #1
-   lsl r1, r1, #8 
-   bic r6, r6, r1
-   orr r6, r6, r1             @
-   str r6, [r8, #0x810]       @Carrega a configuração
+   ldr r6, [r8, #0x810]       @ Acessar pinos com deslocamento 0x10 do endereço base -> PA_DAT
+   mov r1, #1                 @ Move o valor 001 para o R1
+   lsl r1, r1, #8             @ Desloca o valor em 8 casas para a esquerda
+   bic r6, r6, r1             @ Dá um clear no valor que se encontra lá
+   orr r6, r6, r1             @ Faz um orr e deixa o valor em 1
+   str r6, [r8, #0x810]       @ Carrega a configuração
 .endm
 
 
 @Macro para colocar o valor do pino PA8 como 0
 .macro GPIOTurnOff 
-   ldr r6, [r8, #0x810]       @Acessar pinos com deslocamento 0x10 do endereço base -> PA_DAT
-   mov r1, #1
-   lsl r1, r1, #8
-   bic r6, r6, r1
-   orr r6, r6, r1             @
-   str r6, [r8, #0x810]       @Carrega a configuração
+   ldr r6, [r8, #0x810]       @ Acessar pinos com deslocamento 0x10 do endereço base -> PA_DAT
+   mov r1, #1                 @ Move o valor 001 para o R1
+   lsl r1, r1, #8             @ Desloca o valor em 8 casas para a esquerda
+   bic r6, r6, r1             @ Dá um clear no valor que se encontra lá deixando 0
+   str r6, [r8, #0x810]       @ Carrega a configuração
 .endm
