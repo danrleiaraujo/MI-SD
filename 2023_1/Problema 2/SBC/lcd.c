@@ -10,10 +10,6 @@
 */
 
 /*-------------------------Constantes--------------------*/
-//  Voltagens:
-#define HIGH 1;
-#define LOW 0;
-
 /*  Pinos do LCD:
     D4   -> PG8 -> 32 Fisico -> 21 WPi
     D5   -> PG9 -> 36 Fisico -> 24 WPi
@@ -28,6 +24,13 @@
 #define LCD_D7 27;
 #define LCD_E 18;
 #define LCD_RS 13;
+
+/*  Pinos do LED:
+    PA8 -> 8 GPIO -> 20 WPi
+    PA9 -> 9 GPIO -> 22 WPi
+*/
+#define PA8 20;
+#define PA9 22;
 /*-----------------------------------------------------*/
 
 /*--------------------------Funções--------------------*/

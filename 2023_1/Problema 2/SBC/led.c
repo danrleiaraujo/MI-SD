@@ -3,15 +3,12 @@
 #include <wiringPi.h>
 
 /*-------------Constantes-----------*/
-//  Voltagens:
-#define HIGH 1;
-#define LOW 0;
 
-//  Pinos:
-//PA8 -> 8 GPIO -> 20 WPi
+/*  Pinos do LED:
+    PA8 -> 8 GPIO -> 20 WPi
+    PA9 -> 9 GPIO -> 22 WPi
+*/
 #define PA8 20;
-
-//PA9 -> 9 GPIO -> 22 WPi
 #define PA9 22;
 /*---------------------------------*/
 int main()
