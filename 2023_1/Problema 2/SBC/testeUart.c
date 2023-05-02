@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <fcntl.h> // A biblioteca deve definir as seguintes solicitações e argumentos para uso pelas funções fcntl () e open () .
 #include <termios.h> // A biblioteca contém as definições usadas pelas interfaces de E/S do terminal 
+#include <time.h>
 
 /*
     Arquivo para testar em looping back a UART da SBC
