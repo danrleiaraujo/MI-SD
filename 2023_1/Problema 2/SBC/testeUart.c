@@ -65,16 +65,16 @@ void uartRasp (unsigned char dado){
     }
     printf("%d",count);
 
-    delay(0.00105);
+    delay(1);
 
     // Recebimento do RX - Uart
     unsigned rx_buffer [100];
     int rx_length =0 ;
-    while (rx_length <1){
+     while (rx_length <1){
         rx_length = read (uart0_filestream, (void*) rx_buffer, 100);
         if(rx_length <0){
-            printf("Erro na leitura da UART - RX\n");
-            printf ("%d",rx_length);
+            //printf("Erro na leitura da UART - RX\n");
+            //printf ("%d",rx_length);
         }
         else if (rx_length == 0){
             printf("Nenhum dado disponível\n");
@@ -90,8 +90,9 @@ void uartRasp (unsigned char dado){
 int main() {
 
     unsigned char b;
-    b = '2';
-    
-    uartRasp(b);
+    b = 0b00100001;
+    //while (1){
+        uartRasp(b);
+    //}
     return (0);
 }

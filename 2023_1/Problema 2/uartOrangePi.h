@@ -40,10 +40,11 @@ void writeUart (unsigned char dado){
     */
 
     if (uart0_filestream == -1){ //Verifica se deu erro na abertura da UART
-        printf("Erro na abertura da UART\n");
+        printf("Erro na abertura do arquivo da UART\n");  
+        return;
     }
-    else{
-        printf("Abertura do arquivo ttyS3 com êxito");
+    else{   //Caso não dê nenhum erro:
+        printf("Abertura do arquivo da UART com êxito");
     }
 
     /* Configuração da uart*/
@@ -55,21 +56,22 @@ void writeUart (unsigned char dado){
     options.c_lflag = 0;
     tcflush(uart0_filestream, TCIFLUSH);
     tcsetattr(uart0_filestream, TCSANOW, &options);
+    
+    unsigned char tx_buffer[10]; // Cria um buffer
+    unsigned char *p_tx_buffer;  // Cria um ponteiro pro buffer
 
-    unsigned char tx_buffer[10];
-    unsigned char *p_tx_buffer;
+    p_tx_buffer = &tx_buffer[0]; // Aponta para o buffer
 
-    p_tx_buffer = &tx_buffer[0];
-
-    *p_tx_buffer++ = dado ;
+    *p_tx_buffer++ = dado ; // Ponteiro recebe os dados determinados pela variável
     
     // Envio do TX - Uart
     int count = write (uart0_filestream, &tx_buffer[0], (p_tx_buffer-&tx_buffer[0]));
     printf("Escrevendo na UART ...\n");
+    // Caso dê erro:
     if(count<0){
-        printf("Erro no envio de dados - TX\n"); 
+        printf("Erro no envio de dados - TX\n");  // Manda pro terminal
     }
-    close(uart0_filestream);
+    close(uart0_filestream); //Fecha a UART
 }
 
 /*  Funcao para receber dados pela RX    */
@@ -102,23 +104,25 @@ unsigned readUart (unsigned char dado){
     tcflush(uart0_filestream, TCIFLUSH);
     tcsetattr(uart0_filestream, TCSANOW, &options);
 
-    // Recebimento do RX - Uart
-    unsigned rx_buffer [100];
-    int rx_length =0 ;
-    while (rx_length <1){
-        rx_length = read (uart0_filestream, (void*) rx_buffer, 100);
-        if(rx_length <0){
-            printf("Erro na leitura da UART - RX\n");
-            printf ("%d",rx_length);
-        }
-        else if (rx_length == 0){
-            printf("Nenhum dado disponível\n");
-        }
-        else{
-            rx_buffer[rx_length] = '\0';
-            printf("Mensagem de comprimento %d: %s\n", rx_length, rx_buffer);
-        }
+    /* ----- Recebimento do RX - Uart ---- */
+    unsigned rx_buffer [100]; //Buffer para recebimento
+    int rx_length =0 ; //Tamanho do buffer em int
+    // while (rx_length <1){
+    rx_length = read (uart0_filestream, (void*) rx_buffer, 100); // Lê o buffer da uart com ponteiro apontando pra nulo,
+                                                                // podendo receber até 100 caracteres e retorna o tamanho recebido;
+    if(rx_length <0){ // Caso dê erro
+        printf("Erro na leitura da UART - RX\n"); //Informa que deu erro
+        delay(0.00105); // Espera 1,05 ms que é o tempo que precisa para chegar os dados
+        rx_length = read (uart0_filestream, (void*) rx_buffer, 100); //Tenta ler novamente
     }
-    close(uart0_filestream);
-    return rx_buffer;
+    else if (rx_length == 0){ // Caso não tenha nada para ser lido
+        printf("Nenhum dado disponível\n");
+    }
+    else{ // Caso não tenha nenhum problema:
+        rx_buffer[rx_length] = '\0';
+        printf("Mensagem de comprimento %d: %s\n", rx_length, rx_buffer);
+    }
+    // }
+    close(uart0_filestream); //Fecha a UART
+    return rx_buffer; // Retorna o buffer recebido
 }
