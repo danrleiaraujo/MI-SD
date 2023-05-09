@@ -103,18 +103,22 @@ byte dest[4];
 
 void loop() {
   ArduinoOTA.handle();
-
   digitalWrite(led_pin, HIGH);
   if(Serial.available() > 0) { // Verifica se tem algo sendo recebido
       char c = Serial.read(); //Lê o pino RX
-      if (c == unidade_1 || c == todas_unidades ){
+      if (c == unidade_1 || c == todas_unidades){
         unidade = true;
       }        
-      else if(c == acende_led && unidade == true){
+      else if(c == acende_led && unidade == true && digitalRead(led_pin) == HIGH){
         Serial.write("Led On!");
         digitalWrite(led_pin, LOW);
         delay(500);
-      }      
+      }        
+      else if(c == acende_led && unidade == true && digitalRead(led_pin) == LOW){
+        Serial.write("Led Off!");
+        digitalWrite(led_pin, LOW);
+        delay(500);
+      }           
       else if(c == entrada_analogica && unidade == true){
         valor = analogicRead(A0);
         dest[0] = valor         & 0xff;
