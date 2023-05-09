@@ -98,6 +98,8 @@ void setup() {
 /*Variáveis*/
 bool unidade = false;
 int valor = 0;
+byte dest[4];
+
 
 void loop() {
   ArduinoOTA.handle();
@@ -115,9 +117,19 @@ void loop() {
       }      
       else if(c == entrada_analogica && unidade == true){
         valor = analogicRead(A0);
-        Serial.write(valor);
-        digitalWrite(led_pin, LOW);
-        delay(500);
+        dest[0] = valor         & 0xff;
+        dest[1] = (valor >> 8)  & 0xff; 
+        dest[2] = (valor >> 16)  & 0xff; 
+        dest[3] = (valor >> 24)  & 0xff; 
+        
+        Serial.write(dest[0]);
+        delay(2);
+        Serial.write(dest[1]);
+        delay(2);
+        Serial.write(dest[2]);
+        delay(2);
+        Serial.write(dest[3]);
+        delay(2);
       }
   }
 }
