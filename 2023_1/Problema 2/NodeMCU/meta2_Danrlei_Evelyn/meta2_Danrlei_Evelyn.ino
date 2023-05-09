@@ -17,7 +17,8 @@ int led_pin = LED_BUILTIN;
 int dimmer_pin[] = {14, 5, 15};
 
 /*Unidade 0*/
-#define unidade_0 0b11000001
+#define unidade_1 0b11000001
+#define todas_unidades 0b11111110
 
 /* Tabela de REQUISICAO*/
 #define situacao_sensor  0b00000001
@@ -90,7 +91,13 @@ void setup() {
   /* setup the OTA server */
   ArduinoOTA.begin();
   //Serial.println("Tudo pronto.");
+
+
 }
+
+/*Variáveis*/
+bool unidade = false;
+int valor = 0;
 
 void loop() {
   ArduinoOTA.handle();
@@ -98,10 +105,19 @@ void loop() {
   digitalWrite(led_pin, HIGH);
   if(Serial.available() > 0) { // Verifica se tem algo sendo recebido
       char c = Serial.read(); //Lê o pino RX
-      if(c == acende_led){
-        Serial.write("Chegou");
+      if (c == unidade_1 || c == todas_unidades ){
+        unidade = true;
+      }        
+      else if(c == acende_led && unidade == true){
+        Serial.write("Led On!");
         digitalWrite(led_pin, LOW);
-        delay(5000);
+        delay(500);
+      }      
+      else if(c == entrada_analogica && unidade == true){
+        valor = analogicRead(A0);
+        Serial.write(valor);
+        digitalWrite(led_pin, LOW);
+        delay(500);
       }
   }
 }

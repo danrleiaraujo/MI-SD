@@ -10,38 +10,38 @@
 
 /*-------------------------MACROS--------------------*/
 /* Tabela de selecao de unidade*/
-#define unidade_0 0b11000001
-#define unidade_1 0b11000010
-#define unidade_2 0b11000011
-#define unidade_3 0b11000100
-#define unidade_4 0b11000101
-#define unidade_5 0b11000110
-#define unidade_6 0b11000111
-#define unidade_7 0b11001000
-#define unidade_8 0b11001001
-#define unidade_9 0b11001010
-#define unidade_10 0b11001011
-#define unidade_11 0b11001100
-#define unidade_12 0b11001101
-#define unidade_13 0b11001110
-#define unidade_14 0b11001111
-#define unidade_15 0b11010000
-#define unidade_16 0b11010001
-#define unidade_17 0b11010010
-#define unidade_18 0b11010011
-#define unidade_19 0b11010100
-#define unidade_20 0b11010101
-#define unidade_21 0b11010110
-#define unidade_22 0b11010111
-#define unidade_23 0b11011000
-#define unidade_24 0b11011001
-#define unidade_25 0b11011010
-#define unidade_26 0b11011011
-#define unidade_27 0b11011100
-#define unidade_28 0b11011101
-#define unidade_29 0b11011110
-#define unidade_30 0b11011111
-#define unidade_31 0b11100000
+#define unidade_1 0b11000001
+#define unidade_2 0b11000010
+#define unidade_3 0b11000011
+#define unidade_4 0b11000100
+#define unidade_5 0b11000101
+#define unidade_6 0b11000110
+#define unidade_7 0b11000111
+#define unidade_8 0b11001000
+#define unidade_9 0b11001001
+#define unidade_10 0b11001010
+#define unidade_11 0b11001011
+#define unidade_12 0b11001100
+#define unidade_13 0b11001101
+#define unidade_14 0b11001110
+#define unidade_15 0b11001111
+#define unidade_16 0b11010000
+#define unidade_17 0b11010001
+#define unidade_18 0b11010010
+#define unidade_19 0b11010011
+#define unidade_20 0b11010100
+#define unidade_21 0b11010101
+#define unidade_22 0b11010110
+#define unidade_23 0b11010111
+#define unidade_24 0b11011000
+#define unidade_25 0b11011001
+#define unidade_26 0b11011010
+#define unidade_27 0b11011011
+#define unidade_28 0b11011100
+#define unidade_29 0b11011101
+#define unidade_30 0b11011110
+#define unidade_31 0b11011111
+#define unidade_32 0b11100000
 #define todas_unidades 0b11111110
 
 /* Tabela de REQUISICAO*/
@@ -125,7 +125,7 @@ int main(){
     
     /*============================== Variaveis =================================*/
 	int valor[5] = {0,0,0,1}; //Dezena, Unidade, Dezena Futura, Unidade Futura; 
-	int op = 0, , unid = 0, int lcd; //Opcao e entradada de teclado
+	int op = 0, unid = 0, int lcd; //Opcao e entradada de teclado
 	char uniSel[16] = "Uni_Selecionada", opSel[16] = "Op_Selecionada";
 	char unidade[16]= "Unidade = ";
     char opcao0[16] = "Situacao atual", opcao1[16]="Valor Analogic"; 
@@ -150,7 +150,7 @@ int main(){
 
 		// Se nao foi selecionada uma unidade: ==============================================================
 		if(unidadeSelecionada == false){
-			atualizaLCD(unidade, unidade, valor); //Inicia o LCD
+			atualizaLCD(unidade, unidade, valor, lcd); //Inicia o LCD
 			// Se o botão Previous for apertado:
 			if(digitalRead(previous) == LOW){
 				previousValor(valor);
@@ -163,10 +163,10 @@ int main(){
                 unid = (valor[0]*10)+(valor[1]); //Salva o valor em uma variavel
                 d = valor[0] +'0'; // dezena em char
                 u = valor[1] +'0'; // unidade em char
-                char unidadeEscolhida[2] = {d,u};
+                char unidadeEscolhida[16] = {d,u};
                 switch(unid){
                     case 0:
-                        codigo = unidade_0;
+                        codigo = todas_unidades;
                     break;
                     case 1:
                         codigo = unidade_1;
@@ -256,17 +256,20 @@ int main(){
                         codigo = unidade_29;
                     break;
                     case 30:
-                        codigo = unidade_20;
+                        codigo = unidade_30;
                     break;
                     case 31:
-                        codigo = unidade_21;
+                        codigo = unidade_31;
                     break;
                     case 32:
-                        codigo = todas_unidades;
+                        codigo = unidade_32;
                     break;
                     default:
-                    printf("Valor invalido!\n");
+                        printf("Valor invalido!\n");
                 }
+                if(valor[0] == 0 && valor[1] == 0){
+                	strcpy(unidadeEscolhida, "->TodasUnidades");
+				}
                 printaLCD(uniSel,unidadeEscolhida, lcd);
 				unidadeSelecionada = true;
                 uartRasp(codigo);
@@ -478,6 +481,12 @@ void atualizaLCD (char fraseSup[], char fraseInf[], int valor[], int lcd){
     prox [posInf + 1] = n;
     prox [posInf + 2] = '\0';
     
+    if(valor[0] == 0 && valor[1] == 0){
+    	strcpy(selecao, "->TodasUnidades");
+	}
+	else if(valor[2] == 0 && valor[3] == 0){
+    	strcpy(prox, "TodasUnidades");
+	}
     printaLCD(selecao, prox, lcd);
 }
 
