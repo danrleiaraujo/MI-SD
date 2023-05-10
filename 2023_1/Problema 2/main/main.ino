@@ -99,6 +99,13 @@ void setup() {
 bool unidade = false;
 int valor = 0;
 byte dest[4];
+unsigned char dado_digital;
+
+
+void ler_botao(){
+  print("")
+}
+
 
 
 void loop() {
@@ -134,6 +141,62 @@ void loop() {
         delay(2);
         Serial.write(dest[3]);
         delay(2);
+      }
+      else if(c == entrada_digital_0 && unidade == true){
+        dado_digital = digitalRead(D0);             //lendo da porta digital
+        Serial.write(dado_digital);                 //enviando para o serial
+      }
+      else if(c == entrada_digital_1 && unidade == true){
+        dado_digital = digitalRead(D1);             
+        Serial.write(dado_digital);                 
+      }
+      else if(c == entrada_digital_2 && unidade == true){
+        dado_digital = digitalRead(D2);             
+        Serial.write(dado_digital);                 
+      }
+      else if(c == entrada_digital_3 && unidade == true){
+        dado_digital = digitalRead(D3);             
+        Serial.write(dado_digital);                 
+      }
+      else if(c == entrada_digital_4 && unidade == true){
+        dado_digital = digitalRead(D4);             
+        Serial.write(dado_digital);                 
+      }
+      else if(c == entrada_digital_5 && unidade == true){
+        dado_digital = digitalRead(D5);             
+        Serial.write(dado_digital);                 
+      }
+      else if(c == entrada_digital_6 && unidade == true){
+        dado_digital = digitalRead(D6);             
+        Serial.write(dado_digital);                 
+      }
+      else if(c == entrada_digital_7 && unidade == true){
+        dado_digital = digitalRead(D7);             
+        Serial.write(dado_digital);                 
+      }
+      else if(c == entrada_digital_8 && unidade == true){
+        dado_digital = digitalRead(D8);             
+        Serial.write(dado_digital);                 
+      }
+      else if(c == entrada_digital_9 && unidade == true){
+        dado_digital = digitalRead(D9);             
+        Serial.write(dado_digital);                 
+      }
+      else if(c == entrada_digital_10 && unidade == true){
+        dado_digital = digitalRead(D10);             
+        Serial.write(dado_digital);                 
+      }
+      else if(c == entrada_digital_11 && unidade == true){
+        dado_digital = digitalRead(D11);             
+        Serial.write(dado_digital);                 
+      }
+      else if(c == entrada_digital_12 && unidade == true){
+        dado_digital = digitalRead(D12);             
+        Serial.write(dado_digital);                 
+      }
+      else if(c == entrada_digital_13 && unidade == true){
+        dado_digital = digitalRead(D13);             
+        Serial.write(dado_digital);                 
       }
   }
 }
