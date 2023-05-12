@@ -101,10 +101,10 @@
 /*--------------------------Funções--------------------*/
 void printaLCD(char linhaSup[], char linhaInf[], int lcd); //printa o lcd
 void printaLCDInt(char linhaSup[], int valorAnalog, int lcd); //printa o lcd
-void writeUart (int uart0_filestream, unsigned char dado);
-unsigned char readUart (int uart0_filestream);
+void writeUart (unsigned char dado);
+void readUart (unsigned resposta[]);
 void atualizaLCD (char fraseSup[], char fraseInf[], int lcd);
-void atualizaLCD (char fraseSup[], char fraseInf[], int valor[], int lcd);
+void atualizaLCDVetor (char fraseSup[], char fraseInf[], int valor[], int lcd);
 void nextValor(int v[]);
 void previousValor(int v[]);
 
@@ -127,49 +127,21 @@ int main(){
     
     /*============================== Variaveis =================================*/
 	int valor[5] = {0,0,0,1}; //Dezena, Unidade, Dezena Futura, Unidade Futura; 
-	int op = 0, unid = 0, lcd, valorAnalog = 0; //Opcao e entradada de teclado
-	char uniSel[16] = "Uni_Selecionada", opSel[16] = "Op_Selecionada";
+	int op = 0, op2 = 0, unid = 0, lcd, valorAnalog = 0; //Opcao e entradada de teclado
+	char uniSel[16] = "UniSelecionada", opSel[16] = "OpSelecionada";
 	char unidade[16]= "Unidade = ";
-    char opcao0[16] = "Situacao atual", opcao1[16]="Valor Analogic"; 
-    char opcao2[16] = "Valor Digital", opcao3[16] ="AcendimentoLed";
-    char digital[16] = "Digital = ", u, d;
-    unsigned char codigo, resposta[100], dest[4];
-    bool unidadeSelecionada = false, opcaoSelecionada = false; 
+    char opcao0[16] = "Situacaoatual", opcao1[16]="ValorAnalogic"; 
+    char opcao2[16] = "ValorDigital", opcao3[16] ="Acende_Led";
+    char u, d;
+    unsigned resposta[100];
+    unsigned char codigo, dest[4];
+    int unidadeSelecionada = 0, opcaoSelecionada = 0; 
 	/*==================================================================================*/
     
     /*============================== INICIA LCD =================================*/
     lcd = lcdInit (2, 16, 4, LCD_RS, LCD_E, LCD_D4, LCD_D5, LCD_D6, LCD_D7, 0, 0, 0, 0);
 	/*==================================================================================*/
-    /*============================== INICIA UART =================================*/
-    int uart0_filestream = -1; //Retorno de erro da função Open - 
-
-    //Para o open usaremos a uart 3: /dev/ttyS3
-    uart0_filestream = open("/dev/ttyS3", O_RDWR | O_NOCTTY | O_NDELAY);  
-    /*
-        FLAGS:
-        O_RDWR -> Lê e escreve
-        O_NOCTTY -> Identifica o dispositivo como dispositivo de terminal
-        O_NDELAY -> Sem delay, para acesso imediato
-    */
-
-    if (uart0_filestream == -1){ //Verifica se deu erro na abertura da UART
-        printf("Erro na abertura da UART\n");
-    }
-    else{
-        printf("Abertura do arquivo ttyS3 com êxito");
-    }
-
-    /* Configuração da uart*/
-    struct termios options;
-    tcgetattr(uart0_filestream, &options);
-    options.c_cflag = B9600 | CS8 | CLOCAL | CREAD; //BaudRate, tamanho da palavra (CSIZE) -> 9600 8-N-1
-    options.c_iflag = IGNPAR; //ignora a paridade
-    options.c_oflag = 0;
-    options.c_lflag = 0;
-    tcflush(uart0_filestream, TCIFLUSH);
-    tcsetattr(uart0_filestream, TCSANOW, &options);
-	/*==================================================================================*/
-
+   
     /*============================== BEM VINDO =================================*/
     printaLCD("Menu-TEC499-P2", "Escolha a Opcao:", lcd);    // imprime estado do LED]
     delay(2000);
@@ -178,14 +150,14 @@ int main(){
 
     /*============================== PROGRAMA PRINCIPAL =================================*/
     while(1){
-
 		// Se nao foi selecionada uma unidade: ==============================================================
-		if(unidadeSelecionada == false){
-			atualizaLCD(unidade, unidade, valor, lcd); //Inicia o LCD
+		if(unidadeSelecionada == 0){
+			atualizaLCDVetor(unidade, unidade, valor, lcd); //Inicia o LCD
 			// Se o botão Previous for apertado:
 			if(digitalRead(previous) == LOW){
 				previousValor(valor); //Função para valor anterior
-                delay(500); //tempo para tirar o dedo do botão
+                delay(300); //tempo para tirar o dedo do botão
+                lcdClear(lcd); //Limpa o lcd
 			}
 			//==========================================
 			// Se o botão Enter for apertado:
@@ -304,188 +276,205 @@ int main(){
                 	strcpy(unidadeEscolhida, "->TodasUnidades");
 				}
                 printaLCD(uniSel,unidadeEscolhida, lcd);
-				unidadeSelecionada = true;
+				unidadeSelecionada = 1;
                 /* Manda código*/
-                writeUart(uart0_filestream, codigo);
+                writeUart(codigo);
                 delay(2); // Tempo minimo para recepcao
                 
                 /*Recebe codigo*/
-                resposta = readUart(uart0_filestream);
-                printaLCD("Resposta_node:", resposta, lcd);
-                delay(500);
+                readUart(resposta);
+                lcdClear(lcd); //Limpa o lcd
+                printaLCDInt("Resposta_node:", resposta, lcd);
+                delay(1000);
 			}
 			//==========================================
 			// Se o botão Next for apertado:
 			else if(digitalRead(next) == LOW){
 				nextValor(valor);
-                delay(500);
+                lcdClear(lcd); //Limpa o lcd
+                delay(300); //tempo para tirar o dedo do botão
 			}
 			//==========================================
 		}
 		/*====================== Caso uma unidade tenha sido selecionada: ======================================*/
-		else if(unidadeSelecionada == true && opcaoSelecionada == false){
-            lcdClear(lcd);
+		else if(unidadeSelecionada == 1 && opcaoSelecionada == 0){
 			//Primeira opcao = Situacao atual
 			if(op == 0){
-				atualizaLCD(opcao0, opcao1);
+				atualizaLCD(opcao0, opcao1, lcd);
 				// Se o botão Previous for apertado:	
 				if(digitalRead(previous) == LOW){ 
 					op = 3;
-                    delay(500); //tempo para tirar o dedo do botão
+                    lcdClear(lcd); //Limpa o lcd
+                    delay(300); //tempo para tirar o dedo do botão
 				}
 				/*==========================================*/
 				// Se o botão Enter for apertado:
 				else if(digitalRead(enter) == LOW){
                     printaLCD(opSel, opcao0, lcd);
-					opcaoSelecionada = true;
+					opcaoSelecionada = 1;
                     codigo = situacao_atual;
                     writeUart(codigo);
-                    delay(500);
+                    delay(1000);
 
 				}
 				/*==========================================*/
 				// Se o botão Next for apertado:
 				else if(digitalRead(next) == LOW){ 
 					op++;
-                    delay(500);
+                    lcdClear(lcd); //Limpa o lcd
+                    delay(300); //tempo para tirar o dedo do botão
 				}
 				/*==========================================*/
 			}
 			//==========================================================
 			//Segunda opcao = Valor Analogic
 			else if(op == 1){
-				atualizaLCD(opcao1, opcao2);
-				scanf("%d",&t);
-				fflush(stdin);
+				atualizaLCD(opcao1, opcao2, lcd);
 				if(digitalRead(previous) == LOW){
+                    lcdClear(lcd); //Limpa o lcd
 					op--;
+                    delay(300); //tempo para tirar o dedo do botão
 				}
 				else if(digitalRead(enter) == LOW){
                     printaLCD(opSel, opcao1, lcd);
-					opcaoSelecionada = true;
+					opcaoSelecionada = 1;
                     codigo = entrada_analogica;
-                    uartRasp(codigo);
-                    delay(500);
+                    delay(1000);
                     
                     /* Manda código*/
-                    writeUart(uart0_filestream, codigo);
+                    writeUart(codigo);
                     delay(2); // Tempo minimo para recepcao
                     
                     /*Recebe codigo*/
-                    dest[0] = readUart(uart0_filestream);
+                    readUart(resposta);
+                    dest[0] = resposta;
                     delay(2);
                     
-                    dest[1] = readUart(uart0_filestream);
+                    readUart(resposta);
+                    dest[1] = resposta;
                     delay(2);
                     
-                    dest[2] = readUart(uart0_filestream);
+                    readUart( resposta);
+                    dest[2] = resposta;
                     delay(2);
                     
-                    dest[3] = readUart(uart0_filestream);
+                    readUart(resposta);
+                    dest[3] = resposta;
 
-                    //
                     valorAnalog = (dest[3] << 24) + (dest[2] << 16) + (dest[1] << 8) + dest[0];
-
+                    
+                    lcdClear(lcd); //Limpa o lcd
                     printaLCDInt("Resposta_node:", valorAnalog, lcd);
+                    printf("Resposta_node: %d\n", valorAnalog);
+                    delay(2000);
 				}
 				else if(digitalRead(next) == LOW){ 
 					op++;
+                    lcdClear(lcd); //Limpa o lcd
 				}
                 delay(500);
 			}
 			//==========================================================
 			//Terceira opcao = Valor Digital
 			else if(op == 2){
-				atualizaLCD(opcao2, opcao3);
-				scanf("%d",&t);
-				fflush(stdin);				
+				atualizaLCD(opcao2, opcao3, lcd);
 				if(digitalRead(previous) == LOW){
 					op--;
-                    delay(500);
+                    lcdClear(lcd); //Limpa o lcd
+                    delay(300); //tempo para tirar o dedo do botão
 				}
 				else if(digitalRead(enter) == LOW){
                     printaLCD(opSel, opcao2, lcd);
                     delay(1000);
-					opcaoSelecionada = true;
+					opcaoSelecionada = 1;
                     codigo = entrada_digital_0;
                     /* Manda código*/
-                    writeUart(uart0_filestream, codigo);
+                    writeUart(codigo);
                     delay(2); // Tempo minimo para recepcao
                     
                     /*Recebe codigo*/
-                    resposta = readUart(uart0_filestream);
+                    readUart(resposta);
+                    lcdClear(lcd); //Limpa o lcd
                     printaLCD("Resposta_node:", resposta, lcd);
-                    delay(500);
+                    delay(2000);
 				}
 				else if(digitalRead(next) == LOW){ 
 					op++;
-                    delay(500);
+                    lcdClear(lcd); //Limpa o lcd
+                    delay(300); //tempo para tirar o dedo do botão
 				}
 			}
 			//==========================================================
 			//Quarta opcao = AcendimentoLed
 			else if(op == 3){
-				atualizaLCD(opcao3, opcao0);
-				scanf("%d",&t);
-				fflush(stdin);				
+				atualizaLCD(opcao3, opcao0, lcd);	
 				if(digitalRead(previous) == LOW){
 					op--;
-                    delay(500);
+                    lcdClear(lcd); //Limpa o lcd
+                    delay(300); //tempo para tirar o dedo do botão
 				}
 				else if(digitalRead(enter) == LOW){
                     printaLCD(opSel, opcao3, lcd);
-                    delay(1000);
-					opcaoSelecionada = true;
+                    delay(500);
+					opcaoSelecionada = 1;
                     codigo = acende_led;
                     /* Manda código*/
-                    writeUart(uart0_filestream, codigo);
+                    writeUart(codigo);
                     delay(2); // Tempo minimo para recepcao
-                    
                     /*Recebe codigo*/
-                    resposta = readUart(uart0_filestream);
-                    printaLCD("Resposta_node:", resposta, lcd);
-                    delay(500);
+                    readUart(resposta);
+                    lcdClear(lcd); //Limpa o lcd
+                    printaLCDInt("Resposta_node:", resposta, lcd);
+                    printf("%s",resposta);
+                    delay(2000);
 				}
 				else if(digitalRead(next) == LOW){ 
 					op = 0;
-                    delay(500);
+                    lcdClear(lcd); //Limpa o lcd
+                    delay(300); //tempo para tirar o dedo do botão
 				}
 			}
 			//==========================================================
 		}
         //=============== Em caso de Já ter mandado uma requisição a uma unidade ============================
-        else if(unidadeSelecionada == true && opcaoSelecionada == true){
-            op = 0;
-            if(op == 0){ 
+        else if(unidadeSelecionada == 1 && opcaoSelecionada == 1){
+            if(op2 == 0){ 
                 printaLCD("->Outra Unid.", "Nova Requisicao", lcd);            
                 if(digitalRead(enter) == LOW){
-                    opcaoSelecionada = false;
-                    unidadeSelecionada =false;
-                    delay(500);
+                    opcaoSelecionada = 0;
+                    unidadeSelecionada =0;
+                    delay(300); //tempo para tirar o dedo do botão
                 }
                 else if(digitalRead(previous) == LOW){
-                    op ++;
+                    op2 ++;
+                    lcdClear(lcd); //Limpa o lcd
+                    delay(300); //tempo para tirar o dedo do botão
                 }
                 else if(digitalRead(next) == LOW){
-                    op ++;
+                    op2 ++;
+                    lcdClear(lcd); //Limpa o lcd
+                    delay(300); //tempo para tirar o dedo do botão
                 }
             }
-            else if(op == 1){
-                printaLCD("->Requisicao", "->Outra Unid.", lcd);
+            else if(op2 == 1){
+                printaLCD("->Requisicao", "Outra Unid.", lcd);
                 if(digitalRead(enter) == LOW){
-                    opcaoSelecionada = false;
-                    delay(500);
+                    opcaoSelecionada = 0;
+                    delay(300);
                 }
                 else if(digitalRead(previous) == LOW){
-                    op --;
+                    op2 --;
+                    lcdClear(lcd); //Limpa o lcd
+                    delay(300); //tempo para tirar o dedo do botão
                 }
                 else if(digitalRead(next) == LOW){
-                    op --;
+                    op2 --;
+                    lcdClear(lcd); //Limpa o lcd
+                    delay(300); //tempo para tirar o dedo do botão
                 }
             }
         }
     }
-    close(uart0_filestream);
     return 0;
 }
 //===================================================================================================
@@ -509,7 +498,35 @@ void printaLCDInt(char dadoSup[],int valorAnalog, int lcd){ //ImpressÃ£o no lc
 }
 //==========================================================
 /* Função pra Escrever na UART */
-void writeUart (int uart0_filestream, unsigned char dado){
+void writeUart (unsigned char dado){
+    int uart0_filestream = -1; //Retorno de erro da função Open - 
+
+    //Para o open usaremos a uart 3: /dev/ttyS3
+    uart0_filestream = open("/dev/ttyS3", O_RDWR | O_NOCTTY | O_NDELAY);  
+    /*
+        FLAGS:
+        O_RDWR -> Lê e escreve
+        O_NOCTTY -> Identifica o dispositivo como dispositivo de terminal
+        O_NDELAY -> Sem delay, para acesso imediato
+    */
+
+    if (uart0_filestream == -1){ //Verifica se deu erro na abertura da UART
+        printf("Erro na abertura da UART\n");
+    }
+    else{
+        printf("Abertura do arquivo ttyS3 com êxito");
+    }
+
+    /* Configuração da uart*/
+    struct termios options;
+    tcgetattr(uart0_filestream, &options);
+    options.c_cflag = B9600 | CS8 | CLOCAL | CREAD; //BaudRate, tamanho da palavra (CSIZE) -> 9600 8-N-1
+    options.c_iflag = IGNPAR; //ignora a paridade
+    options.c_oflag = 0;
+    options.c_lflag = 0;
+    tcflush(uart0_filestream, TCIFLUSH);
+    tcsetattr(uart0_filestream, TCSANOW, &options);
+
     unsigned char tx_buffer[10];
     unsigned char *p_tx_buffer;
 
@@ -523,35 +540,60 @@ void writeUart (int uart0_filestream, unsigned char dado){
     if(count<0){
         printf("Erro no envio de dados - TX\n"); 
     }
-    printf("%d",count);
+    printf("%d\n",count);
+    close(uart0_filestream);
 }
 //==========================================================
 /* Função pra Ler a UART */
-unsigned char readUart(int uart0_filestream){
-    // Recebimento do RX - Uart
-    unsigned rx_buffer [100];
-    int rx_length =0 ;
-     while (rx_length <1){
-        rx_length = read (uart0_filestream, (void*) rx_buffer, 100);
-        if(rx_length <0){
-        }
-        else if (rx_length == 0){
-            printf("Nenhum dado disponível\n");
-        }
-        else{
-            rx_buffer[rx_length] = '\0';
-        }
+void readUart(unsigned rx_buffer[]){
+    int uart0_filestream = -1; //Retorno de erro da função Open - 
+
+    //Para o open usaremos a uart 3: /dev/ttyS3
+    uart0_filestream = open("/dev/ttyS3", O_RDWR | O_NOCTTY | O_NDELAY);  
+    /*
+        FLAGS:
+        O_RDWR -> Lê e escreve
+        O_NOCTTY -> Identifica o dispositivo como dispositivo de terminal
+        O_NDELAY -> Sem delay, para acesso imediato
+    */
+
+    if (uart0_filestream == -1){ //Verifica se deu erro na abertura da UART
+        printf("Erro na abertura da UART\n");
     }
-    return rx_buffer;
+    else{
+        printf("Abertura do arquivo ttyS3 com êxito");
+    }
+
+    /* Configuração da uart*/
+    struct termios options;
+    tcgetattr(uart0_filestream, &options);
+    options.c_cflag = B9600 | CS8 | CLOCAL | CREAD; //BaudRate, tamanho da palavra (CSIZE) -> 9600 8-N-1
+    options.c_iflag = IGNPAR; //ignora a paridade
+    options.c_oflag = 0;
+    options.c_lflag = 0;
+    tcflush(uart0_filestream, TCIFLUSH);
+    tcsetattr(uart0_filestream, TCSANOW, &options);
+
+    // Recebimento do RX - Uart
+    int rx_length =0 ;
+
+    rx_length = read (uart0_filestream, (void*) rx_buffer, 100);
+    if(rx_length <0){
+    }
+    else if (rx_length == 0){
+        printf("Nenhum dado disponível\n");
+    }
+    else{
+        rx_buffer[rx_length] = '\0';
+    }
+    printf("0x%x\n",rx_buffer);
+    close(uart0_filestream);
 }
 //==========================================================
 /*Função para colocar a chave de seleção*/
 void atualizaLCD (char fraseSup[], char fraseInf[], int lcd){
 	// Variaveis auxiliares
-	int posSup = 0, posInf = 0;
-	char k, l, m, n;
 	char selecao[16] = "->", prox[16];
-	int tamanho = 0;
 	
 	//Adiciona a seta na parte de selecao
 	strcat(selecao,fraseSup);
@@ -561,12 +603,11 @@ void atualizaLCD (char fraseSup[], char fraseInf[], int lcd){
 }
 //==========================================================
 /*Função para colocar a chave de seleção antes da unidade e acrescentar o valor da unidade no fim da linha*/
-void atualizaLCD (char fraseSup[], char fraseInf[], int valor[], int lcd){
+void atualizaLCDVetor (char fraseSup[], char fraseInf[], int valor[], int lcd){
 	// Variaveis auxiliares
 	int posSup = 0, posInf = 0;
 	char k, l, m, n;
 	char selecao[16] = "->", prox[16];
-	int tamanho = 0;
 	
 	//Adiciona a seta na parte de selecao
 	strcat(selecao,fraseSup);
