@@ -349,7 +349,6 @@ int main(){
                     codigo = situacao_atual;
                     writeUart(uart0_filestream,codigo);
                     delay(1000);
-
 				}
 				/*==========================================*/
 				// Se o botão Next for apertado:
@@ -404,8 +403,8 @@ int main(){
 				else if(digitalRead(next) == LOW){ 
 					op++;
                     lcdClear(lcd); //Limpa o lcd
+                    delay(500);
 				}
-                delay(500);
 			}
 			//==========================================================
 			//Terceira opcao = Valor Digital
@@ -473,7 +472,8 @@ int main(){
         //=============== Em caso de Já ter mandado uma requisição a uma unidade ============================
         else if(unidadeSelecionada == 1 && opcaoSelecionada == 1){
             if(op2 == 0){ 
-                printaLCD("->Outra Unid.", "Nova Requisicao", lcd);            
+                printaLCD("->Outra Unid.", "Nova Requisicao", lcd);  
+                // Se selecionado, as variaveis resetam e volta pro menu de unidades          
                 if(digitalRead(enter) == LOW){
                     opcaoSelecionada = 0;
                     unidadeSelecionada =0;
@@ -492,6 +492,7 @@ int main(){
             }
             else if(op2 == 1){
                 printaLCD("->Requisicao", "Outra Unid.", lcd);
+                // Se selecionado, só a variavel de opcao eh resetada, voltando pro menu de requisicoes
                 if(digitalRead(enter) == LOW){
                     opcaoSelecionada = 0;
                     delay(300);
@@ -508,6 +509,7 @@ int main(){
                 }
             }
         }
+        /*================================FALTA BLOCO DE MONITORAMENTO========================*/
     }
     close(uart0_filestream);
     return 0;

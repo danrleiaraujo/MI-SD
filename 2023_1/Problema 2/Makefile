@@ -16,4 +16,4 @@ main: main.o
 	$Q $(CC) -o $@ main.o $(LDFLAGS) $(LDLIBS)
 
 clean:
-	rm *.o
+	rm *.o main
