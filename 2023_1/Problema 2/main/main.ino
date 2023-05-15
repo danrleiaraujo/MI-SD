@@ -10,7 +10,7 @@
 
 const char* ssid = STASSID;
 const char* password = STAPSK;
-const char* host = "ESP-10.0.0.107";
+const char* host = "ESP-10.0.0.108";
 
 int led_pin = LED_BUILTIN;
 #define N_DIMMERS 3
@@ -108,7 +108,7 @@ void loop() {
   opcao = false;
   if(Serial.available() > 0) { // Verifica se tem algo sendo recebido
     char c = Serial.read(); //Lê o pino RX
-    if (c == unidade_1  && unidade == false){
+    if (c == unidadeAtual  && unidade == false){
       Serial.write(unidadeAtual);
       unidade = true;
       delay(500); 
@@ -118,75 +118,78 @@ void loop() {
       unidade = true;
       delay(500); 
     }   
-    else if(c == acende_led && unidade == true && digitalRead(led_pin) == HIGH){
-      Serial.write(1);
-      digitalWrite(led_pin, LOW);
-      delay(500); 
-    }        
-    else if(c == acende_led && unidade == true && digitalRead(led_pin) == LOW){
-      Serial.write(0);
-      digitalWrite(led_pin, HIGH);
-      delay(500);
-    }           
-    else if(c == entrada_analogica && unidade == true){
-      valor = analogRead(A0);
-      dest[0] = valor         & 0xff;
-      dest[1] = (valor >> 8)  & 0xff; 
-      dest[2] = (valor >> 16)  & 0xff; 
-      dest[3] = (valor >> 24)  & 0xff; 
-      
-      Serial.write(dest[0]);
-      delay(2);
-      Serial.write(dest[1]);
-      delay(2);
-      Serial.write(dest[2]);
-      delay(2);
-      Serial.write(dest[3]);
-      delay(2);
+    if (unidade == true){
+       if(c == acende_led && unidade == true && digitalRead(led_pin) == HIGH){
+        Serial.write(1);
+        digitalWrite(led_pin, LOW);
+        delay(500); 
+      }        
+      else if(c == acende_led && unidade == true && digitalRead(led_pin) == LOW){
+        Serial.write(0);
+        digitalWrite(led_pin, HIGH);
+        delay(500);
+      }           
+      else if(c == entrada_analogica && unidade == true){
+        valor = analogRead(A0);
+        dest[0] = valor         & 0xff;
+        dest[1] = (valor >> 8)  & 0xff; 
+        dest[2] = (valor >> 16)  & 0xff; 
+        dest[3] = (valor >> 24)  & 0xff; 
+        
+        Serial.write(dest[0]);
+        delay(2);
+        Serial.write(dest[1]);
+        delay(2);
+        Serial.write(dest[2]);
+        delay(2);
+        Serial.write(dest[3]);
+        delay(2);
+      }
+      else if(c == entrada_digital_0 && unidade == true){
+        dado_digital = digitalRead(D0);             //lendo da porta digital
+        Serial.write(dado_digital);                 //enviando para o serial
+      }
+      else if(c == entrada_digital_1 && unidade == true){
+        dado_digital = digitalRead(D1);             
+        Serial.write(dado_digital);                 
+      }
+      else if(c == entrada_digital_2 && unidade == true){
+        dado_digital = digitalRead(D2);             
+        Serial.write(dado_digital);                 
+      }
+      else if(c == entrada_digital_3 && unidade == true){
+        dado_digital = digitalRead(D3);             
+        Serial.write(dado_digital);                 
+      }
+      else if(c == entrada_digital_4 && unidade == true){
+        dado_digital = digitalRead(D4);             
+        Serial.write(dado_digital);               
+      }
+      else if(c == entrada_digital_5 && unidade == true){
+        dado_digital = digitalRead(D5);             
+        Serial.write(dado_digital);              
+      }
+      else if(c == entrada_digital_6 && unidade == true){
+        dado_digital = digitalRead(D6);             
+        Serial.write(dado_digital);          
+      }
+      else if(c == entrada_digital_7 && unidade == true){
+        dado_digital = digitalRead(D7);             
+        Serial.write(dado_digital);         
+      }
+      else if(c == entrada_digital_8 && unidade == true){
+        dado_digital = digitalRead(D8);             
+        Serial.write(dado_digital);        
+      }
+      else if(c == entrada_digital_9 && unidade == true){
+        dado_digital = digitalRead(D9);             
+        Serial.write(dado_digital);          
+      }
+      else if(c == entrada_digital_10 && unidade == true){
+        dado_digital = digitalRead(D10);             
+        Serial.write(dado_digital);          
+      }
     }
-    else if(c == entrada_digital_0 && unidade == true){
-      dado_digital = digitalRead(D0);             //lendo da porta digital
-      Serial.write(dado_digital);                 //enviando para o serial
-    }
-    else if(c == entrada_digital_1 && unidade == true){
-      dado_digital = digitalRead(D1);             
-      Serial.write(dado_digital);                 
-    }
-    else if(c == entrada_digital_2 && unidade == true){
-      dado_digital = digitalRead(D2);             
-      Serial.write(dado_digital);                 
-    }
-    else if(c == entrada_digital_3 && unidade == true){
-      dado_digital = digitalRead(D3);             
-      Serial.write(dado_digital);                 
-    }
-    else if(c == entrada_digital_4 && unidade == true){
-      dado_digital = digitalRead(D4);             
-      Serial.write(dado_digital);               
-    }
-    else if(c == entrada_digital_5 && unidade == true){
-      dado_digital = digitalRead(D5);             
-      Serial.write(dado_digital);              
-    }
-    else if(c == entrada_digital_6 && unidade == true){
-      dado_digital = digitalRead(D6);             
-      Serial.write(dado_digital);          
-    }
-    else if(c == entrada_digital_7 && unidade == true){
-      dado_digital = digitalRead(D7);             
-      Serial.write(dado_digital);         
-    }
-    else if(c == entrada_digital_8 && unidade == true){
-      dado_digital = digitalRead(D8);             
-      Serial.write(dado_digital);        
-    }
-    else if(c == entrada_digital_9 && unidade == true){
-      dado_digital = digitalRead(D9);             
-      Serial.write(dado_digital);          
-    }
-    else if(c == entrada_digital_10 && unidade == true){
-      dado_digital = digitalRead(D10);             
-      Serial.write(dado_digital);          
-    }
+
   }
 }

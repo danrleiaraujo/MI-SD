@@ -5,22 +5,6 @@
 #include <termios.h> // A biblioteca contém as definições usadas pelas interfaces de E/S do terminal 
 #include <time.h>
 
-/*
-    Arquivo para testar em looping back a UART da SBC
-*/
-
-void delay(float number_of_seconds){
-    // Converting time into milli_seconds
-    int milli_seconds = 1000 * number_of_seconds;
-  
-    // Storing start time
-    clock_t start_time = clock();
-  
-    // looping till required time is not achieved
-    while (clock() < start_time + milli_seconds)
-        ;
-}
-
 void uartRasp (unsigned char dado){
 
     int uart0_filestream = -1; //Retorno de erro da função Open - 
@@ -65,10 +49,10 @@ void uartRasp (unsigned char dado){
     }
     printf("%d",count);
 
-    delay(1);
+    delay(2);
 
     // Recebimento do RX - Uart
-    unsigned rx_buffer [100];
+    unsigned  char rx_buffer [100];
     int rx_length =0 ;
      while (rx_length <1){
         rx_length = read (uart0_filestream, (void*) rx_buffer, 100);
@@ -90,7 +74,7 @@ void uartRasp (unsigned char dado){
 int main() {
 
     unsigned char b;
-    b = 0b00100001;
+    b = 0b01000010;
     //while (1){
         uartRasp(b);
     //}
