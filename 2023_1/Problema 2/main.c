@@ -163,8 +163,8 @@ int main(){
     options.c_iflag = IGNPAR; //ignora a paridade
     options.c_oflag = 0;
     options.c_lflag = 0;
-    tcflush(uart0_filestream, TCIFLUSH);
-    tcsetattr(uart0_filestream, TCSANOW, &options);
+    tcflush(uart0_filestream, TCIFLUSH); // Limpeza de dados recebidos e não lidos pela serial
+    tcsetattr(uart0_filestream, TCSANOW, &options); // Faz com que seja feita as mudancas de imediato
 
     /*============================== INICIA LCD =================================*/
     lcd = lcdInit (2, 16, 4, LCD_RS, LCD_E, LCD_D4, LCD_D5, LCD_D6, LCD_D7, 0, 0, 0, 0);
@@ -191,10 +191,11 @@ int main(){
 			// Se o botão Enter for apertado:
 			else if(digitalRead(enter) == LOW){
                 lcdClear(lcd); //Limpa o lcd
+
                 unid = (valor[0]*10)+(valor[1]); //Salva o valor em uma variavel
                 d = valor[0] +'0'; // dezena em char
                 u = valor[1] +'0'; // unidade em char
-                char unidadeEscolhida[16] = {d,u};
+                char unidadeEscolhida[16] = {d,u}; // Valor da unidade escolhida em char
                 
                 // Case com a unidade escolhida:
                 switch(unid){
@@ -297,36 +298,38 @@ int main(){
                     case 32:
                         codigo = unidade_32;
                     break;
-                    default:
-                        printf("Valor invalido!\n");
                 }
+
+                /*Se a unidade selecionada for 00, vai para todas unidades*/
                 if(valor[0] == 0 && valor[1] == 0){
                 	strcpy(unidadeEscolhida, "->TodasUnidades");
 				}
-                printaLCD(uniSel,unidadeEscolhida, lcd);
-                delay(500);
-				unidadeSelecionada = 1;
-                /* Manda código*/
-                writeUart(uart0_filestream,codigo);
-                delay(4); // Tempo minimo para recepcao
 
-                //respostaC = strtol(resposta[0], NULL, 10);
+                /* Mostra na LCD a unidade selecionada*/
+                printaLCD(uniSel,unidadeEscolhida, lcd);
+                delay(1000);
+
+                /* Manda código*/
+                writeUart(uart0_filestream, codigo);
+
+                delay(4); // Tempo minimo para retorno
+
                 /*Recebe codigo*/
-                readUart(uart0_filestream,resposta);
+                readUart(uart0_filestream, resposta);
+
                 lcdClear(lcd); //Limpa o lcd
-                printf("%d \n", respostaC);
-                respostaC =resposta[0] + '0';
-                printf("0x%x 0x%x 0x%x\n", resposta[0], resposta[1], resposta[2]);
-                printf("%d \n", respostaC);
-                printaLCDInt("Resposta_node:", respostaC, lcd);
+
+
+                /*Mostra resposta da node:*/
+                printaLCDHexa("Resposta_node:", resposta[0], lcd);
                 delay(1000);
 			}
 			//==========================================
 			// Se o botão Next for apertado:
 			else if(digitalRead(next) == LOW){
 				nextValor(valor);
-                lcdClear(lcd); //Limpa o lcd
                 delay(300); //tempo para tirar o dedo do botão
+                lcdClear(lcd); //Limpa o lcd
 			}
 			//==========================================
 		}
@@ -524,15 +527,15 @@ void printaLCD(char dadoSup[],char dadoInf[], int lcd){ //ImpressÃ£o no lcd
     lcdPosition(lcd, 0, 1);//Seleciona a linha inferior;
     lcdPrintf(lcd, "%s", dadoInf);
 }
-/* Função para mostrar String na LCD */
+//==========================================================
+/* Função para mostrar Hexadecimal na LCD */
 void printaLCDHexa(char dadoSup[],char dadoInf, int lcd){ //ImpressÃ£o no lcd
     lcdPosition(lcd, 0, 0); //Seleciona a linha superior;
     lcdPrintf(lcd, "%s", dadoSup);
 
     lcdPosition(lcd, 0, 1);//Seleciona a linha inferior;
-    lcdPrintf(lcd, "0x%x", dadoInf);
+    lcdPrintf(lcd, "Codigo: 0x%x", dadoInf);
 }
-//==========================================================
 //==========================================================
 /* Função para mostrar na int LCD -> Funciona como um printf */
 void printaLCDInt(char dadoSup[],int valorAnalog, int lcd){ //ImpressÃ£o no lcd
@@ -563,7 +566,7 @@ void writeUart (int uart0_filestream, unsigned char dado){
 //==========================================================
 /* Função pra Ler a UART */
 void readUart(int uart0_filestream, unsigned char rx_buffer[]){
-
+    tcflush(uart0_filestream, TCIFLUSH); // Flag TCIFLUSH – Libera/Descarta dados recebidos, mas não lidos
     // Recebimento do RX - Uart
     int rx_length =0 ;
 

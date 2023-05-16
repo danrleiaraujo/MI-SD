@@ -39,6 +39,12 @@ int dimmer_pin[] = {14, 5, 15};
 #define entrada_digital_13  0b00011111
 #define acende_led  0b00100001
 
+
+#define problema  0x01
+#define funcionando  0x02
+#define resposta_Digital  0x11
+#define resposta_Analogica  0x12
+
 void setup() {
   
   /* switch on led */
@@ -101,6 +107,7 @@ bool unidade = false, opcao = false;
 int valor = 0;
 byte dest[4];
 unsigned char dado_digital, unidadeAtual = unidade_1;
+int testeSensor = 0;
 
 
 void loop() {
@@ -132,6 +139,56 @@ void loop() {
       /*======================== Desliga o LED =============================*/
       else if(c == acende_led && digitalRead(led_pin) == LOW){
         Serial.write(0);
+        digitalWrite(led_pin, HIGH);
+        delay(500);
+      } 
+      /*======================== Situação Atual =============================*/   
+      else if(c == situacao_sensor){
+        testeSensor = digitalRead(D0);
+        if(testeSensor!= HIGH || testeSensor!= LOW ){
+          Serial.write(problema);
+        }
+        testeSensor = digitalRead(D1);
+        if(testeSensor!= HIGH || testeSensor!= LOW ){
+          Serial.write(problema);
+        }
+        testeSensor = digitalRead(D2);
+        if(testeSensor!= HIGH || testeSensor!= LOW ){
+          Serial.write(problema);
+        }
+        testeSensor = digitalRead(D3);
+        if(testeSensor!= HIGH || testeSensor!= LOW ){
+          Serial.write(problema);
+        }
+        testeSensor = digitalRead(D4);
+        if(testeSensor!= HIGH || testeSensor!= LOW ){
+          Serial.write(problema);
+        }
+        testeSensor = digitalRead(D5);
+        if(testeSensor!= HIGH || testeSensor!= LOW ){
+          Serial.write(problema);
+        }
+        testeSensor = digitalRead(D6);
+        if(testeSensor!= HIGH || testeSensor!= LOW ){
+          Serial.write(problema);
+        }
+        testeSensor = digitalRead(D7);
+        if(testeSensor!= HIGH || testeSensor!= LOW ){
+          Serial.write(problema);
+        }
+        testeSensor = digitalRead(D8);
+        if(testeSensor!= HIGH || testeSensor!= LOW ){
+          Serial.write(problema);
+        }
+        testeSensor = digitalRead(D9);
+        if(testeSensor!= HIGH || testeSensor!= LOW ){
+          Serial.write(problema);
+        }
+        testeSensor = digitalRead(D10);
+        if(testeSensor!= HIGH || testeSensor!= LOW ){
+          Serial.write(problema);
+        }
+        Serial.write(funcionando);
         digitalWrite(led_pin, HIGH);
         delay(500);
       } 
