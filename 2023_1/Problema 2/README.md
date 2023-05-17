@@ -31,9 +31,9 @@
 <div id="recursos-utilizados">
 	<h1> Recursos Utilizados </h1>
 	<ul>
-        <li><a href="https://github.com/danrleiaraujo/MI-SD/blob/main/2023_1/Problema%201/Referencias/Raspberry_Pi_Assembly_Language_Programming_(Stephen_Smith)_(z-lib.org)_(2).pdf">Raspberry Pi Assembly Language Programming</a></li>
 		<li><a href="https://github.com/danrleiaraujo/MI-SD/blob/main/2023_1/Problema%201/Referencias/DataSheet%20do%20ORANGE%20PI.pdf">DataSheet do processador</a></li>
-		<li><a href="https://github.com/danrleiaraujo/MI-SD/blob/main/2023_1/Problema%201/Referencias/DataSheet%20do%20LCD.pdf">DataSheet do LCD</a> <li>
+		<li><a href="https://github.com/danrleiaraujo/MI-SD/blob/main/2023_1/Problema%201/Referencias/DataSheet%20do%20LCD.pdf">DataSheet do LCD</a></li>
+		<li><a href="https://github.com/danrleiaraujo/MI-SD/blob/110265040c0de46d0c557e626c53a32831574807/2023_1/Problema%202/Referencias/DataSheet_Esp.pdf">DataSheet do NodeMCU</a></li>
 	</ul>	
 
 
