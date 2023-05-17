@@ -33,7 +33,7 @@
 	<ul>
         <li><a href="https://github.com/danrleiaraujo/MI-SD/blob/main/2023_1/Problema%201/Referencias/Raspberry_Pi_Assembly_Language_Programming_(Stephen_Smith)_(z-lib.org)_(2).pdf">Raspberry Pi Assembly Language Programming</a></li>
 		<li><a href="https://github.com/danrleiaraujo/MI-SD/blob/main/2023_1/Problema%201/Referencias/DataSheet%20do%20ORANGE%20PI.pdf">DataSheet do processador</a></li>
-		<li><a href="https://github.com/danrleiaraujo/MI-SD/blob/main/2023_1/Problema%201/Referencias/DataSheet%20do%20LCD.pdf">DataSheet do LCD</a></li>
+		<li><a href="https://github.com/danrleiaraujo/MI-SD/blob/main/2023_1/Problema%201/Referencias/DataSheet%20do%20LCD.pdf">DataSheet do LCD</a> <li>
 	</ul>	
 
 
@@ -46,9 +46,10 @@
         <li><a>NodeMCU</a></li>
         <li><a href="https://components101.com/sites/default/files/component_datasheet/Push-Button.pdf">Button</a></li>
         <li><a href="https://www.farnell.com/datasheets/1498852.pdf">Led</a></li>
-		<li>Uma protoboard.</li>
-		<li>Um jumper para ligar a GPIO na protoboard.</li>
-		<li>Um potênciometro para regular o LCD.</li>
+		<li>Uma protoboard</li>
+		<li>Um jumper para ligar a GPIO na protoboard</li>
+		<li>Um potênciometro para regular o LCD</li>
+		<li>Sensores</li>
 	</ul>
 </div>
 
@@ -59,9 +60,22 @@
 		<li>Códigos comentados:heavy_check_mark:</li>
 		<li>Script de compilação tipo Makefile para geração do código executável :heavy_check_mark:</li>
 		<li>Documentação no READ.ME do projeto no GitHub:heavy_check_mark:</li>
-		<li>Capacidade de interligação com até 32 unidades de sensoriamento:heavy_multiplication_x:</li>
-		<li>Mecanismo de controle de status de funcionamento das unidades:heavy_multiplication_x:</li>
-		<li>Apresentação na LCD :heavy_multiplication_x:</li>
+		<li>O protótipo a ser implementado na SBC deverá atender às seguintes requisições:</li>
+			<ul>
+				<li>Capacidade de interligação com até 32 unidades de sensoriamento:heavy_check_mark:</li>
+				<li>Apenas o SBC será capaz de iniciar uma comunicação:heavy_check_mark:</li>
+				<li>Mecanismo de controle de status de funcionamento das unidades:heavy_check_mark:</li>
+			</ul>	
+		<li>O protótipo a ser implementado na NodeMCU deverá atender às seguintes restrições:</li>
+			<ul>
+				<li>O código deverá ser escrito em linguagem C:heavy_check_mark:</li>
+				<li>Deverá ser capaz de ler e interpretar comandos oriundos do SBC:heavy_check_mark:</li>
+				<li>Os comandos serão compostos por palavras de 8 bits:heavy_check_mark:</li>
+				<li>A informação medida deve ter a maior precisão possível:heavy_check_mark:</li>
+				<li>As requisições do SBC podem ser direcionadas para uma unidade específica ou a todas.:heavy_check_mark:</li>
+				<li>Apresentação na LCD :heavy_check_mark:</li>
+			</ul>
+		</ul>
 	</ul>
 </div>
 
@@ -69,10 +83,10 @@
 	<h1>Implementação</h1>
 	<p>
 		<li>
-			Para implementação do código foi utilizado a linguagem assembly.
+			Para implementação do código foi utilizado a linguagem C.
 		</li>
 	</p>
-	<h2>Para o funcionamento da led</h2>
+	<h2>Para a programação da SBC</h2>
 	<p align="justify"> 
 		Foram criados alguns arquivos com macros necessários para o acesso ao pino e a manipulação do mesmo, são eles:
 		<ul>
@@ -100,7 +114,7 @@
 			</ul>
 		</ul>
     </p>
-	<h2>Para o funcionamento do LCD:</h2>
+	<h2>Para a programação da NodeMCU:</h2>
 	<p align="justify"> 
 		Foi ultilizado o mesmo raciocínio que para acender a led, sendo assim, apenas dois arquivos são diferentes:
 		<ul>
@@ -125,29 +139,13 @@
 	<p align="justify">
 		Para a realização do problema, nossa turma teve que se basear no livro "Raspberry Pi Assembly Language Programming" do autor Stephen Smith, já que não tinha uma referência para a própria Orange PI PC Plus. Sendo assim, usamos exemplos e referências do livro com algumas modificações de endereços e offSet.
 		Para a noção de comportamento da GPIO, tivemos que ler e entender o DataSheet do processador. Para entendermos como funcionava o LCD, também tivemos que ler e entender o datasheet do mesmo.
-		<h2>Ligando a led</h2>
+		<h2>Na NodeMCU</h2>
 		<p align="justify">
-			Sabíamos que precisavamos antes de mais nada entender o comportamento dos pinos da GPIO e como configura-los da melhor forma, sendo assim, entramos em consenso em sessão que precisariamos realizar ligação de uma led que estava conectada em um dos pinos (Podendo ser tanto PA8 ou PA9 que possui lógica invertida).
-			Para isso tivemos que seguir alguns passos:
-			<ul align="justify">
-				<li>
-					Primeiro temos que conseguir o direito de leitura e escrita de arquivo, pois em linux, tudo é arquivo. Sendo assim, quando nós acessamos o pino, na verdade estamos acessando um arquivo que o linux gera para a representação do mesmo.
-				</li>
-				<li>
-					Em seguida, precisamos mapear os pinos da GPIO, que é basicamente guardar em um registrador os bits de um determinado local da memória, através do endereço dividido por 4096, que é o tamanho da páginação do mapeamento.
-				</li> 
-				<li>
-					Posteriormente temos que transformar os pinos em saída, para isso temos que acessar o endereço do GPIO com o offSet do GPIO (0x800) somado ao offSet do registador que se encontra o pino (0x04), como queremos o PA8, temos que mudar 3 bits da sequência que recebemos, que são de 2-0, mudando-os e transformando em 001.
-				</li> 
-				<li>
-					O ultimo passo é ligar e desligar o pino, para isso existe um registrador chamado PA DATA que tem como offSet 0x10, o comportamento dele é um pouco diferente, agora na sequência de bits, cada bit representa um PA, por exemplo, queremos ligar o PA8, sendo assim, temos que mudar o oitavo bit do menos significativo pro mais significativo para 1 quando queremos ligar ou 0 quando queremos desligar esse pino.
-				</li>
-			</ul>
+			texto aq
 		</p> 
-		<h2>LCD</h2>
+		<h2>Na SBC</h2>
 		<p align="justify"> 
-			Após nosso aprendizado sobre os comportamentos da GPIO, partimos então para o que realmente interessava, que era inicializar e mandar dados para o LCD. 
-			Como o LCD também estava ligado no GPIO então agora ficaria fácil, chegamos a criar macros funcionais onde muda o comportamento dos pinos conectados, deixando-os como saída, mas na parte de mandar bit deixamos a desejar.
+			texto aq
 		</p> 
 	</p>
 </div>
@@ -155,7 +153,7 @@
 <div id="conclusoes">
 	<h1>Conclusões</h1>
 	<p align="justify"> 
-	Entendemos como é o funcionamento de uma SBC em baixo nível e como devemos manipular seus registradores para ter acesso a uma determinada parte através da linguagem Assembly para a arquitetura ARMV7. Apesar do problema ser extendido e o professor ter nos dado mais prazo do que foi definido inicialmente, não conseguimos concluir nosso problema. Acreditamos que isso deu-se por conta das baixas quantidades referências, do tempo que nossa turma tinha acesso a placa para a realização de testes e por dificuldade em entendimento do DataSheet do processador principalmente na parte do OffSet. 
+	texto aq
 	</p>
 </div>
 
@@ -163,11 +161,11 @@
 
 ```bash
 # Clone este repositório
-$ git clone <https://github.com/danrleiaraujo/MI-SD/tree/main/2023_1/Problema%201>
+$ git clone <https://github.com/danrleiaraujo/MI-SD/tree/973d18d14ae7fc1250ef5ff3b43c846092dd19c7/2023_1/Problema%202>
 
-#Para o uso do led:
+#Para inicializar o SBC:
 # Acesse a pasta do projeto no terminal/cmd
-$ cd acende_led
+$ cd Problema 2
 
 #Dê o comando para compilar:
 $ make
@@ -175,14 +173,16 @@ $ make
 #Dê o comando para Rodar:
 $ sudo ./main
 
-#Para o uso do LCD:
-# Acesse a pasta do projeto no terminal/cmd
-$ cd timer
+#Para inicializar o NodeMCU:
+# Acesse o arquivo na IDE do Arduíno com as configurações de acesso a NodeMCU
+$ cd Problema 2/main
+
+e acesse o arquivo main.ino
 
 #Dê o comando para compilar:
-$ make
+apertando no ícone de (V) - o primeiro botão na barra de ferramentas
 		
 #Dê o comando para Rodar:
-$ sudo ./main_timer
+apertando no ícone de (->) - o segundo botão na barra de ferramentas para jogar o código na placa NodeMCU
 
 
