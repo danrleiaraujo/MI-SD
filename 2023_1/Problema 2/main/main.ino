@@ -10,7 +10,7 @@
 
 const char* ssid = STASSID;
 const char* password = STAPSK;
-const char* host = "ESP-10.0.0.107";
+const char* host = "ESP-10.0.0.108";
 
 int led_pin = LED_BUILTIN;
 #define N_DIMMERS 3
@@ -19,6 +19,8 @@ int dimmer_pin[] = {14, 5, 15};
 /*Unidade 0*/
 #define unidade_1 0b11000001
 #define todas_unidades 0b11111110
+
+#define espera 1 //tem que ser referente ao valor da unidade
 
 /*Valores da led*/
 #define ledOn  0b00000001
@@ -47,21 +49,11 @@ int dimmer_pin[] = {14, 5, 15};
 void setup() {
   
   /* definicoes de pinos*/
+
+
+  Serial.begin(9600); // BaudRate
   //Led:
   pinMode(led_pin, OUTPUT);
-
-  //Possiveis Botoes:
-  pinMode(D0, INPUT);
-  pinMode(D1, INPUT);
-  pinMode(D2, INPUT);
-  pinMode(D3, INPUT);
-  pinMode(D4, INPUT);
-  pinMode(D5, INPUT);
-  pinMode(D6, INPUT);
-  pinMode(D7, INPUT);
-  pinMode(D8, INPUT);
-  
-  Serial.begin(9600); // BaudRate
   
   //Serial.println("Booting");
   WiFi.mode(WIFI_STA);
@@ -109,6 +101,17 @@ void setup() {
   //Serial.println("Tudo pronto.");
 
   digitalWrite(led_pin, HIGH);
+  
+  //Possiveis Botoes:
+  pinMode(D0, INPUT);
+  pinMode(D1, INPUT);
+  /*pinMode(D2, INPUT);
+  pinMode(D3, INPUT);
+  pinMode(D4, INPUT);
+  pinMode(D5, INPUT);
+  pinMode(D6, INPUT);
+  pinMode(D7, INPUT);
+  pinMode(D8, INPUT);*/
 }
 
 /*Variáveis*/
@@ -124,12 +127,14 @@ void loop() {
   /* ====================== Verifica se tem algo sendo recebido =========================*/
   if(Serial.available() > 0) {
     char c = Serial.read(); //Le o pino RX
+    /* ====================== Caso tenha e a unidade esteja desativada: =========================*/
     if (unidade == false){
+    /* ====================== Se o que foi lido for igual ao código da unidade: =========================*/
       if (c == unidadeAtual){
         unidade = true;
         Serial.write(unidadeAtual);
       }    
-      /*======== Situacao 2 -> Ativa todas as unidades ==================*/
+    /* ====================== Se o que foi lido for igual ao código de todas unidades: =========================*/
       else if (c == todas_unidades){
         unidade = true;
         delay(espera);
@@ -154,49 +159,20 @@ void loop() {
         valor = analogRead(A0);
         testeSensor[0] = digitalRead(D0);
         testeSensor[1] = digitalRead(D1);
-        testeSensor[2] = digitalRead(D2);
-        testeSensor[3] = digitalRead(D3);
-        testeSensor[4] = digitalRead(D4);
-        testeSensor[5] = digitalRead(D5);
-        testeSensor[6] = digitalRead(D6);
-        testeSensor[7] = digitalRead(D7);
-        testeSensor[8] = digitalRead(D8);
 
         /*Portas Analogica com Potenciometro*/
-        if(valor >= 0 && valor <= 1024){
-          sensorProblema == true;
+        if(valor < 0 || valor > 1024){
+          sensorProblema = true;
         }
         /*Portas digitais com pushButton*/
         else if(testeSensor[0] != HIGH){
-          sensorProblema == true;
+          sensorProblema = true;
         }
         else if(testeSensor[1] != HIGH){
-          sensorProblema == true;
-        }
-        /*Portas digitais sem nada conectado*/
-        else if(testeSensor[2] != LOW){
-          sensorProblema == true;
-        }
-        else if(testeSensor[3] != LOW){
-          sensorProblema == true;
-        }
-        else if(testeSensor[4] != LOW){
-          sensorProblema == true;
-        }
-        else if(testeSensor[5] != LOW){
-          sensorProblema == true;
-        }
-        else if(testeSensor[6] != LOW){
-          sensorProblema == true;
-        }
-        else if(testeSensor[7] != LOW){
-          sensorProblema == true;
-        }
-        else if(testeSensor[8] != LOW){
-          sensorProblema == true;
+          sensorProblema = true;
         }
         else{
-          sensorProblema == false;
+          sensorProblema = false;
         }
         if (sensorProblema == false){           
           Serial.write(funcionando);     
@@ -255,12 +231,10 @@ void loop() {
       }
       /*======== Situacao 3 -> desativa apenas a unidade ==================*/
       if (c == unidadeAtual){
-        Serial.write(unidadeAtual);
         unidade = false;
       }    
       /*======== Situacao 4 -> desativa todas as unidades ==================*/
       else if (c == todas_unidades){
-        Serial.write(unidadeAtual);
         unidade = false;
       }     
       /*======================== Fim do bloco de sensores digitais =============================*/

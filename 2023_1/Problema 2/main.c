@@ -44,6 +44,8 @@
 #define unidade_32 0b11100000
 #define todas_unidades 0b11111110
 
+#define erro 0b11111111
+
 /* Tabela de REQUISICAO*/
 #define situacao_atual  0b00000001
 #define entrada_analogica  0b00010001
@@ -121,6 +123,8 @@ int main(){
     pinMode(next, INPUT);           // configura pino como entrada
     pinMode(previous, INPUT);           // configura pino como entrada
     pinMode(enter, INPUT);           // configura pino como entrada
+    pinMode(dipSwitch0, INPUT);           // configura pino como entrada
+    pinMode(dipSwitch1, INPUT);           // configura pino como entrada
 	/*==================================================================================*/
     
     /*============================== Variaveis =================================*/
@@ -299,7 +303,7 @@ int main(){
 
                 /*Se a unidade selecionada for 00, vai para todas unidades*/
                 if(valor[0] == 0 && valor[1] == 0){
-                	strcpy(unidadeEscolhida, "->TodasUnidades");
+                	strcpy(unidadeEscolhida, "->Todas Unid.s");
 				}
 
                 /* Mostra na LCD a unidade selecionada*/
@@ -315,21 +319,28 @@ int main(){
                 readUart(uart0_filestream, resposta);
 
                 lcdClear(lcd); //Limpa o lcd
-                unidadeSelecionada = 1;
+                if (resposta[0] == erro){
+                    printaLCD("Node:","Sem resposta.",lcd);
+                    
+                }
+                else{ 
+                    printaLCDHexa("Node Selec.:", resposta[0], lcd);
+                    unidadeSelecionada = 1;
+                }
+                
 
                 /*Mostra resposta da node:*/
-                printaLCDHexa("Resposta_node:", resposta[0], lcd);
+                limpaVetor(resposta, 8);
                 delay(1000);
 
                 /*Caso o código mandado seja todas unidades = BROADCAST
                 if(codigoUni == todas_unidades){
                     // Manda código
                     writeUart(uart0_filestream, codigoUni);
-
-                    delay(10); // Tempo minimo para retorno
-
+                    delay(20); // Tempo minimo para retorno
                     //Recebe codigo
                     readUart(uart0_filestream, resposta);
+                    
 
                 }*/
                 // Se a resposta for diferente do que esperado: Não Avança o código
@@ -365,7 +376,7 @@ int main(){
 				atualizaLCD(opcao0, opcao1, lcd);
 				// Se o botão Previous for apertado:	
 				if(digitalRead(previous) == LOW){ 
-					op = 3;
+					op = 4;
                     delay(300); //tempo para tirar o dedo do botão
                     lcdClear(lcd); //Limpa o lcd
 				}
@@ -373,11 +384,24 @@ int main(){
 				// Se o botão Enter for apertado:
 				else if(digitalRead(enter) == LOW){
                     printaLCD(opSel, opcao0, lcd);
+                    delay(1000);
+                    lcdClear(lcd);
 					opcaoSelecionada = 1;
                     codigo = situacao_atual;
                     writeUart(uart0_filestream,codigo);
                     delay(20);
                     readUart(uart0_filestream, resposta);
+                    if(resposta[0] == 0x02){
+                        printaLCD("NodeMCU:","Funcionando",lcd);
+                    }
+                    else if(resposta[0] == 0x01){
+                        printaLCD("NodeMCU","Com problemas",lcd);
+                    }
+                    else{
+                        printaLCD("NodeMCU","Sem resposta",lcd);
+                    }
+                    limpaVetor(resposta, 8);
+                    delay(2000); //tempo para tirar o dedo do botão
 				}
 				/*==========================================*/
 				// Se o botão Next for apertado:
@@ -416,6 +440,7 @@ int main(){
                     
                     lcdClear(lcd); //Limpa o lcd
                     printaLCDInt("Valor A0:", valorAnalog, lcd);
+                    limpaVetor(resposta, 8);
                     delay(2000);
 				}
 				else if(digitalRead(next) == LOW){ 
@@ -434,18 +459,10 @@ int main(){
                     delay(300); //tempo para tirar o dedo do botão
 				}
 				else if(digitalRead(enter) == LOW){
-                    printaLCD(opSel, opcao2, lcd);
-                    delay(1000);
 					opcaoSelecionada = 1;
-                    codigo = entrada_digital_0;
-                    /* Manda código*/
-                    writeUart(uart0_filestream, codigo);
-                    delay(10); // Tempo minimo para recepcao
-                    /*Recebe codigo*/
-                    readUart(uart0_filestream, resposta);
-                    lcdClear(lcd); //Limpa o lcd
-                    printaLCDInt("Resposta_node:", resposta[0], lcd);
-                    delay(2000);
+                    op2 = 3;
+                    lcdClear(lcd);
+                    delay(300);
 				}
 				else if(digitalRead(next) == LOW){ 
 					op++;
@@ -475,9 +492,17 @@ int main(){
                     /*Recebe codigo*/
                     readUart(uart0_filestream, resposta);
                     lcdClear(lcd); //Limpa o lcd
-
-                    printaLCDHexa("Resposta_node:", resposta[0], lcd);
-                    printf("0x%x\n",resposta[0]);
+                    if(resposta[0] == 0x01){
+                        printaLCD("Led","Acesa",lcd);
+                    }
+                    else if(resposta[0] == 0x00){
+                        printaLCD("Led","Apagada",lcd);
+                    }
+                    else{
+                        printaLCD("Led","Sem resposta",lcd);
+                    }
+                    //printaLCDHexa("Led:", resposta[0], lcd);
+                    limpaVetor(resposta, 8);
                     delay(2000);
 				}
 				else if(digitalRead(next) == LOW){ 
@@ -498,9 +523,10 @@ int main(){
 				else if(digitalRead(enter) == LOW){
                     lcdClear(lcd); //Limpa o lcd
                     printaLCD(opSel, opcao4, lcd);
-                    delay(500);
+                    delay(1000);
                     opcaoSelecionada = 1;
                     op2 = 2;
+                    lcdClear(lcd); //Limpa o lcd
 				}
 				else if(digitalRead(next) == LOW){ 
 					op = 0;
@@ -520,6 +546,7 @@ int main(){
                     unidadeSelecionada =0;
                     writeUart(uart0_filestream, codigoUni);
                     delay(300); //tempo para tirar o dedo do botão
+                    lcdClear(lcd);
                 }
                 else if(digitalRead(previous) == LOW){
                     op2 ++;
@@ -538,6 +565,7 @@ int main(){
                 if(digitalRead(enter) == LOW){
                     opcaoSelecionada = 0;
                     delay(300);
+                    lcdClear(lcd);
                 }
                 else if(digitalRead(previous) == LOW){
                     op2 --;
@@ -550,10 +578,12 @@ int main(){
                     delay(300); //tempo para tirar o dedo do botão
                 }
             }
+            /*========================== Menu de monitoramento ======================*/
             if(op2 == 2){
                 if(opcoesSensores == 0){
                     printaLCD("Qual sensor?","-> A0", lcd);
                     if(digitalRead(enter) == LOW){
+                        delay(400);
                         while (digitalRead(enter) == HIGH){
                             codigo = entrada_analogica;
                             /* Manda código*/
@@ -573,7 +603,9 @@ int main(){
                             printaLCDInt("Valor A0:", valorAnalog, lcd);
                             delay(1000);
                         }
+                        limpaVetor(resposta, 8);
                         op2 =0;
+                        lcdClear(lcd); 
                     }
                     else if(digitalRead(previous) == LOW){ 
                         opcoesSensores ++;
@@ -587,36 +619,82 @@ int main(){
                     }
                 }
                 else if(opcoesSensores == 1){
-                    lcdClear(lcd); //Limpa o lcd
-                    printaLCD("Qual sensor?","-> D0", lcd);
-                    delay(500);
+                    lcdPosition(lcd, 0, 0); //Seleciona a linha superior;
+                    lcdPrintf(lcd, "Qual Sensor?");
+
+                    lcdPosition(lcd, 0, 1);//Seleciona a linha inferior;
+                    lcdPrintf(lcd,"-> D%i",sensoresDigitais);
+
                     if(digitalRead(enter) == LOW){
-                        delay(200);
+                        delay(300); //tempo para tirar o dedo do botão
+                        lcdClear(lcd);
+                        switch (sensoresDigitais){
+                            case 0:
+                                codigo = entrada_digital_0;
+                                break;
+                            case 1:
+                                codigo = entrada_digital_1;
+                                break;
+                            case 2:
+                                codigo = entrada_digital_2;
+                                break;
+                            case 3:
+                                codigo = entrada_digital_3;
+                                break;
+                            case 4:
+                                codigo = entrada_digital_4;
+                                break;
+                            case 5:
+                                codigo = entrada_digital_5;
+                                break;
+                            case 6:
+                                codigo = entrada_digital_6;
+                                break;
+                            case 7:
+                                codigo = entrada_digital_7;
+                                break;
+                            case 8:
+                                codigo = entrada_digital_8;
+                                break;
+                        }
+
                         while (digitalRead(enter) == HIGH){
-                            codigo = entrada_digital_0;
                             /* Manda código*/
-                            writeUart(uart0_filestream,codigo);
+                            writeUart(uart0_filestream, codigo);
                             delay(10); // Tempo minimo para recepcao
                             /*Recebe codigo*/
                             readUart(uart0_filestream, resposta);
-                            lcdClear(lcd); //Limpa o lcd
-                            printaLCDInt("Resposta_node:", resposta[0], lcd);
-                            delay(2000);
+                            // lcdClear(lcd); //Limpa o lcd
+                            printaLCDInt("Valor:", resposta[0], lcd);
+                            delay(500);
                         }
+                        limpaVetor(resposta, 8);
                         op2 =0;
-                    }
-                    else if(digitalRead(previous) == LOW){ 
+                        lcdClear(lcd); 
+                    }                    
+                    else if(digitalRead(previous) == LOW && sensoresDigitais ==0){ 
                         opcoesSensores = 0;
                         lcdClear(lcd); //Limpa o lcd
                         delay(300); //tempo para tirar o dedo do botão
                     }
-                    else if(digitalRead(next) == LOW){ 
+                    else if(digitalRead(next) == LOW && sensoresDigitais ==8){ 
                         opcoesSensores = 0;
+                        lcdClear(lcd); //Limpa o lcd
+                        delay(300); //tempo para tirar o dedo do botão
+                    }
+                    else if(digitalRead(previous) == LOW && sensoresDigitais > 0){ 
+                        sensoresDigitais--;
+                        lcdClear(lcd); //Limpa o lcd
+                        delay(300); //tempo para tirar o dedo do botão
+                    }
+                    else if(digitalRead(next) == LOW && sensoresDigitais < 8){ 
+                        sensoresDigitais++;
                         lcdClear(lcd); //Limpa o lcd
                         delay(300); //tempo para tirar o dedo do botão
                     }
                 }
             }
+            /*========================== Menu de sensores digitais ======================*/
             if(op2 == 3){
                 lcdPosition(lcd, 0, 0); //Seleciona a linha superior;
                 lcdPrintf(lcd, "Qual Sensor?");
@@ -626,36 +704,36 @@ int main(){
 
                 if(digitalRead(enter) == LOW){
                     switch (sensoresDigitais){
-                    case 0:
-                        codigo = entrada_digital_0;
-                        break;
-                    case 1:
-                        codigo = entrada_digital_1;
-                        break;
-                    case 2:
-                        codigo = entrada_digital_2;
-                        break;
-                    case 3:
-                        codigo = entrada_digital_3;
-                        break;
-                    case 4:
-                        codigo = entrada_digital_4;
-                        break;
-                    case 5:
-                        codigo = entrada_digital_5;
-                        break;
-                    case 6:
-                        codigo = entrada_digital_6;
-                        break;
-                    case 7:
-                        codigo = entrada_digital_7;
-                        break;
-                    case 8:
-                        codigo = entrada_digital_8;
-                        break;
+                        case 0:
+                            codigo = entrada_digital_0;
+                            break;
+                        case 1:
+                            codigo = entrada_digital_1;
+                            break;
+                        case 2:
+                            codigo = entrada_digital_2;
+                            break;
+                        case 3:
+                            codigo = entrada_digital_3;
+                            break;
+                        case 4:
+                            codigo = entrada_digital_4;
+                            break;
+                        case 5:
+                            codigo = entrada_digital_5;
+                            break;
+                        case 6:
+                            codigo = entrada_digital_6;
+                            break;
+                        case 7:
+                            codigo = entrada_digital_7;
+                            break;
+                        case 8:
+                            codigo = entrada_digital_8;
+                            break;
                     }
                     /* Manda código*/
-                    writeUart(uart0_filestream,codigo);
+                    writeUart(uart0_filestream, codigo);
 
                     delay(10); // Tempo minimo para recepcao
 
@@ -663,9 +741,11 @@ int main(){
                     readUart(uart0_filestream, resposta);
 
                     lcdClear(lcd); //Limpa o lcd
-                    printaLCDInt("Resposta_node:", resposta[0], lcd);
+                    printaLCDInt("Valor:", resposta[0], lcd);
                     delay(2000);
+                    limpaVetor(resposta, 8);
                     op2 =1;
+                    delay(300);
                 }
                 else if(digitalRead(previous) == LOW){ 
                     if (sensoresDigitais == 0){
@@ -689,7 +769,6 @@ int main(){
                 }
             }
         }
-        /*================================FALTA BLOCO DE MONITORAMENTO========================*/
     }
     close(uart0_filestream);
     return 0;
@@ -748,19 +827,11 @@ void readUart(int uart0_filestream, unsigned char rx_buffer[]){
 
     rx_length = read (uart0_filestream, (void*) rx_buffer, 8);
     if(rx_length <0){
-        limpaVetor(rx_buffer, 8);
+        rx_buffer[0] = erro;
     }
     else if (rx_length == 0){
         printf("Nenhum dado disponível\n");
     }
-    printf("tamanho [0]:%d 0x%x\n",rx_length, rx_buffer[0]);
-    printf("tamanho [1]:%d 0x%x\n",rx_length, rx_buffer[1]);
-    printf("tamanho [2]:%d 0x%x\n",rx_length, rx_buffer[2]);
-    printf("tamanho [3]:%d 0x%x\n",rx_length, rx_buffer[3]);
-    printf("tamanho [4]:%d 0x%x\n",rx_length, rx_buffer[4]);
-    printf("tamanho [5]:%d 0x%x\n",rx_length, rx_buffer[5]);
-    printf("tamanho [6]:%d 0x%x\n",rx_length, rx_buffer[6]);
-    printf("tamanho [7]:%d 0x%x\n",rx_length, rx_buffer[7]);
 }
 //==========================================================
 /*Função para colocar a chave de seleção*/
@@ -841,7 +912,9 @@ void nextValor(int v[]){
 void previousValor(int v[]){
 	int negativo = -1, zero =0;
 	//Valor Atual
-	if((v[0]) == zero && (v[1] - 1) == negativo){
+	if((v[0]) == zero && (v[1] - 1) == negativo){ //Se virar negativo
+		v[0] = 3; // Volta a dezena pra 3
+		v[1] = 2; // Volta a unidade pra 2 = 32
 	}
 	else if ( (v[0]) >= zero && (v[1] - 1) >=  zero){
 		v[1] = v[1] - 1;  
@@ -853,8 +926,11 @@ void previousValor(int v[]){
 	
 	// Valor Futuro
 	if((v[2]) == zero && (v[3] - 1) == negativo){
+		v[2] = 3;
+		v[3] = 2;
 	}	
 	else if ( (v[2]) == zero && (v[3] - 1) ==  zero){
+		v[3] = v[3] - 1;
 	}
 	else if ( (v[2]) >= zero && (v[3] - 1) >=  zero){
 		v[3] = v[3] - 1;  
