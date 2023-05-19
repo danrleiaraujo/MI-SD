@@ -87,67 +87,78 @@
 		</li>
 	</p>
 	<h2>Para a programação da SBC</h2>
-	<p align="justify"> 
-		Foram criados alguns arquivos com macros necessários para o acesso ao pino e a manipulação do mesmo, são eles:
+	<p > 
+		No arquivo "main.c" na pasta principal, é o arquivo que programa a SBC. Lá fizemos a importação de diversas bibliotecas necessárias, inicialização de variáveis e funções para conexão com a NodeMCU.
 		<ul>
-			<li>sys_calls.s</li>
-			<h4 align="justify"> O Arquivo possuia criação de constantes com os valores respectivos das SysCalls. As System Calls, como são chamadas, são divididas em quatro grupos: chamadas de sistema para gerenciamento de processos, para gerenciamento de diretórios, para gerenciamento de arquivos e restantes. Essas funções servem para ser o sistema ter permissões de acesso a recursos que o usuário comum não tem acesso. </h4>
-			<li>file_io.s</li>
-			<h4 align="justify"> Nesse arquivo existem instruções para a manipulação de arquivos, macros como leitura, escrita, abertura e fechamento de arquivo. Nele é chamada as constantes criadas do arquivo "sys_calls" para acesso a manipulação de arquivos. </h4>
-			<li>gpio_macros.s:</li>
+			<li>Funções</li>
+			<h4 align="justify"> As funções para funcionamento da SBC são: 
+			<ul>
+				<li>printaLCD</li>
+					<ul><li>Serve para mostrar na LCD as dados em string.</ul></li>
+				<li>printaLCDInt</li>
+					<ul><li>Funciona para mostrar um int na LCD, usados para valores analógicos.</ul></li>
+				<li>printaLCDHexa</li>
+					<ul><li>Serve para mostrar na LCD as dados em hexadecimal.</ul></li>	
+				<li>writeUart</li>
+					<ul><li>Função para envio de dados na conexão via UART.</ul></li>
+				<li>readUart</li>					
+					<ul><li>Função para recebimento de dados na conexão via UART.</ul></li>
+				<li>atualizaLCD</li>
+					<ul><li>Serve para colocar uma seta (-->) para ajudar na seleção da opção no menu da LCD.</ul></li>
+				<li>atualizaLCDVetor</li>
+					<ul><li> Serve para colocar uma seta (-->)  antes da unidade e acrescentar o valor da unidade no fim da linha.</ul></li>
+				<li>nextValor</li>					
+					<ul><li>Função para passar o valor do vetor do menu rotativo.</ul></li>
+				<li>previousValor</li>
+					<ul><li>Função para voltar o valor do vetor do menu rotativo.</ul></li>
+			</ul>
+			<li>Variáveis:</li>
 			<h4> Dentro desse arquivo existem macros para a configuração dos pinos da GPIO, sendo eles: 
 			<ul>
-				<li>openDevmem</li>
-					<ul><li>Serve para abrir o devmen e nos dar os direitos de leitura e escrita de arquivos.</ul></li>
-				<li>nanoSleep</li>
-					<ul><li>Um macro para fazer o sistema entrar em um sleep porém com seu tempo em nanosegundo, para deixar a medição de tempo mais precisa.</ul></li>
-				<li>mapMem</li>
-					<ul><li>Macro para mapear o endereço virtual dos pinos.</ul></li>	
-				<li>directionOut</li>
-					<ul><li>Macro para direcionar o pino para saída.</ul></li>
-				<li>turnOn</li>					
-					<ul><li>Macro para ligar o pino.</ul></li>
-				<li>turnOff</li>
-					<ul><li>Macro para desligar o pino.</ul></li>
-				<li>main</li>
-				<h4>É o arquivo principal onde fazemos as chamadas dos macros.</h4>
+				<li>Defines de seleção de unidade</li>
+					<ul><li align="justify">Constantes definidas com o nome "unidade_x" e "todas_unidades" são referentes as unidades de sensoriamento.</ul></li>
+				<li>Defines de requisição</li>
+					<ul><li align="justify">Constantes definidas com o nome "entrada_digital_x", "entrada_analogica","situação_atual "e "acende_led" são referentes as entradas da NodeMCU.</ul></li>
+				<li>Outras</li>
+					<ul><li align="justify">É feita a declaração de constantes com a pinagem da LCD, botões e dipswitch.</ul></li>	
 			</ul>
 		</ul>
     </p>
-	<h2>Para a programação da NodeMCU:</h2>
+	<h2>Para a programação da NodeMCU</h2>
 	<p align="justify"> 
-		Foi ultilizado o mesmo raciocínio que para acender a led, sendo assim, apenas dois arquivos são diferentes:
+		No arquivo "main.ino" na pasta "main", é o arquivo que programa a NodeMCU. Lá fizemos a importação de diversas bibliotecas necessárias, inicialização de variáveis e funções para conexão com a SBC.
 		<ul>
-			<li>macros.s:</li>
-				<h4> Possui todos os macros do gpio_macros.s com exceção de "directionOut", "turnOn" e "turnOff" que foram substituídos por:
-				<ul>
-					<li>d4Out</li>
-					<li>d5Out</li>
-					<li>d6Out</li>
-					<li>d7Out</li>
-					<li>ersOut</li>
-						<ul><li>Macro para direcionar os pinos da LCD para saída.</ul></li>
-				</ul>
-			<li>main_timer.s</li>
-			<h4>É o arquivo principal onde fazemos as chamadas dos macros.</h4>
+			<li>Defines de seleção de unidade</li>
+				<ul><li align="justify">Constantes definidas assim como na SBC.</ul></li>
+			<li>Defines de requisição</li>
+				<ul><li align="justify">Constantes definidas assim como na SBC.</ul></li>
+			<li>Outras</li>
+				<ul><li align="justify">É feita a declaração de constantes com respostas para as solicitações para status das entradas, são eles: proble,a funcionando, resposta_digital, resposta_analogica.</ul></li>	
+			<li>Função void loop()</li>
+				<ul><li align="justify">Lá é feito o tratamento das requisições e respostas recebidas e enviadas.</ul></li>	
 		</ul>
 	</p>
 </div>
 
 <div id="metodologia">
 	<h1>Metodologia</h1>
+	<li>Fluxo do sistema</li>
+		<h4 align="justify"> O fluxo do nosso sistema ficou da seguinte forma: temos 32 unidades de sensoriamento (referente a 32 NodeMCUs) e cada uma unidade com a possibilidade de interação com todas as suas entradas digitais, analógica e a LED.</h4>
+		<h4 align="justify">De forma que a SBC interaja com a NodeMCU, são enviadas requisições com códigos de 1 byte (8 bits), assim como também é recebido a mesma quantidade de bits como resposta.</h4>
+		<h4 align="justify">Para declaração dos bits para indicar as unidades e as entradas, foram declaradas variáveis para as unidades referenciando as unidades de 1 a 32, além da opção de escolha de todas as unidades, com bits declarados também para cada uma das entradas. </h4>
+		<p align ="center"><img src="http://img.shields.io/static/v1?label=STATUS&message=Concluido&color=GREEN&style=for-the-badge"/>
+		</p>
+	<h2>Na NodeMCU</h2>
 	<p align="justify">
-		Para a realização do problema, nossa turma teve que se basear no livro "Raspberry Pi Assembly Language Programming" do autor Stephen Smith, já que não tinha uma referência para a própria Orange PI PC Plus. Sendo assim, usamos exemplos e referências do livro com algumas modificações de endereços e offSet.
-		Para a noção de comportamento da GPIO, tivemos que ler e entender o DataSheet do processador. Para entendermos como funcionava o LCD, também tivemos que ler e entender o datasheet do mesmo.
-		<h2>Na NodeMCU</h2>
-		<p align="justify">
-			texto aq
-		</p> 
-		<h2>Na SBC</h2>
-		<p align="justify"> 
-			texto aq
-		</p> 
-	</p>
+		É feita a leitura da entrada da conexão serial (via UART), o byte recebido é "traduzido" e acontece uma ação a partir disso. 
+	</p> 
+	<h2>Na SBC</h2>
+	<li>Fluxo do sistema</li>
+		<h4 align="justify"> O fluxo do nosso sistema ficou da seguinte forma: temos 32 unidades de sensoriamento (referente a 32 NodeMCUs) e cada uma unidade com a possibilidade de interação com todas as suas entradas digitais, analógica e a LED.</h4>
+		<h4 align="justify">De forma que a SBC interaja com a NodeMCU, são enviadas requisições com códigos de 1 byte (8 bits), assim como também é recebido a mesma quantidade de bits como resposta.</h4>
+		<h4 align="justify">Para declaração dos bits para indicar as unidades e as entradas, foram declaradas variáveis para as unidades referenciando as unidades de 1 a 32, além da opção de escolha de todas as unidades, com bits declarados também para cada uma das entradas. </h4>
+		<p align ="center"><img src="http://img.shields.io/static/v1?label=STATUS&message=Concluido&color=GREEN&style=for-the-badge"/>
+		</p>
 </div>
 
 <div id="conclusoes">
