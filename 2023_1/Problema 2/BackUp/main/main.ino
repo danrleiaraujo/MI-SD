@@ -20,7 +20,6 @@ int dimmer_pin[] = {14, 5, 15};
 #define unidade_1 0b11000001
 #define todas_unidades 0b11111110
 
-/*Valores da led*/
 #define ledOn  0b00000001
 #define ledOff  0b00000000
 
@@ -38,7 +37,7 @@ int dimmer_pin[] = {14, 5, 15};
 #define entrada_digital_8  0b00011010
 #define acende_led  0b00100001
 
-/*Script do problema - Exemplos respostas*/
+
 #define problema  0x01
 #define funcionando  0x02
 #define resposta_Digital  0x11
@@ -109,13 +108,16 @@ void setup() {
   //Serial.println("Tudo pronto.");
 
   digitalWrite(led_pin, HIGH);
+
+
 }
 
 /*Variáveis*/
-bool unidade = false, opcao = false, sensorProblema = false;
-int valor = 0, testeSensor[9];
-unsigned char dado_digital, unidadeAtual = unidade_1;
+bool unidade = false, opcao = false;
+int valor = 0;
 byte dest[4];
+unsigned char dado_digital, unidadeAtual = unidade_1;
+int testeSensor = 0;
 
 
 void loop() {
@@ -126,14 +128,13 @@ void loop() {
     char c = Serial.read(); //Le o pino RX
     if (unidade == false){
       if (c == unidadeAtual){
-        unidade = true;
         Serial.write(unidadeAtual);
+        unidade = true;
       }    
       /*======== Situacao 2 -> Ativa todas as unidades ==================*/
       else if (c == todas_unidades){
-        unidade = true;
-        delay(espera);
         Serial.write(unidadeAtual);
+        unidade = true;
       }    
     }
     /*======================== Situação 5 -> Unidade já está ativa: =============================*/
@@ -149,62 +150,56 @@ void loop() {
         digitalWrite(led_pin, HIGH);
       } 
       /*======================== Situação Atual =============================*/ 
+      /*  
       else if(c == situacao_sensor){
-        /*Leitura dos sensores*/
-        valor = analogRead(A0);
-        testeSensor[0] = digitalRead(D0);
-        testeSensor[1] = digitalRead(D1);
-        testeSensor[2] = digitalRead(D2);
-        testeSensor[3] = digitalRead(D3);
-        testeSensor[4] = digitalRead(D4);
-        testeSensor[5] = digitalRead(D5);
-        testeSensor[6] = digitalRead(D6);
-        testeSensor[7] = digitalRead(D7);
-        testeSensor[8] = digitalRead(D8);
-
-        /*Portas Analogica com Potenciometro*/
-        if(valor >= 0 && valor <= 1024){
-          sensorProblema == true;
+        testeSensor = digitalRead(D0);
+        if(testeSensor HIGH || testeSensor!= LOW ){
+          Serial.write(problema);
         }
-        /*Portas digitais com pushButton*/
-        else if(testeSensor[0] != HIGH){
-          sensorProblema == true;
+        testeSensor = digitalRead(D1);
+        if(testeSensor!= HIGH || testeSensor!= LOW ){
+          Serial.write(problema);
         }
-        else if(testeSensor[1] != HIGH){
-          sensorProblema == true;
+        testeSensor = digitalRead(D2);
+        if(testeSensor!= HIGH || testeSensor!= LOW ){
+          Serial.write(problema);
         }
-        /*Portas digitais sem nada conectado*/
-        else if(testeSensor[2] != LOW){
-          sensorProblema == true;
+        testeSensor = digitalRead(D3);
+        if(testeSensor!= HIGH || testeSensor!= LOW ){
+          Serial.write(problema);
         }
-        else if(testeSensor[3] != LOW){
-          sensorProblema == true;
+        testeSensor = digitalRead(D4);
+        if(testeSensor!= HIGH || testeSensor!= LOW ){
+          Serial.write(problema);
         }
-        else if(testeSensor[4] != LOW){
-          sensorProblema == true;
+        testeSensor = digitalRead(D5);
+        if(testeSensor!= HIGH || testeSensor!= LOW ){
+          Serial.write(problema);
         }
-        else if(testeSensor[5] != LOW){
-          sensorProblema == true;
+        testeSensor = digitalRead(D6);
+        if(testeSensor!= HIGH || testeSensor!= LOW ){
+          Serial.write(problema);
         }
-        else if(testeSensor[6] != LOW){
-          sensorProblema == true;
+        testeSensor = digitalRead(D7);
+        if(testeSensor!= HIGH || testeSensor!= LOW ){
+          Serial.write(problema);
         }
-        else if(testeSensor[7] != LOW){
-          sensorProblema == true;
+        testeSensor = digitalRead(D8);
+        if(testeSensor!= HIGH || testeSensor!= LOW ){
+          Serial.write(problema);
         }
-        else if(testeSensor[8] != LOW){
-          sensorProblema == true;
+        testeSensor = digitalRead(D9);
+        if(testeSensor!= HIGH || testeSensor!= LOW ){
+          Serial.write(problema);
         }
-        else{
-          sensorProblema == false;
+        testeSensor = digitalRead(D10);
+        if(testeSensor!= HIGH || testeSensor!= LOW ){
+          Serial.write(problema);
         }
-        if (sensorProblema == false){           
-          Serial.write(funcionando);     
-        }
-        else{
-          Serial.write(problema);   
-        }
-      } 
+        Serial.write(funcionando);
+        digitalWrite(led_pin, HIGH);
+        delay(500);
+      } */
       /*======================== Le o potenciometro =============================*/          
       else if(c == entrada_analogica){
         valor = analogRead(A0);

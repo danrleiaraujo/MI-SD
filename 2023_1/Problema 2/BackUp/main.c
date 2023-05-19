@@ -57,6 +57,7 @@
 #define entrada_digital_7  0b00011001
 #define entrada_digital_8  0b00011010
 #define acende_led  0b00100001
+//#define monitoramento  0b00100010
 
 /*  Pinos do LCD:
     D4   -> PG8 -> 32 Fisico -> 21 WPi
@@ -88,10 +89,9 @@
 /*  Pinos do LED:
     PA8 -> 8 GPIO -> 20 WPi
     PA9 -> 9 GPIO -> 22 WPi
-    
-    #define PA8 20
-    #define PA9 22
 */
+// #define PA8 20
+// #define PA9 22
 /*-----------------------------------------------------*/
 
 /*--------------------------Funções--------------------*/
@@ -125,7 +125,7 @@ int main(){
     
     /*============================== Variaveis =================================*/
 	int valor[5] = {0,0,0,1}; //Dezena, Unidade, Dezena Futura, Unidade Futura;
-    int opcoesSensores = 0, sensoresDigitais = 0;
+    int sensor [5] =  {0,0,0,1}, opcoesSensores = 0, sensoresDigitais = 0;
 	int op = 0, op2 = 0, unid = 0, lcd, valorAnalog = 0; //Opcao e entradada de teclado
 	char uniSel[16] = "UniSelecionada", opSel[16] = "OpSelecionada";
 	char unidade[16]= "Unidade = ";
@@ -137,14 +137,15 @@ int main(){
     int unidadeSelecionada = 0, opcaoSelecionada = 0; 
 	/*==================================================================================*/
     int uart0_filestream = -1; //Retorno de erro da função Open - 
+
+    //Para o open usaremos a uart 3: /dev/ttyS3
+    uart0_filestream = open("/dev/ttyS3", O_RDWR | O_NOCTTY | O_NDELAY);  
     /*
         FLAGS:
         O_RDWR -> Lê e escreve
         O_NOCTTY -> Identifica o dispositivo como dispositivo de terminal
         O_NDELAY -> Sem delay, para acesso imediato
     */
-    //Para o open usaremos a uart 3: /dev/ttyS3
-    uart0_filestream = open("/dev/ttyS3", O_RDWR | O_NOCTTY | O_NDELAY);  
 
     if (uart0_filestream == -1){ //Verifica se deu erro na abertura da UART
         printf("Erro na abertura da UART\n");
@@ -301,7 +302,9 @@ int main(){
                 if(valor[0] == 0 && valor[1] == 0){
                 	strcpy(unidadeEscolhida, "->TodasUnidades");
 				}
+                if(codigoUni == todas_unidades){
 
+                }
                 /* Mostra na LCD a unidade selecionada*/
                 printaLCD(uniSel,unidadeEscolhida, lcd);
                 delay(1000);
@@ -320,34 +323,6 @@ int main(){
                 /*Mostra resposta da node:*/
                 printaLCDHexa("Resposta_node:", resposta[0], lcd);
                 delay(1000);
-
-                /*Caso o código mandado seja todas unidades = BROADCAST
-                if(codigoUni == todas_unidades){
-                    // Manda código
-                    writeUart(uart0_filestream, codigoUni);
-
-                    delay(10); // Tempo minimo para retorno
-
-                    //Recebe codigo
-                    readUart(uart0_filestream, resposta);
-
-                }*/
-                // Se a resposta for diferente do que esperado: Não Avança o código
-                /*
-                else if(resposta[0] != codigoUni){
-                    unidadeSelecionada = 0;
-                }
-                else{
-                    // Manda código
-                    writeUart(uart0_filestream, codigoUni);
-
-                    delay(10); // Tempo minimo para retorno
-
-                    //Recebe codigo
-                    readUart(uart0_filestream, resposta);
-                    unidadeSelecionada = 1;
-                } 
-                */
 			}
 			//==========================================
 			// Se o botão Next for apertado:
@@ -656,19 +631,16 @@ int main(){
                     }
                     /* Manda código*/
                     writeUart(uart0_filestream,codigo);
-
                     delay(10); // Tempo minimo para recepcao
-
                     /*Recebe codigo*/
                     readUart(uart0_filestream, resposta);
-
                     lcdClear(lcd); //Limpa o lcd
                     printaLCDInt("Resposta_node:", resposta[0], lcd);
                     delay(2000);
                     op2 =1;
                 }
                 else if(digitalRead(previous) == LOW){ 
-                    if (sensoresDigitais == 0){
+                    if (sensoresDigitais ==0){
                         sensoresDigitais = 8;
                     }
                     else{
@@ -678,7 +650,7 @@ int main(){
                     delay(300); //tempo para tirar o dedo do botão
                 }
                 else if(digitalRead(next) == LOW){  
-                    if (sensoresDigitais == 8){
+                    if (sensoresDigitais ==8){
                         sensoresDigitais = 0;
                     }
                     else{
@@ -744,23 +716,21 @@ void writeUart (int uart0_filestream, unsigned char dado){
 /* Função pra Ler a UART */
 void readUart(int uart0_filestream, unsigned char rx_buffer[]){
     // Recebimento do RX - Uart
-    int rx_length = 0;
+    int rx_length =0 ;
 
-    rx_length = read (uart0_filestream, (void*) rx_buffer, 8);
+    rx_length = read (uart0_filestream, (void*) rx_buffer, 3);
     if(rx_length <0){
-        limpaVetor(rx_buffer, 8);
+        //delay(4);
     }
     else if (rx_length == 0){
         printf("Nenhum dado disponível\n");
     }
+    else{
+        //rx_buffer[rx_length] = '\0';
+    }
     printf("tamanho [0]:%d 0x%x\n",rx_length, rx_buffer[0]);
     printf("tamanho [1]:%d 0x%x\n",rx_length, rx_buffer[1]);
     printf("tamanho [2]:%d 0x%x\n",rx_length, rx_buffer[2]);
-    printf("tamanho [3]:%d 0x%x\n",rx_length, rx_buffer[3]);
-    printf("tamanho [4]:%d 0x%x\n",rx_length, rx_buffer[4]);
-    printf("tamanho [5]:%d 0x%x\n",rx_length, rx_buffer[5]);
-    printf("tamanho [6]:%d 0x%x\n",rx_length, rx_buffer[6]);
-    printf("tamanho [7]:%d 0x%x\n",rx_length, rx_buffer[7]);
 }
 //==========================================================
 /*Função para colocar a chave de seleção*/
@@ -866,12 +836,9 @@ void previousValor(int v[]){
 }
 /*==========================================================================================*/
 
-//========================================================================================
-/*Função para limpar vetor*/
 void limpaVetor (unsigned char v[], int tamanho){
     int i;
     for(i=0; i < tamanho; i++){
         v[i] = 0b00000000;
     }
 }
-/*==========================================================================================*/
