@@ -13,6 +13,7 @@
         <li><a href="#requisitos"> <b>Requisitos Atendidos</b> </a> </li>
 		<li><a href="#implementacao"> <b>Implementação</b> </a> </li>
         <li><a href="#metodologia"> <b>Metodologia</b> </a> </li>
+		<li><a href="#conclusao"> <b>Resultados e Conclusões</b> </a> </li>
 	</ul>	
 </div>
 
@@ -47,8 +48,8 @@
         <li><a href="https://components101.com/sites/default/files/component_datasheet/Push-Button.pdf">Button</a></li>
         <li><a href="https://www.farnell.com/datasheets/1498852.pdf">Led</a></li>
 		<li>Uma protoboard</li>
-		<li>Um jumper para ligar a GPIO na protoboard</li>
-		<li>Um potênciometro para regular o LCD</li>
+		<li>Jumpers</li>
+		<li>Dois potênciometros</li>
 		<li>Sensores</li>
 	</ul>
 </div>
@@ -111,14 +112,16 @@
 					<ul><li>Função para passar o valor do vetor do menu rotativo.</ul></li>
 				<li>previousValor</li>
 					<ul><li>Função para voltar o valor do vetor do menu rotativo.</ul></li>
+				<li>limpaVetor</li>
+					<ul><li>Função para limpar o vetor do buffer de recebimento de dados.</ul></li>
 			</ul>
-			<li>Variáveis:</li>
+			<li>Constantes:</li>
 			<h4> Dentro desse arquivo existem macros para a configuração dos pinos da GPIO, sendo eles: 
 			<ul>
 				<li>Defines de seleção de unidade</li>
 					<ul><li align="justify">Constantes definidas com o nome "unidade_x" e "todas_unidades" são referentes as unidades de sensoriamento.</ul></li>
 				<li>Defines de requisição</li>
-					<ul><li align="justify">Constantes definidas com o nome "entrada_digital_x", "entrada_analogica","situação_atual "e "acende_led" são referentes as entradas da NodeMCU.</ul></li>
+					<ul><li align="justify">Constantes definidas com o nome "entrada_digital_x", "entrada_analogica", "situação_atual "e "acende_led" são referentes as entradas da NodeMCU.</ul></li>
 				<li>Outras</li>
 					<ul><li align="justify">É feita a declaração de constantes com a pinagem da LCD, botões e dipswitch.</ul></li>	
 			</ul>
@@ -134,37 +137,42 @@
 				<ul><li align="justify">Constantes definidas assim como na SBC.</ul></li>
 			<li>Outras</li>
 				<ul><li align="justify">É feita a declaração de constantes com respostas para as solicitações para status das entradas, são eles: proble,a funcionando, resposta_digital, resposta_analogica.</ul></li>	
+			<li>Função void setup()</li>
+				<ul><li align="justify">Lá é feita a inicialização dos botões e outras constantes para o processamento do sistema.</ul></li>	
 			<li>Função void loop()</li>
-				<ul><li align="justify">Lá é feito o tratamento das requisições e respostas recebidas e enviadas.</ul></li>	
+				<ul><li align="justify">Lá é feito o tratamento das requisições e respostas recebidas e enviadas.</ul></li>
 		</ul>
 	</p>
 </div>
 
 <div id="metodologia">
 	<h1>Metodologia</h1>
-	<li>Fluxo do sistema</li>
 		<h4 align="justify"> O fluxo do nosso sistema ficou da seguinte forma: temos 32 unidades de sensoriamento (referente a 32 NodeMCUs) e cada uma unidade com a possibilidade de interação com todas as suas entradas digitais, analógica e a LED.</h4>
 		<h4 align="justify">De forma que a SBC interaja com a NodeMCU, são enviadas requisições com códigos de 1 byte (8 bits), assim como também é recebido a mesma quantidade de bits como resposta.</h4>
 		<h4 align="justify">Para declaração dos bits para indicar as unidades e as entradas, foram declaradas variáveis para as unidades referenciando as unidades de 1 a 32, além da opção de escolha de todas as unidades, com bits declarados também para cada uma das entradas. </h4>
-		<p align ="center"><img src="http://img.shields.io/static/v1?label=STATUS&message=Concluido&color=GREEN&style=for-the-badge"/>
-		</p>
+		<p align ="center"><img src="http://img.shields.io/static/v1?label=STATUS&message=Concluido&color=GREEN&style=for-the-badge"/></p>
 	<h2>Na NodeMCU</h2>
 	<p align="justify">
-		É feita a leitura da entrada da conexão serial (via UART), o byte recebido é "traduzido" e acontece uma ação a partir disso. 
-	</p> 
+		É feita a leitura de dados por meio da conexão serial via UART, onde a comunicação é feita por até 8 bits de cada vez. O byte recebido é interpretado através de um protocolo pré-estabelecido e acontece uma ação a partir da requisição recebida, fazendo uma comparação com suas constantes já definidas. </p> 
+	<p align="justify">
+		As requisições recebidas são:
+		<li>Acender led: Se a unidade selecionada já estiver ativa ele acende ou apaga a led.  </li>
+		<li>Situação atual da unidade de sensoriamento: Retorna se a unidade está ativa ou não. </li>
+		<li>Valor de entrada analógico: Informa o dado capturado da entrada analógica com o potenciômetro. </li>
+		<li>Valor de entrada digital: Informa o dado capturado da entrada digital.</li>
+	</p>
 	<h2>Na SBC</h2>
-	<li>Fluxo do sistema</li>
-		<h4 align="justify"> O fluxo do nosso sistema ficou da seguinte forma: temos 32 unidades de sensoriamento (referente a 32 NodeMCUs) e cada uma unidade com a possibilidade de interação com todas as suas entradas digitais, analógica e a LED.</h4>
-		<h4 align="justify">De forma que a SBC interaja com a NodeMCU, são enviadas requisições com códigos de 1 byte (8 bits), assim como também é recebido a mesma quantidade de bits como resposta.</h4>
-		<h4 align="justify">Para declaração dos bits para indicar as unidades e as entradas, foram declaradas variáveis para as unidades referenciando as unidades de 1 a 32, além da opção de escolha de todas as unidades, com bits declarados também para cada uma das entradas. </h4>
+		<h4 align="justify"> É feita a leitura de dados por meio da conexão serial via UART, onde a comunicação é feita por até 8 bits de cada vez. O byte recebido é interpretado através de um protocolo pré-estabelecido e acontece uma ação a partir da requisição recebida, fazendo uma comparação com suas constantes já definidas. </h4>
 		<p align ="center"><img src="http://img.shields.io/static/v1?label=STATUS&message=Concluido&color=GREEN&style=for-the-badge"/>
 		</p>
 </div>
 
 <div id="conclusoes">
-	<h1>Conclusões</h1>
+	<h1>Resultados e Conclusões</h1>
 	<p align="justify"> 
-	texto aq
+	Apesar da dificuldade de acesso ao laboatório conseguimos implementar um sistema funcional cumprindo quase todas as requisições impostas pelo problema. </p>
+	<p align="justify"> O nosso sistema funciona quase por comṕleto, exceto pela interação com as 32 unidades de uma vez, onde existe a opção para selecionar todas, porém, o tratamento da mesma não foi feito. </p>
+	<p align="justify"> Acreditamos que tivessemos mais tempo teríamos concluido com excelência o problema imposto.</p>
 	</p>
 </div>
 
@@ -186,9 +194,9 @@ $ sudo ./main
 
 #Para inicializar o NodeMCU:
 # Acesse o arquivo na IDE do Arduíno com as configurações de acesso a NodeMCU
-$ cd Problema 2/main
+Acess a pasta: Problema 2/main
 
-e acesse o arquivo main.ino
+e abra o arquivo: main.ino
 
 #Dê o comando para compilar:
 apertando no ícone de (V) - o primeiro botão na barra de ferramentas
