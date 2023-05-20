@@ -82,17 +82,13 @@
 
 <div id="implementacao">
 	<h1>Implementação</h1>
-	<p>
-		<li>
-			Para implementação do código foi utilizado a linguagem C.
-		</li>
-	</p>
+	<p>Para implementação do código foi utilizado a linguagem C.</p>
 	<h2>Para a programação da SBC</h2>
 	<p > 
 		No arquivo "main.c" na pasta principal, é o arquivo que programa a SBC. Lá fizemos a importação de diversas bibliotecas necessárias, inicialização de variáveis e funções para conexão com a NodeMCU.
 		<ul>
 			<li>Funções</li>
-			<h4 align="justify"> As funções para funcionamento da SBC são: 
+			<h align="justify"> As funções para funcionamento da SBC são:</h>
 			<ul>
 				<li>printaLCD</li>
 					<ul><li>Serve para mostrar na LCD as dados em string.</ul></li>
@@ -116,7 +112,7 @@
 					<ul><li>Função para limpar o vetor do buffer de recebimento de dados.</ul></li>
 			</ul>
 			<li>Constantes:</li>
-			<h4> Dentro desse arquivo existem macros para a configuração dos pinos da GPIO, sendo eles: 
+			<h7> Dentro desse arquivo existem macros para a configuração dos pinos da GPIO, sendo eles:</h7>
 			<ul>
 				<li>Defines de seleção de unidade</li>
 					<ul><li align="justify">Constantes definidas com o nome "unidade_x" e "todas_unidades" são referentes as unidades de sensoriamento.</ul></li>
@@ -147,9 +143,9 @@
 
 <div id="metodologia">
 	<h1>Metodologia</h1>
-		<h4 align="justify"> O fluxo do nosso sistema ficou da seguinte forma: temos 32 unidades de sensoriamento (referente a 32 NodeMCUs) e cada uma unidade com a possibilidade de interação com todas as suas entradas digitais, analógica e a LED.</h4>
-		<h4 align="justify">De forma que a SBC interaja com a NodeMCU, são enviadas requisições com códigos de 1 byte (8 bits), assim como também é recebido a mesma quantidade de bits como resposta.</h4>
-		<h4 align="justify">Para declaração dos bits para indicar as unidades e as entradas, foram declaradas variáveis para as unidades referenciando as unidades de 1 a 32, além da opção de escolha de todas as unidades, com bits declarados também para cada uma das entradas. </h4>
+		<h7 align="justify"> O fluxo do nosso sistema ficou da seguinte forma: temos 32 unidades de sensoriamento (referente a 32 NodeMCUs) e cada uma unidade com a possibilidade de interação com todas as suas entradas digitais, analógica e a LED.</p>
+		<p align="justify">De forma que a SBC interaja com a NodeMCU, são enviadas requisições com códigos de 1 byte (8 bits), assim como também é recebido a mesma quantidade de bits como resposta.</p>
+		<p align="justify">Para declaração dos bits para indicar as unidades e as entradas, foram declaradas variáveis para as unidades referenciando as unidades de 1 a 32, além da opção de escolha de todas as unidades, com bits declarados também para cada uma das entradas. </p>
 		<p align ="center"><img src="2023_1\Problema 2\Referencias\fluxograma.jpg"/></p>
 	<h2>Na NodeMCU</h2>
 	<p align="justify">
@@ -162,7 +158,7 @@
 		<li>Valor de entrada digital: Informa o dado capturado da entrada digital.</li>
 	</p>
 	<h2>Na SBC</h2>
-		<h4 align="justify"> É feita a leitura de dados por meio da conexão serial via UART, onde a comunicação é feita por até 8 bits de cada vez. O byte recebido é interpretado através de um protocolo pré-estabelecido e acontece uma ação a partir da requisição recebida, fazendo uma comparação com suas constantes já definidas. </h4>
+		<h7 align="justify"> É feita a leitura de dados por meio da conexão serial via UART, onde a comunicação é feita por até 8 bits de cada vez. O byte recebido é interpretado através de um protocolo pré-estabelecido e acontece uma ação a partir da requisição recebida, fazendo uma comparação com suas constantes já definidas. </h7>
 		<p align ="center"><img src="http://img.shields.io/static/v1?label=STATUS&message=Concluido&color=GREEN&style=for-the-badge"/>
 		</p>
 </div>
