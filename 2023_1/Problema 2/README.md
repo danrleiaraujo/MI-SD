@@ -150,7 +150,7 @@
 		<h4 align="justify"> O fluxo do nosso sistema ficou da seguinte forma: temos 32 unidades de sensoriamento (referente a 32 NodeMCUs) e cada uma unidade com a possibilidade de interação com todas as suas entradas digitais, analógica e a LED.</h4>
 		<h4 align="justify">De forma que a SBC interaja com a NodeMCU, são enviadas requisições com códigos de 1 byte (8 bits), assim como também é recebido a mesma quantidade de bits como resposta.</h4>
 		<h4 align="justify">Para declaração dos bits para indicar as unidades e as entradas, foram declaradas variáveis para as unidades referenciando as unidades de 1 a 32, além da opção de escolha de todas as unidades, com bits declarados também para cada uma das entradas. </h4>
-		<p align ="center"><img src="http://img.shields.io/static/v1?label=STATUS&message=Concluido&color=GREEN&style=for-the-badge"/></p>
+		<p align ="center"><img src="2023_1\Problema 2\Referencias\fluxograma.jpg"/></p>
 	<h2>Na NodeMCU</h2>
 	<p align="justify">
 		É feita a leitura de dados por meio da conexão serial via UART, onde a comunicação é feita por até 8 bits de cada vez. O byte recebido é interpretado através de um protocolo pré-estabelecido e acontece uma ação a partir da requisição recebida, fazendo uma comparação com suas constantes já definidas. </p> 
