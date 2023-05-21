@@ -2,6 +2,7 @@
     <h1 id="titulo" align="center"> Problema 2 da disciplina MI - Sistemas Digitais.</h1>
 	<h2 id="titulo" align="center"> Interfaces de E/S</h1>
 	<p id="descricao" align="justify"></p>
+	<p align ="center"><img src="http://img.shields.io/static/v1?label=STATUS&message=Concluido&color=GREEN&style=for-the-badge"/>
 </div>
 
 <div id="sumario">
@@ -11,6 +12,7 @@
         <li><a href="#equipe"> <b>Equipe de Desenvolvimento</b></li>
 		<li><a href="#recursos-utilizados"> <b>Recursos Utilizados</b> </a></li>
         <li><a href="#requisitos"> <b>Requisitos Atendidos</b> </a> </li>
+		<li><a href="#fundamentacao"> <b>Fundamentação teórica</b> </a> </li>
 		<li><a href="#implementacao"> <b>Implementação</b> </a> </li>
         <li><a href="#metodologia"> <b>Metodologia</b> </a> </li>
 		<li><a href="#conclusao"> <b>Resultados e Conclusões</b> </a> </li>
@@ -80,6 +82,12 @@
 	</ul>
 </div>
 
+<div id="fundamentacao">
+	<h1>Fundamentação teórica</h1>
+	<p align="justify">Para construção do sistema, tivemos que estudar algunms conceitos importantes para o entendimento do funcionamento.</p>
+	<p align="justify" >No arquivo "main.c" na pasta principal, é o arquivo que programa a SBC. Lá fizemos a importação de diversas bibliotecas necessárias, inicialização de variáveis e funções para conexão com a NodeMCU.</p> 
+</div>
+
 <div id="implementacao">
 	<h1>Implementação</h1>
 	<p>Para implementação do código foi utilizado a linguagem C.</p>
@@ -146,21 +154,21 @@
 		<h7 align="justify"> O fluxo do nosso sistema ficou da seguinte forma: temos 32 unidades de sensoriamento (referente a 32 NodeMCUs) e cada uma unidade com a possibilidade de interação com todas as suas entradas digitais, analógica e a LED.</p>
 		<p align="justify">De forma que a SBC interaja com a NodeMCU, são enviadas requisições com códigos de 1 byte (8 bits), assim como também é recebido a mesma quantidade de bits como resposta.</p>
 		<p align="justify">Para declaração dos bits para indicar as unidades e as entradas, foram declaradas variáveis para as unidades referenciando as unidades de 1 a 32, além da opção de escolha de todas as unidades, com bits declarados também para cada uma das entradas. </p>
-		<p align ="center"><img src="2023_1\Problema 2\Referencias\fluxograma.jpg"/></p>
+		<p align ="center"><img src="https://github.com/danrleiaraujo/MI-SD/blob/main/2023_1/Problema%202/Referencias/fluxograma.jpg?raw=true"/></p>
+		<h6 align="center">Imagem 1 - Fluxograma do sistema</h6>
 	<h2>Na NodeMCU</h2>
 	<p align="justify">
 		É feita a leitura de dados por meio da conexão serial via UART, onde a comunicação é feita por até 8 bits de cada vez. O byte recebido é interpretado através de um protocolo pré-estabelecido e acontece uma ação a partir da requisição recebida, fazendo uma comparação com suas constantes já definidas. </p> 
 	<p align="justify">
 		As requisições recebidas são:
-		<li>Acender led: Se a unidade selecionada já estiver ativa ele acende ou apaga a led.  </li>
-		<li>Situação atual da unidade de sensoriamento: Retorna se a unidade está ativa ou não. </li>
+		<li>Acender led: Se a unidade selecionada já estiver ativa ele acende ou apaga a led.</li>
+		<li>Situação atual da unidade de sensoriamento: Retorna se a unidade está ativa ou não, se está funcionando normalmente. </li>
 		<li>Valor de entrada analógico: Informa o dado capturado da entrada analógica com o potenciômetro. </li>
 		<li>Valor de entrada digital: Informa o dado capturado da entrada digital.</li>
 	</p>
 	<h2>Na SBC</h2>
-		<h7 align="justify"> É feita a leitura de dados por meio da conexão serial via UART, onde a comunicação é feita por até 8 bits de cada vez. O byte recebido é interpretado através de um protocolo pré-estabelecido e acontece uma ação a partir da requisição recebida, fazendo uma comparação com suas constantes já definidas. </h7>
-		<p align ="center"><img src="http://img.shields.io/static/v1?label=STATUS&message=Concluido&color=GREEN&style=for-the-badge"/>
-		</p>
+		<h7 align="justify"> A SBC é quem controla a NodeMCU fazendo as requisições, sendo assim, é feito o envio de dados por meio da conexão serial via UART, assim como também processa as respostas recebidas também em 1 byte. </h7>
+		<p align="justify">A SBC envia as solicitações por meio dos 8 bits de protocolo pré-estabelecido no arquivo de programação da placa. Ao receber a resposta da NodeMCU, a SBC processa para que seja exibido na LCD, inclusive, a entrada do usuário é feita através dos botões conectados na placa, que funcionam respectivamente como: anterior, enter e próximo, visto que é exibido na LCD um menu para escolha das opções.</p>
 </div>
 
 <div id="conclusoes">
