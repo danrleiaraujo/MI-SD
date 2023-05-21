@@ -208,7 +208,7 @@
 	<h6 align="center">Figura 10 - Requisição de status de funcionamento da NodeMCU</h6>
 	<p align="justify"> 
 	Apesar da dificuldade de acesso ao laboatório conseguimos implementar um sistema funcional cumprindo quase todas as requisições impostas pelo problema. </p>
-	<p align="justify"> O nosso sistema funciona quase por comṕleto, exceto pela interação com as 32 unidades de uma vez, onde existe a opção para selecionar todas, porém, o tratamento da mesma não foi feito. </p>
+	<p align="justify"> O nosso sistema funciona quase por completo, exceto pela interação com as 32 unidades de uma vez, onde existe a opção para selecionar todas, porém, o tratamento da mesma não foi feito. </p>
 	<p align="justify"> Acreditamos que tivessemos mais tempo teríamos concluido com excelência o problema imposto.</p>
 	</p>
 </div>
