@@ -11,11 +11,13 @@
 		<li><a href="#inicio"> <b>Início</b></li>
         <li><a href="#equipe"> <b>Equipe de Desenvolvimento</b></li>
 		<li><a href="#recursos-utilizados"> <b>Recursos Utilizados</b> </a></li>
+		<li><a href="#prerequisitos"> <b>Pré-requisitos</b> </a> </li>
         <li><a href="#requisitos"> <b>Requisitos Atendidos</b> </a> </li>
 		<li><a href="#fundamentacao"> <b>Fundamentação teórica</b> </a> </li>
 		<li><a href="#implementacao"> <b>Implementação</b> </a> </li>
         <li><a href="#metodologia"> <b>Metodologia</b> </a> </li>
-		<li><a href="#conclusao"> <b>Resultados e Conclusões</b> </a> </li>
+		<li><a href="#conclusao"> <b>Resultados e Conclusões</b> </a> 
+		<li><a href="#referencias"> <b>Referências</b> </a> </li>
 	</ul>	
 </div>
 
@@ -40,7 +42,7 @@
 	</ul>	
 
 
-<div id="requisitos">
+<div id="prerequisitos">
 	<h1>Pré-requisitos</h1>
 	<h3>Antes de começar, você vai precisar ter:</h3>
 	<ul>        
@@ -85,7 +87,12 @@
 <div id="fundamentacao">
 	<h1>Fundamentação teórica</h1>
 	<p align="justify">Para construção do sistema, tivemos que estudar algunms conceitos importantes para o entendimento do funcionamento.</p>
-	<p align="justify" >No arquivo "main.c" na pasta principal, é o arquivo que programa a SBC. Lá fizemos a importação de diversas bibliotecas necessárias, inicialização de variáveis e funções para conexão com a NodeMCU.</p> 
+	<p align="justify">Precisamos utilizar um protocolo de programação para fazer a conexão entre a SBC e a NodeMCU. Segundo Celso Kitamura (2022), "o protocolo de comunicação é uma convenção que controla e possibilita uma conexão, comunicação ou transferência de dados entre dois sistemas computacionais", neste caso, utlizamos o protocolo Universal Asynchronous Receiver/Transmitter (UART), que utilizamos um fio para conectar o transmissor e o receptor para enviar os dados (ROHDE, 2023). Ele utiliza do envio de dados de forma serial com um conjunto de bits referentes ao "start bit", para sinalizar que o envio de dados começou, bits de dados e o "stop bit" , para indicar que terminou o envio de dados, além de também pode conter um bit opcional de paridade para detecção de erros que por padrão é nível lógico baixo (0). </p> 
+	<p align ="center"><img src="https://cdn.rohde-schwarz.com/pws/solution/research___education_1/educational_resources_/oscilloscope_and_probe_fundamentals/05_Understanding-UART_04_w1280_hX.png" width="600"/></p>
+	<h6 align="center">Figura 1 - Estrutura de envio de dados via UART</h6>
+	<p align="justify">Utilizamos uma placa chamada NodeMCU(ESP8266) para fazer a conexão com a SBC. A NodeMCU é um "um SoC (System-on-a-Chip ou Sistema-em-um-Chip) com a pilha do protocolo TCP/IP integrada, que permite que você possa implementar o acesso a rede WiFi com qualquer microcontrolador [...] onde a programação pode ser feita usando LUA ou a própria IDE do Arduino"(HU,2019). Utilizamos o mapa de pinagem, como da Figura 2, para controlar a placa.</p>
+	<p align ="center"><img src="https://www.make-it.ca/wp-content/uploads/2021/09/nodemcu-pinout-functions.jpg" width="600"/></p>
+	<h6 align="center">Figura 1 - Pinagem da NodeMCU(ESP8266)</h6>
 </div>
 
 <div id="implementacao">
@@ -155,7 +162,7 @@
 		<p align="justify">De forma que a SBC interaja com a NodeMCU, são enviadas requisições com códigos de 1 byte (8 bits), assim como também é recebido a mesma quantidade de bits como resposta.</p>
 		<p align="justify">Para declaração dos bits para indicar as unidades e as entradas, foram declaradas variáveis para as unidades referenciando as unidades de 1 a 32, além da opção de escolha de todas as unidades, com bits declarados também para cada uma das entradas. </p>
 		<p align ="center"><img src="https://github.com/danrleiaraujo/MI-SD/blob/main/2023_1/Problema%202/Referencias/fluxograma.jpg?raw=true"/></p>
-		<h6 align="center">Imagem 1 - Fluxograma do sistema</h6>
+		<h6 align="center">Figura 1 - Fluxograma do sistema</h6>
 	<h2>Na NodeMCU</h2>
 	<p align="justify">
 		É feita a leitura de dados por meio da conexão serial via UART, onde a comunicação é feita por até 8 bits de cada vez. O byte recebido é interpretado através de um protocolo pré-estabelecido e acontece uma ação a partir da requisição recebida, fazendo uma comparação com suas constantes já definidas. </p> 
@@ -169,15 +176,48 @@
 	<h2>Na SBC</h2>
 		<h7 align="justify"> A SBC é quem controla a NodeMCU fazendo as requisições, sendo assim, é feito o envio de dados por meio da conexão serial via UART, assim como também processa as respostas recebidas também em 1 byte. </h7>
 		<p align="justify">A SBC envia as solicitações por meio dos 8 bits de protocolo pré-estabelecido no arquivo de programação da placa. Ao receber a resposta da NodeMCU, a SBC processa para que seja exibido na LCD, inclusive, a entrada do usuário é feita através dos botões conectados na placa, que funcionam respectivamente como: anterior, enter e próximo, visto que é exibido na LCD um menu para escolha das opções.</p>
+		<p align ="center"><img src="https://github.com/danrleiaraujo/MI-SD/blob/main/2023_1/Problema%202/Referencias/unidades.PNG?raw=true"/></p>
+		<h6 align="center">Figura 2 - Conjunto de bits para a unidade</h6>
+		<p align ="center"><img src="https://github.com/danrleiaraujo/MI-SD/blob/main/2023_1/Problema%202/Referencias/entradas.PNG?raw=true"/></p>
+		<h6 align="center">Figura 3 - Conjunto de bits para as entradas</h6>
 </div>
 
 <div id="conclusoes">
 	<h1>Resultados e Conclusões</h1>
+	<p align="justify">
+	A seguir serão apresentados alguns dos principais resultados que obtivemos na criação do sistema:</p>
+	<p align ="center"><img src="Referencias\menugif2.gif"></p>
+	<h6 align="center">Figura 4 - Menu de seleção de unidades</h6>
+	<p align="justify">
+	É necessário fazer a escolha de qual unidade da NodeMCU o usuário deseja acessar, então o menu mostra as opções de 1 a 32, incluindo o acesso a todas as unidades, como mostrado na Figura 4, sendo que aquelas que não estão conectadas ao SBC, é mostrado um código de erro.</p>
+	<p align ="center"><img src="Referencias\collage.png"  width="500"></p>
+	<h6 align="center">Figura 5 - Requisição de acender/apagar LED</h6>
+	<p align="justify">
+	É mostrado na Figura 5 a solicitação de acender ou apagar a LED na NodeMCU.</p>
+	<p align ="center"><img src="Referencias\sensordigital.gif"></p>
+	<h6 align="center">Figura 6 - Requisição de entrada digital</h6>
+	<p align="justify">
+	O usuário escolhe qual entrada digital deseja ver os dados, então é retornado "1" no exemplo da Figura 6 com a porta D0, porque o botão indica "high" ou "1" no momento em que ele não está pressionado, caso contrário, ele indica "low" ou "0".</p>
+	<p align ="center"><img src="Referencias\valoranalogico.gif"></p>
+	<h6 align="center">Figura 7 - Requisição de entrada analógica</h6>
+	<p align="justify">
+	Assim como na entrada digital, o usuário pode escolher qual entrada analógica acessar, a que temos ativa fica conectada ao potenciômetro para simular um sensor, no momento que solicitamos os dados, é mostrado na tela o valor como na Figura 7.</p>
+	<p align="justify">
+	Na opção de solicitação de situação atual da unidade, a NodeMCU retorna se está funcionando ou não, no exemplo da Figura 8 é mostrado que a NodeMCU se encontra funcionando.</p>
+	<p align ="center"><img src="Referencias\status.gif"></p>
+	<h6 align="center">Figura 8 - Requisição de status de funcionamento da NodeMCU</h6>
 	<p align="justify"> 
 	Apesar da dificuldade de acesso ao laboatório conseguimos implementar um sistema funcional cumprindo quase todas as requisições impostas pelo problema. </p>
 	<p align="justify"> O nosso sistema funciona quase por comṕleto, exceto pela interação com as 32 unidades de uma vez, onde existe a opção para selecionar todas, porém, o tratamento da mesma não foi feito. </p>
 	<p align="justify"> Acreditamos que tivessemos mais tempo teríamos concluido com excelência o problema imposto.</p>
 	</p>
+</div>
+
+<div id="referencias"> 
+	<h1>Referências</h1>
+	<li align="justify">O Que É Protocolo De Comunicação? - Celso Kitamura. Celso Kitamura. Disponível em: https://celsokitamura.com.br/o-que-e-protocolo-de-comunicacao/. Acesso em: 21 maio 2023</li>
+	<li align="justify">ROHDE. Compreender UART. Rohde-schwarz.com. Disponível em: https://www.rohde-schwarz.com/br/produtos/teste-e-medicao/essentials-test-equipment/digital-oscilloscopes/compreender-uart_254524.html#:~:text=UART%20significa%20%22universal%20asynchronous%20receiver,dados%20seriais%20entre%20dois%20dispositivos. Acesso em: 21 maio 2023.</li>
+	<li align="justify">HU. O que é NodeMCU? -. Hu Infinito Componentes Eletrônicos. Disponível em: https://www.huinfinito.com.br/blog/artigos/o-que-e-nodemcu. Acesso em: 21 maio 2023.</li>
 </div>
 
 ### 🎲 Rodando o código:
