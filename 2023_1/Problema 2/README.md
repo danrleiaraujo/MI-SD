@@ -92,7 +92,7 @@
 	<h6 align="center">Figura 1 - Estrutura de envio de dados via UART</h6>
 	<p align="justify">Utilizamos uma placa chamada NodeMCU(ESP8266) para fazer a conexão com a SBC. A NodeMCU é um "um SoC (System-on-a-Chip ou Sistema-em-um-Chip) com a pilha do protocolo TCP/IP integrada, que permite que você possa implementar o acesso a rede WiFi com qualquer microcontrolador [...] onde a programação pode ser feita usando LUA ou a própria IDE do Arduino"(HU,2019). Utilizamos o mapa de pinagem, como da Figura 2, para controlar a placa.</p>
 	<p align ="center"><img src="https://www.make-it.ca/wp-content/uploads/2021/09/nodemcu-pinout-functions.jpg" width="600"/></p>
-	<h6 align="center">Figura 1 - Pinagem da NodeMCU(ESP8266)</h6>
+	<h6 align="center">Figura 2 - Pinagem da NodeMCU(ESP8266)</h6>
 </div>
 
 <div id="implementacao">
@@ -162,7 +162,7 @@
 		<p align="justify">De forma que a SBC interaja com a NodeMCU, são enviadas requisições com códigos de 1 byte (8 bits), assim como também é recebido a mesma quantidade de bits como resposta.</p>
 		<p align="justify">Para declaração dos bits para indicar as unidades e as entradas, foram declaradas variáveis para as unidades referenciando as unidades de 1 a 32, além da opção de escolha de todas as unidades, com bits declarados também para cada uma das entradas. </p>
 		<p align ="center"><img src="https://github.com/danrleiaraujo/MI-SD/blob/main/2023_1/Problema%202/Referencias/fluxograma.jpg?raw=true"/></p>
-		<h6 align="center">Figura 1 - Fluxograma do sistema</h6>
+		<h6 align="center">Figura 3 - Fluxograma do sistema</h6>
 	<h2>Na NodeMCU</h2>
 	<p align="justify">
 		É feita a leitura de dados por meio da conexão serial via UART, onde a comunicação é feita por até 8 bits de cada vez. O byte recebido é interpretado através de um protocolo pré-estabelecido e acontece uma ação a partir da requisição recebida, fazendo uma comparação com suas constantes já definidas. </p> 
@@ -177,9 +177,9 @@
 		<h7 align="justify"> A SBC é quem controla a NodeMCU fazendo as requisições, sendo assim, é feito o envio de dados por meio da conexão serial via UART, assim como também processa as respostas recebidas também em 1 byte. </h7>
 		<p align="justify">A SBC envia as solicitações por meio dos 8 bits de protocolo pré-estabelecido no arquivo de programação da placa. Ao receber a resposta da NodeMCU, a SBC processa para que seja exibido na LCD, inclusive, a entrada do usuário é feita através dos botões conectados na placa, que funcionam respectivamente como: anterior, enter e próximo, visto que é exibido na LCD um menu para escolha das opções.</p>
 		<p align ="center"><img src="https://github.com/danrleiaraujo/MI-SD/blob/main/2023_1/Problema%202/Referencias/unidades.PNG?raw=true"/></p>
-		<h6 align="center">Figura 2 - Conjunto de bits para a unidade</h6>
+		<h6 align="center">Figura 4 - Conjunto de bits para a unidade</h6>
 		<p align ="center"><img src="https://github.com/danrleiaraujo/MI-SD/blob/main/2023_1/Problema%202/Referencias/entradas.PNG?raw=true"/></p>
-		<h6 align="center">Figura 3 - Conjunto de bits para as entradas</h6>
+		<h6 align="center">Figura 5 - Conjunto de bits para as entradas</h6>
 </div>
 
 <div id="conclusoes">
@@ -187,25 +187,25 @@
 	<p align="justify">
 	A seguir serão apresentados alguns dos principais resultados que obtivemos na criação do sistema:</p>
 	<p align ="center"><img src="Referencias\menugif2.gif"></p>
-	<h6 align="center">Figura 4 - Menu de seleção de unidades</h6>
+	<h6 align="center">Figura 6 - Menu de seleção de unidades</h6>
 	<p align="justify">
-	É necessário fazer a escolha de qual unidade da NodeMCU o usuário deseja acessar, então o menu mostra as opções de 1 a 32, incluindo o acesso a todas as unidades, como mostrado na Figura 4, sendo que aquelas que não estão conectadas ao SBC, é mostrado um código de erro.</p>
+	É necessário fazer a escolha de qual unidade da NodeMCU o usuário deseja acessar, então o menu mostra as opções de 1 a 32, incluindo o acesso a todas as unidades, como mostrado na Figura 6, sendo que aquelas que não estão conectadas ao SBC, é mostrado um código de erro.</p>
 	<p align ="center"><img src="Referencias\collage.png"  width="500"></p>
-	<h6 align="center">Figura 5 - Requisição de acender/apagar LED</h6>
+	<h6 align="center">Figura 7 - Requisição de acender/apagar LED</h6>
 	<p align="justify">
-	É mostrado na Figura 5 a solicitação de acender ou apagar a LED na NodeMCU.</p>
+	É mostrado na Figura 7 a solicitação de acender ou apagar a LED na NodeMCU.</p>
 	<p align ="center"><img src="Referencias\sensordigital.gif"></p>
-	<h6 align="center">Figura 6 - Requisição de entrada digital</h6>
+	<h6 align="center">Figura 8 - Requisição de entrada digital</h6>
 	<p align="justify">
-	O usuário escolhe qual entrada digital deseja ver os dados, então é retornado "1" no exemplo da Figura 6 com a porta D0, porque o botão indica "high" ou "1" no momento em que ele não está pressionado, caso contrário, ele indica "low" ou "0".</p>
+	O usuário escolhe qual entrada digital deseja ver os dados, então é retornado "1" no exemplo da Figura 8 com a porta D0, porque o botão indica "high" ou "1" no momento em que ele não está pressionado, caso contrário, ele indica "low" ou "0".</p>
 	<p align ="center"><img src="Referencias\valoranalogico.gif"></p>
-	<h6 align="center">Figura 7 - Requisição de entrada analógica</h6>
+	<h6 align="center">Figura 9 - Requisição de entrada analógica</h6>
 	<p align="justify">
-	Assim como na entrada digital, o usuário pode escolher qual entrada analógica acessar, a que temos ativa fica conectada ao potenciômetro para simular um sensor, no momento que solicitamos os dados, é mostrado na tela o valor como na Figura 7.</p>
+	Assim como na entrada digital, o usuário pode escolher qual entrada analógica acessar, a que temos ativa fica conectada ao potenciômetro para simular um sensor, no momento que solicitamos os dados, é mostrado na tela o valor como na Figura 9.</p>
 	<p align="justify">
-	Na opção de solicitação de situação atual da unidade, a NodeMCU retorna se está funcionando ou não, no exemplo da Figura 8 é mostrado que a NodeMCU se encontra funcionando.</p>
+	Na opção de solicitação de situação atual da unidade, a NodeMCU retorna se está funcionando ou não, no exemplo da Figura 10 é mostrado que a NodeMCU se encontra funcionando.</p>
 	<p align ="center"><img src="Referencias\status.gif"></p>
-	<h6 align="center">Figura 8 - Requisição de status de funcionamento da NodeMCU</h6>
+	<h6 align="center">Figura 10 - Requisição de status de funcionamento da NodeMCU</h6>
 	<p align="justify"> 
 	Apesar da dificuldade de acesso ao laboatório conseguimos implementar um sistema funcional cumprindo quase todas as requisições impostas pelo problema. </p>
 	<p align="justify"> O nosso sistema funciona quase por comṕleto, exceto pela interação com as 32 unidades de uma vez, onde existe a opção para selecionar todas, porém, o tratamento da mesma não foi feito. </p>
