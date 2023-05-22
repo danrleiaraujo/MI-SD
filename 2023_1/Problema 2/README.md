@@ -167,7 +167,7 @@
 		<h6 align="center">Figura 4 - Fluxograma do sub-menu</h6>
 	<h2>Na NodeMCU</h2>
 	<p align="justify">
-		É feita a leitura de dados por meio da conexão serial via UART, onde a comunicação é feita por até 8 bits de cada vez. O byte recebido é interpretado através de um protocolo pré-estabelecido e acontece uma ação a partir da requisição recebida, fazendo uma comparação com suas constantes já definidas. </p> 
+		É feita a leitura de dados por meio da conexão serial via UART, onde a comunicação é feita por até 8 bits de cada vez. O byte recebido é interpretado através de um protocolo pré-estasbelecido e acontece uma ação a partir da requisição recebida, fazendo uma comparação com suas constantes já definidas. </p> 
 	<p align="justify">
 		As requisições recebidas são:
 		<li>Acender led: Se a unidade selecionada já estiver ativa ele acende ou apaga a led.</li>
@@ -176,7 +176,7 @@
 		<li>Valor de entrada digital: Informa o dado capturado da entrada digital.</li>
 		<p align="justify">
 		A NodeMCU retorna para a SBC com um código referente a solicitação do usuário, como na Tabela 1. </p> 
-		<p align ="center"><img src="Referencias\respostaNode.png "/></p>
+		<p align ="center"><img src="Referencias\respostanode.jpg"/></p>
 		<h6 align="center">Tabela 1 - Códigos de resposta da NodeMCU</h6>
 	</p>
 	<h2>Na SBC</h2>
