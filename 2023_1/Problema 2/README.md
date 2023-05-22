@@ -176,7 +176,7 @@
 		<li>Valor de entrada digital: Informa o dado capturado da entrada digital.</li>
 		<p align="justify">
 		A NodeMCU retorna para a SBC com um código referente a solicitação do usuário, como na Tabela 1. </p> 
-		<p align ="center"><img src="Referencias\respostaNode.png"/></p>
+		<p align ="center"><img src="Referencias\respostaNode.png "/></p>
 		<h6 align="center">Tabela 1 - Códigos de resposta da NodeMCU</h6>
 	</p>
 	<h2>Na SBC</h2>
