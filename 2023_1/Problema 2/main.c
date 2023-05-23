@@ -44,6 +44,7 @@
 #define unidade_32 0b11100000
 #define todas_unidades 0b11111110
 
+// Mensagem de erro.
 #define erro 0b11111111
 
 /* Tabela de REQUISICAO*/
@@ -80,20 +81,6 @@
 #define enter 23
 #define previous 19
 
-
-//dipSwitchs
-#define dipSwitch0 2
-#define dipSwitch1 5
-#define dipSwitch2 7
-#define dipSwitch3 8
-
-/*  Pinos do LED:
-    PA8 -> 8 GPIO -> 20 WPi
-    PA9 -> 9 GPIO -> 22 WPi
-    
-    #define PA8 20
-    #define PA9 22
-*/
 /*-----------------------------------------------------*/
 
 /*--------------------------Funções--------------------*/
@@ -130,7 +117,7 @@ int main(){
     /*============================== Variaveis =================================*/
 	int valor[5] = {0,0,0,1}; //Dezena, Unidade, Dezena Futura, Unidade Futura;
     int opcoesSensores = 0, sensoresDigitais = 0;
-	int op = 0, op2 = 0, unid = 0, lcd, valorAnalog = 0; //Opcao e entradada de teclado
+	int op = 0, op2 = 0, unid = 0, lcd, valorAnalog = 0;
 	char uniSel[16] = "UniSelecionada", opSel[16] = "OpSelecionada";
 	char unidade[16]= "Unidade = ";
     char opcao0[16] = "Situacaoatual", opcao1[16]="ValorAnalogic"; 
@@ -138,7 +125,14 @@ int main(){
     char u, d;
     unsigned char resposta[8];
     unsigned char codigo, codigoUni, dest[3];
-    int unidadeSelecionada = 0, opcaoSelecionada = 0; 
+    int unidadeSelecionada = 0, opcaoSelecionada = 0;     
+    // Vetor com os codigos de unidades
+    unsigned char codigo_unidades[33] = {
+		todas_unidades, unidade_1, unidade_2, unidade_3,unidade_4,unidade_5,unidade_6,unidade_7,unidade_8,
+		unidade_9, unidade_10, unidade_11,unidade_12,unidade_13,unidade_14,unidade_15,unidade_16,
+		unidade_17, unidade_18, unidade_19,unidade_20,unidade_21,unidade_22,unidade_23,unidade_24,
+		unidade_25, unidade_26, unidade_27,unidade_28,unidade_29,unidade_30,unidade_31,unidade_32
+	};
 	/*==================================================================================*/
     int uart0_filestream = -1; //Retorno de erro da função Open - 
     /*
@@ -173,8 +167,8 @@ int main(){
    
     /*============================== BEM VINDO =================================*/
     printaLCD("Menu-TEC499-P2", "Escolha a Opcao:", lcd);    // imprime estado do LED]
-    delay(2000);
-    lcdClear(lcd);
+    delay(2000); // Espera 2 segundos para iniciar
+    lcdClear(lcd); // Limpa o LCD
 	/*==================================================================================*/
 
     /*============================== PROGRAMA PRINCIPAL =================================*/
@@ -198,117 +192,16 @@ int main(){
                 u = valor[1] +'0'; // unidade em char
                 char unidadeEscolhida[16] = {d,u}; // Valor da unidade escolhida em char
                 
-                // Case com a unidade escolhida:
-                switch(unid){
-                    case 0:
-                        codigoUni = todas_unidades;
-                    break;
-                    case 1:
-                        codigoUni = unidade_1;
-                    break;
-                    case 2:
-                        codigoUni = unidade_2;
-                    break;
-                    case 3:
-                        codigoUni = unidade_3;
-                    break;
-                    case 4:
-                        codigoUni = unidade_4;
-                    break;
-                    case 5:
-                        codigoUni = unidade_5;
-                    break;
-                    case 6:
-                        codigoUni = unidade_6;
-                    break;
-                    case 7:
-                        codigoUni = unidade_7;
-                    break;
-                    case 8:
-                        codigoUni = unidade_8;
-                    break;
-                    case 9:
-                        codigoUni = unidade_9;
-                    break;
-                    case 10:
-                        codigoUni = unidade_10;
-                    break;
-                    case 11:
-                        codigoUni = unidade_11;
-                    break;
-                    case 12:
-                        codigoUni = unidade_12;
-                    break;
-                    case 13:
-                        codigoUni = unidade_13;
-                    break;
-                    case 14:
-                        codigoUni = unidade_14;
-                    break;
-                    case 15:
-                        codigoUni = unidade_15;
-                    break;
-                    case 16:
-                        codigoUni = unidade_16;
-                    break;
-                    case 17:
-                        codigoUni = unidade_17;
-                    break;
-                    case 18:
-                        codigoUni = unidade_18;
-                    break;
-                    case 19:
-                        codigoUni = unidade_19;
-                    break;
-                    case 20:
-                        codigoUni = unidade_20;
-                    break;
-                    case 21:
-                        codigoUni = unidade_21;
-                    break;
-                    case 22:
-                        codigoUni = unidade_22;
-                    break;
-                    case 23:
-                        codigoUni = unidade_23;
-                    break;
-                    case 24:
-                        codigoUni = unidade_24;
-                    break;
-                    case 25:
-                        codigoUni = unidade_25;
-                    break;
-                    case 26:
-                        codigoUni = unidade_26;
-                    break;
-                    case 27:
-                        codigoUni = unidade_27;
-                    break;
-                    case 28:
-                        codigoUni = unidade_28;
-                    break;
-                    case 29:
-                        codigoUni = unidade_29;
-                    break;
-                    case 30:
-                        codigoUni = unidade_30;
-                    break;
-                    case 31:
-                        codigoUni = unidade_31;
-                    break;
-                    case 32:
-                        codigoUni = unidade_32;
-                    break;
-                }
+                codigoUni = codigo_unidades[unid]; // Guarda o valor correspondente ao código do vetor na variavel
 
                 /*Se a unidade selecionada for 00, vai para todas unidades*/
-                if(valor[0] == 0 && valor[1] == 0){
-                	strcpy(unidadeEscolhida, "->Todas Unid.s");
+                if(valor[0] == 0 && valor[1] == 0){ // Faz uma verificação do valor 00 e se for verdadeira
+                	strcpy(unidadeEscolhida, "->Todas Unid.s"); //Muda o conteudo da unidade escolhida para todas as unidades
 				}
 
                 /* Mostra na LCD a unidade selecionada*/
                 printaLCD(uniSel,unidadeEscolhida, lcd);
-                delay(1000);
+                delay(1000); // Espera 1s
 
                 /* Manda código*/
                 writeUart(uart0_filestream, codigoUni);
@@ -319,51 +212,21 @@ int main(){
                 readUart(uart0_filestream, resposta);
 
                 lcdClear(lcd); //Limpa o lcd
-                if (resposta[0] == erro){
+
+                if (resposta[0] == erro){ // Caso não tenha resposta da node
                     printaLCD("Node:","Sem resposta.",lcd);
-                    
                 }
-                else{ 
+                else{ // Caso tenha resposta da node
                     printaLCDHexa("Node Selec.:", resposta[0], lcd);
                     unidadeSelecionada = 1;
                 }
-                
-
-                /*Mostra resposta da node:*/
-                limpaVetor(resposta, 8);
+                limpaVetor(resposta, 8);  //Limpa o vetor de resposta
                 delay(1000);
-
-                /*Caso o código mandado seja todas unidades = BROADCAST
-                if(codigoUni == todas_unidades){
-                    // Manda código
-                    writeUart(uart0_filestream, codigoUni);
-                    delay(20); // Tempo minimo para retorno
-                    //Recebe codigo
-                    readUart(uart0_filestream, resposta);
-                    
-
-                }*/
-                // Se a resposta for diferente do que esperado: Não Avança o código
-                /*
-                else if(resposta[0] != codigoUni){
-                    unidadeSelecionada = 0;
-                }
-                else{
-                    // Manda código
-                    writeUart(uart0_filestream, codigoUni);
-
-                    delay(10); // Tempo minimo para retorno
-
-                    //Recebe codigo
-                    readUart(uart0_filestream, resposta);
-                    unidadeSelecionada = 1;
-                } 
-                */
 			}
 			//==========================================
 			// Se o botão Next for apertado:
 			else if(digitalRead(next) == LOW){
-				nextValor(valor);
+				nextValor(valor); // Atualiza o valor do vetor do numero de unidades
                 delay(300); //tempo para tirar o dedo do botão
                 lcdClear(lcd); //Limpa o lcd
 			}
@@ -376,55 +239,56 @@ int main(){
 				atualizaLCD(opcao0, opcao1, lcd);
 				// Se o botão Previous for apertado:	
 				if(digitalRead(previous) == LOW){ 
-					op = 4;
+					op = 4; // Vai até o final da lista
                     delay(300); //tempo para tirar o dedo do botão
                     lcdClear(lcd); //Limpa o lcd
 				}
 				/*==========================================*/
 				// Se o botão Enter for apertado:
 				else if(digitalRead(enter) == LOW){
-                    printaLCD(opSel, opcao0, lcd);
-                    delay(1000);
-                    lcdClear(lcd);
-					opcaoSelecionada = 1;
-                    codigo = situacao_atual;
-                    writeUart(uart0_filestream,codigo);
-                    delay(20);
-                    readUart(uart0_filestream, resposta);
-                    if(resposta[0] == 0x02){
+                    printaLCD(opSel, opcao0, lcd); // Mostra que foi selecionada a opcao
+                    delay(1000); // Espera 1s
+                    lcdClear(lcd); // Limpa o lcd
+					opcaoSelecionada = 1; // Coloca opcao selecionada como true
+                    codigo = situacao_atual; // guarda o codigo de situacao atual na variavel
+                    writeUart(uart0_filestream,codigo); // Manda o codigo
+                    delay(20); // Aguarda um tempo para retorno da Orange
+                    readUart(uart0_filestream, resposta); // Le o que foi recebido
+                    if(resposta[0] == 0x02){ // Caso seja o codigo de funcionando:
                         printaLCD("NodeMCU:","Funcionando",lcd);
                     }
-                    else if(resposta[0] == 0x01){
+                    else if(resposta[0] == 0x01){ // Caso seja o código de Problema
                         printaLCD("NodeMCU","Com problemas",lcd);
                     }
-                    else{
+                    else{ // Caso não tenha resposta:
                         printaLCD("NodeMCU","Sem resposta",lcd);
                     }
-                    limpaVetor(resposta, 8);
+                    limpaVetor(resposta, 8); //Limpa o vetor de resposta
                     delay(2000); //tempo para tirar o dedo do botão
 				}
 				/*==========================================*/
 				// Se o botão Next for apertado:
 				else if(digitalRead(next) == LOW){ 
-					op++;
+					op++; // Aumenta o valor da opcao
                     lcdClear(lcd); //Limpa o lcd
                     delay(300); //tempo para tirar o dedo do botão
 				}
 				/*==========================================*/
 			}
 			//==========================================================
-			//Segunda opcao = Valor Analogic
+			//Segunda opcao = Valor Analogico
 			else if(op == 1){
-				atualizaLCD(opcao1, opcao2, lcd);
-				if(digitalRead(previous) == LOW){
+				atualizaLCD(opcao1, opcao2, lcd); // Atualiza o lcd com a nova opcao
+
+				if(digitalRead(previous) == LOW){ // Caso a opcao de previous seja selecionada
                     lcdClear(lcd); //Limpa o lcd
-					op--;
+					op--; // Diminui o valor da opcao
                     delay(300); //tempo para tirar o dedo do botão
 				}
-				else if(digitalRead(enter) == LOW){
-                    printaLCD(opSel, opcao1, lcd);
-					opcaoSelecionada = 1;
-                    codigo = entrada_analogica;
+				else if(digitalRead(enter) == LOW){ // Caso a opcao seja selecionada
+                    printaLCD(opSel, opcao1, lcd); // Mostra que foi selecionada a opcao
+					opcaoSelecionada = 1; // Coloca opcao selecionada como true
+                    codigo = entrada_analogica; // guarda o codigo de entrada analogica na variavel
                     
                     /* Manda código*/
                     writeUart(uart0_filestream, codigo);
@@ -432,21 +296,22 @@ int main(){
                     
                     /*Recebe codigo*/
                     readUart(uart0_filestream, resposta);
-                    dest[0] = resposta[0];
+                    /* Vai ser recebido 3 bytes*/
+                    dest[0] = resposta[0]; 
                     dest[1] = resposta[1];
                     dest[2] = resposta[2];
-
+                    // É feito um Logic shitf left para a multiplicacao no final eh somado todos os valores dos vetores
                     valorAnalog = (dest[2] << 16) + (dest[1] << 8) + dest[0];
                     
                     lcdClear(lcd); //Limpa o lcd
-                    printaLCDInt("Valor A0:", valorAnalog, lcd);
-                    limpaVetor(resposta, 8);
-                    delay(2000);
+                    printaLCDInt("Valor A0:", valorAnalog, lcd); // Mostra o valor da entrada analógica
+                    limpaVetor(resposta, 8); //Limpa o vetor de resposta
+                    delay(2000); // Espera 2s
 				}
 				else if(digitalRead(next) == LOW){ 
-					op++;
+					op++; // Aumenta o valor da opcao
                     lcdClear(lcd); //Limpa o lcd
-                    delay(500);
+                    delay(300); //tempo para tirar o dedo do botão
 				}
 			}
 			//==========================================================
@@ -454,18 +319,18 @@ int main(){
 			else if(op == 2){
 				atualizaLCD(opcao2, opcao3, lcd);
 				if(digitalRead(previous) == LOW){
-					op--;
+					op--; //Retorna o valor anterior de opcao
                     lcdClear(lcd); //Limpa o lcd
                     delay(300); //tempo para tirar o dedo do botão
 				}
-				else if(digitalRead(enter) == LOW){
-					opcaoSelecionada = 1;
-                    op2 = 3;
-                    lcdClear(lcd);
-                    delay(300);
+				else if(digitalRead(enter) == LOW){ // Caso seja selecionado:
+					opcaoSelecionada = 1;  // Coloca opcao selecionada como true
+                    op2 = 3; // Opcao de condicao para entrar no terceiro SubMenu
+                    lcdClear(lcd); //Limpa a lcd
+                    delay(300); // tempo para o botao
 				}
 				else if(digitalRead(next) == LOW){ 
-					op++;
+					op++; // Aumenta o valor da opcao
                     lcdClear(lcd); //Limpa o lcd
                     delay(300); //tempo para tirar o dedo do botão
 				}
@@ -475,15 +340,15 @@ int main(){
 			else if(op == 3){
 				atualizaLCD(opcao3, opcao4, lcd);	
 				if(digitalRead(previous) == LOW){
-					op--;
+					op--; // Diminui o valor da opcao
                     lcdClear(lcd); //Limpa o lcd
                     delay(300); //tempo para tirar o dedo do botão
 				}
 				else if(digitalRead(enter) == LOW){
-                    printaLCD(opSel, opcao3, lcd);
-                    delay(500);
-					opcaoSelecionada = 1;
-                    codigo = acende_led;
+                    printaLCD(opSel, opcao3, lcd); // Mostra que foi selecionada a opcao
+                    delay(1000); // espera 1s
+					opcaoSelecionada = 1; // Coloca opcao selecionada como true
+                    codigo = acende_led; // guarda o codigo de acender led
                     /* Manda código*/
                     writeUart(uart0_filestream,codigo);
 
@@ -492,21 +357,20 @@ int main(){
                     /*Recebe codigo*/
                     readUart(uart0_filestream, resposta);
                     lcdClear(lcd); //Limpa o lcd
-                    if(resposta[0] == 0x01){
+                    if(resposta[0] == 0x01){ // Caso a resposta seja 0x01 = High
                         printaLCD("Led","Acesa",lcd);
                     }
-                    else if(resposta[0] == 0x00){
+                    else if(resposta[0] == 0x00){ // Caso a resposta seja 0x0 = LOW
                         printaLCD("Led","Apagada",lcd);
                     }
-                    else{
+                    else{ // Caso não tenha resposta
                         printaLCD("Led","Sem resposta",lcd);
                     }
-                    //printaLCDHexa("Led:", resposta[0], lcd);
-                    limpaVetor(resposta, 8);
-                    delay(2000);
+                    limpaVetor(resposta, 8); //Limpa o vetor de resposta
+                    delay(2000); // Espera 2s
 				}
 				else if(digitalRead(next) == LOW){ 
-					op++;
+					op++; // Aumenta o valor da opcao
                     lcdClear(lcd); //Limpa o lcd
                     delay(300); //tempo para tirar o dedo do botão
 				}
@@ -514,22 +378,22 @@ int main(){
 			//==========================================================
             //Quinta opcao = monitoramento
 			else if(op == 4){
-				atualizaLCD(opcao4, opcao0, lcd);	
+				atualizaLCD(opcao4, opcao0, lcd);	 // Atualiza o lcd com a nova opcao
 				if(digitalRead(previous) == LOW){
-					op--;
+					op--; // Diminui o valor da opcao
                     lcdClear(lcd); //Limpa o lcd
                     delay(300); //tempo para tirar o dedo do botão
 				}
-				else if(digitalRead(enter) == LOW){
+				else if(digitalRead(enter) == LOW){ // Caso a opcao seja selecionada
                     lcdClear(lcd); //Limpa o lcd
-                    printaLCD(opSel, opcao4, lcd);
-                    delay(1000);
-                    opcaoSelecionada = 1;
-                    op2 = 2;
+                    printaLCD(opSel, opcao4, lcd); // Mostra que foi selecionada a opcao
+                    delay(1000); // Espera 1s
+                    opcaoSelecionada = 1; // Coloca opcao selecionada como true
+                    op2 = 2; // Opcao de condicao para entrar no segundo SubMenu
                     lcdClear(lcd); //Limpa o lcd
 				}
 				else if(digitalRead(next) == LOW){ 
-					op = 0;
+					op = 0; // Volta pra primeira opcao
                     lcdClear(lcd); //Limpa o lcd
                     delay(300); //tempo para tirar o dedo do botão
 				}
@@ -538,6 +402,7 @@ int main(){
 		}
         //=============== Em caso de Já ter mandado uma requisição a uma unidade ============================
         else if(unidadeSelecionada == 1 && opcaoSelecionada == 1){
+            /*========= Primeiro submenu Nova Requisicao ou Nova Unidade ===================*/
             if(op2 == 0){ 
                 printaLCD("->Outra Unid.", "Nova Requisicao", lcd);  
                 // Se selecionado, as variaveis resetam e volta pro menu de unidades          
@@ -549,12 +414,12 @@ int main(){
                     lcdClear(lcd);
                 }
                 else if(digitalRead(previous) == LOW){
-                    op2 ++;
+                    op2 ++; // Vai pra proxima unidade do submenu
                     lcdClear(lcd); //Limpa o lcd
                     delay(300); //tempo para tirar o dedo do botão
                 }
                 else if(digitalRead(next) == LOW){
-                    op2 ++;
+                    op2 ++; // Vai pra proxima unidade do submenu
                     lcdClear(lcd); //Limpa o lcd
                     delay(300); //tempo para tirar o dedo do botão
                 }
@@ -568,23 +433,23 @@ int main(){
                     lcdClear(lcd);
                 }
                 else if(digitalRead(previous) == LOW){
-                    op2 --;
+                    op2 --; // Vai pra unidade anterior do submenu
                     lcdClear(lcd); //Limpa o lcd
                     delay(300); //tempo para tirar o dedo do botão
                 }
                 else if(digitalRead(next) == LOW){
-                    op2 --;
+                    op2 --; // Vai pra unidade anterior do submenu
                     lcdClear(lcd); //Limpa o lcd
                     delay(300); //tempo para tirar o dedo do botão
                 }
             }
             /*========================== Menu de monitoramento ======================*/
             if(op2 == 2){
-                if(opcoesSensores == 0){
+                if(opcoesSensores == 0){ // Caso Seja os sensores Analogicos:
                     printaLCD("Qual sensor?","-> A0", lcd);
                     if(digitalRead(enter) == LOW){
-                        delay(400);
-                        while (digitalRead(enter) == HIGH){
+                        delay(400); // Espera um tempo de 400ms por conta do botao
+                        while (digitalRead(enter) == HIGH){ // Enquanto o botão enter não for precionado
                             codigo = entrada_analogica;
                             /* Manda código*/
                             writeUart(uart0_filestream,codigo);
@@ -592,15 +457,17 @@ int main(){
                             
                             /*Recebe codigo*/
                             readUart(uart0_filestream, resposta);
+                            /* Vai ser recebido 3 bytes*/
                             dest[0] = resposta[0];
                             dest[1] = resposta[1];
                             dest[2] = resposta[2];
                             delay(10);
-
+                            
+                            // É feito um Logic shitf left para a multiplicacao no final eh somado todos os valores dos vetores
                             valorAnalog =  (dest[2] << 16) + (dest[1] << 8) + dest[0];
                             
                             lcdClear(lcd); //Limpa o lcd
-                            printaLCDInt("Valor A0:", valorAnalog, lcd);
+                            printaLCDInt("Valor A0:", valorAnalog, lcd); // Mostra o valor do sensor
                             delay(1000);
                         }
                         limpaVetor(resposta, 8);
@@ -618,17 +485,17 @@ int main(){
                         delay(300); //tempo para tirar o dedo do botão
                     }
                 }
-                else if(opcoesSensores == 1){
+                else if(opcoesSensores == 1){ // Caso Seja os sensores Digitais:
                     lcdPosition(lcd, 0, 0); //Seleciona a linha superior;
                     lcdPrintf(lcd, "Qual Sensor?");
 
                     lcdPosition(lcd, 0, 1);//Seleciona a linha inferior;
-                    lcdPrintf(lcd,"-> D%i",sensoresDigitais);
+                    lcdPrintf(lcd,"-> D%i",sensoresDigitais); // Mostra o sensor para selecao
 
                     if(digitalRead(enter) == LOW){
                         delay(300); //tempo para tirar o dedo do botão
-                        lcdClear(lcd);
-                        switch (sensoresDigitais){
+                        lcdClear(lcd); // Limpa o lcd
+                        switch (sensoresDigitais){ // Faz um switch com o valor selecionado
                             case 0:
                                 codigo = entrada_digital_0;
                                 break;
@@ -657,8 +524,7 @@ int main(){
                                 codigo = entrada_digital_8;
                                 break;
                         }
-
-                        while (digitalRead(enter) == HIGH){
+                        while (digitalRead(enter) == HIGH){ // Enquanto o botão enter não for precionado
                             /* Manda código*/
                             writeUart(uart0_filestream, codigo);
                             delay(10); // Tempo minimo para recepcao
@@ -666,44 +532,44 @@ int main(){
                             readUart(uart0_filestream, resposta);
                             // lcdClear(lcd); //Limpa o lcd
                             printaLCDInt("Valor:", resposta[0], lcd);
-                            delay(500);
+                            delay(500); // Espera um tempo de 0,5s para nova atualizacao de valor
                         }
                         limpaVetor(resposta, 8);
-                        op2 =0;
-                        lcdClear(lcd); 
+                        op2 =0; // Volta para o primeiro submenu
+                        lcdClear(lcd); // Limpa o LCD
                     }                    
                     else if(digitalRead(previous) == LOW && sensoresDigitais ==0){ 
-                        opcoesSensores = 0;
+                        opcoesSensores = 0; // Volta para a opcao do sensor analogico
                         lcdClear(lcd); //Limpa o lcd
                         delay(300); //tempo para tirar o dedo do botão
                     }
                     else if(digitalRead(next) == LOW && sensoresDigitais ==8){ 
-                        opcoesSensores = 0;
+                        opcoesSensores = 0; // Volta para a opcao do sensor analogico
                         lcdClear(lcd); //Limpa o lcd
                         delay(300); //tempo para tirar o dedo do botão
                     }
                     else if(digitalRead(previous) == LOW && sensoresDigitais > 0){ 
-                        sensoresDigitais--;
+                        sensoresDigitais--; // Sensor digital anterior
                         lcdClear(lcd); //Limpa o lcd
                         delay(300); //tempo para tirar o dedo do botão
                     }
                     else if(digitalRead(next) == LOW && sensoresDigitais < 8){ 
-                        sensoresDigitais++;
+                        sensoresDigitais++; // Proximo Sensor digital 
                         lcdClear(lcd); //Limpa o lcd
                         delay(300); //tempo para tirar o dedo do botão
                     }
                 }
             }
-            /*========================== Menu de sensores digitais ======================*/
+            /*========================== SubMenu de sensores digitais ======================*/
             if(op2 == 3){
                 lcdPosition(lcd, 0, 0); //Seleciona a linha superior;
                 lcdPrintf(lcd, "Qual Sensor?");
 
                 lcdPosition(lcd, 0, 1);//Seleciona a linha inferior;
-                lcdPrintf(lcd,"-> D%i",sensoresDigitais);
+                lcdPrintf(lcd,"-> D%i",sensoresDigitais); // Mostra o sensor para selecao
 
-                if(digitalRead(enter) == LOW){
-                    switch (sensoresDigitais){
+                if(digitalRead(enter) == LOW){ // Caso o sensor seja selecioando
+                    switch (sensoresDigitais){ // Faz um switch com o valor
                         case 0:
                             codigo = entrada_digital_0;
                             break;
@@ -742,27 +608,27 @@ int main(){
 
                     lcdClear(lcd); //Limpa o lcd
                     printaLCDInt("Valor:", resposta[0], lcd);
-                    delay(2000);
-                    limpaVetor(resposta, 8);
-                    op2 =1;
-                    delay(300);
+                    delay(2000); // Espera 2s
+                    limpaVetor(resposta, 8); // Limpa o vetor de resposta
+                    op2 =1; // Volta pro primeiro subMenu
+                    delay(300); //Tempo para o botao
                 }
-                else if(digitalRead(previous) == LOW){ 
-                    if (sensoresDigitais == 0){
-                        sensoresDigitais = 8;
+                else if(digitalRead(previous) == LOW){ // Caso o botao de anterior seja pressionado
+                    if (sensoresDigitais == 0){ // Se estiver no inicio da lista
+                        sensoresDigitais = 8; // Volta pro final
                     }
                     else{
-                        sensoresDigitais --;
+                        sensoresDigitais --; // Caso contrario retorna uma unidade
                     }
                     lcdClear(lcd); //Limpa o lcd
                     delay(300); //tempo para tirar o dedo do botão
                 }
-                else if(digitalRead(next) == LOW){  
-                    if (sensoresDigitais == 8){
-                        sensoresDigitais = 0;
+                else if(digitalRead(next) == LOW){  // Caso o botao de proximo seja pressionado
+                    if (sensoresDigitais == 8){  // Se estiver no final da lista
+                        sensoresDigitais = 0; // Volta pro inicio
                     }
                     else{
-                        sensoresDigitais ++;
+                        sensoresDigitais ++; // Caso contrario avanca uma unidade
                     }
                     lcdClear(lcd); //Limpa o lcd
                     delay(300); //tempo para tirar o dedo do botão
@@ -770,12 +636,12 @@ int main(){
             }
         }
     }
-    close(uart0_filestream);
-    return 0;
+    close(uart0_filestream); // Fecha o arquivo da uart
+    return 0; // Finaliza o programa
 }
 //===================================================================================================
 /*======================================== Funcoes ================================================*/
-/* Função para mostrar String na LCD */
+/* Função para mostrar String na LCD   -> Funciona como um printf */
 void printaLCD(char dadoSup[],char dadoInf[], int lcd){ //ImpressÃ£o no lcd
     lcdPosition(lcd, 0, 0); //Seleciona a linha superior;
     lcdPrintf(lcd, "%s", dadoSup);
@@ -793,7 +659,7 @@ void printaLCDHexa(char dadoSup[],char dadoInf, int lcd){ //ImpressÃ£o no lcd
     lcdPrintf(lcd, "Codigo: 0x%x", dadoInf);
 }
 //==========================================================
-/* Função para mostrar na int LCD -> Funciona como um printf */
+/* Função para mostrar na int LCD */
 void printaLCDInt(char dadoSup[],int valorAnalog, int lcd){ //ImpressÃ£o no lcd
     lcdPosition(lcd, 0, 0); //Seleciona a linha superior;
     lcdPrintf(lcd, "%s", dadoSup);
@@ -805,18 +671,18 @@ void printaLCDInt(char dadoSup[],int valorAnalog, int lcd){ //ImpressÃ£o no lc
 /* Função pra Escrever na UART */
 void writeUart (int uart0_filestream, unsigned char dado){
 
-    unsigned char tx_buffer[10];
-    unsigned char *p_tx_buffer;
+    unsigned char tx_buffer[10]; // Variavel para buffer
+    unsigned char *p_tx_buffer; // Ponteiro para o buffer
 
-    p_tx_buffer = &tx_buffer[0];
+    p_tx_buffer = &tx_buffer[0]; // Aponta para o endereco do inicio do buffer
 
-    *p_tx_buffer++ = dado ;
+    *p_tx_buffer++ = dado; // adiciona ao ponteiro o dado que tem para envio
     
     // Envio do TX - Uart
-    int count = write (uart0_filestream, &tx_buffer[0], (p_tx_buffer-&tx_buffer[0]));
+    int count = write (uart0_filestream, &tx_buffer[0], (p_tx_buffer-&tx_buffer[0])); // escreve e retorna o tamanho da palavra escrita
     printf("Escrevendo na UART ...\n");
-    if(count<0){
-        printf("Erro no envio de dados - TX\n"); 
+    if(count<0){ // caso nao escreva nada
+        printf("Erro no envio de dados - TX\n"); // Mostra Erro no console
     }
 }
 //==========================================================
@@ -825,11 +691,11 @@ void readUart(int uart0_filestream, unsigned char rx_buffer[]){
     // Recebimento do RX - Uart
     int rx_length = 0;
 
-    rx_length = read (uart0_filestream, (void*) rx_buffer, 8);
-    if(rx_length <0){
-        rx_buffer[0] = erro;
+    rx_length = read (uart0_filestream, (void*) rx_buffer, 8); // Le o buffer e retorna o tamanho
+    if(rx_length <0){ // Caso nao tenha resposta:
+        rx_buffer[0] = erro; // Substitui por codigo de erro
     }
-    else if (rx_length == 0){
+    else if (rx_length == 0){ // Caso nao tenha dado na resposta
         printf("Nenhum dado disponível\n");
     }
 }
@@ -837,13 +703,13 @@ void readUart(int uart0_filestream, unsigned char rx_buffer[]){
 /*Função para colocar a chave de seleção*/
 void atualizaLCD (char fraseSup[], char fraseInf[], int lcd){
 	// Variaveis auxiliares
-	char selecao[16] = "->", prox[16];
+	char selecao[16] = "->", prox[16]; 
 	
 	//Adiciona a seta na parte de selecao
-	strcat(selecao,fraseSup);
-	strcpy(prox, fraseInf);
+	strcat(selecao,fraseSup); // Adiciona a Seta na opcao que pode ser selecionada
+	strcpy(prox, fraseInf); // Copia a mensagem da frase para a variavel auxiliar
 
-    printaLCD(selecao, prox, lcd);
+    printaLCD(selecao, prox, lcd); // Mostra na LCD
 }
 //==========================================================
 /*Função para colocar a chave de seleção antes da unidade e acrescentar o valor da unidade no fim da linha*/
@@ -854,42 +720,43 @@ void atualizaLCDVetor (char fraseSup[], char fraseInf[], int valor[], int lcd){
 	char selecao[16] = "->", prox[16];
 	
 	//Adiciona a seta na parte de selecao
-	strcat(selecao,fraseSup);
-	strcpy(prox, fraseInf);
+	strcat(selecao,fraseSup); // Adiciona a Seta na opcao que pode ser selecionada
+	strcpy(prox, fraseInf); // Copia a mensagem da frase para a variavel auxiliar
 	
 		
 	// Percorrendo a string
-	posSup = strlen(selecao);
-	posInf = strlen(prox);
-	
+	posSup = strlen(selecao); // Guarda o tamanho da variavel
+	posInf = strlen(prox); // Guarda o tamanho da variavel
+	 
     //Frase superior
     k = valor[0] +'0'; // dezena em char
     l = valor[1] +'0'; // unidade em char
-    selecao [posSup] = k;
-    selecao [posSup + 1] = l;
-    selecao [posSup + 2] = '\0';
+    selecao [posSup] = k; // adiciona o valor da dezena
+    selecao [posSup + 1] = l; // adiciona o valor da unidade
+    selecao [posSup + 2] = '\0'; // adiciona \0 para indicar fim da string
 
-    // Frase inferior
+    // Frase inferior é feito o mesmo protocolo
     m = valor[2] +'0'; //Unidade Futura
     n = valor[3] +'0'; //Dezena Futura
     prox [posInf] = m;
     prox [posInf + 1] = n;
     prox [posInf + 2] = '\0';
     
-    if(valor[0] == 0 && valor[1] == 0){
-    	strcpy(selecao, "->TodasUnidades");
+    if(valor[0] == 0 && valor[1] == 0){ // Se a unidade for 00:
+    	strcpy(selecao, "->TodasUnidades"); // Copia o valor para frase de selecao
 	}
-	else if(valor[2] == 0 && valor[3] == 0){
-    	strcpy(prox, "TodasUnidades");
+	else if(valor[2] == 0 && valor[3] == 0){ // Se a proxima unidade for 00:
+    	strcpy(prox, "TodasUnidades");  // Copia o valor para proxima frase de selecao
 	}
-    printaLCD(selecao, prox, lcd);
+    printaLCD(selecao, prox, lcd); // Mostra na lcd
 }
 //==========================================================
 /*Função para passar o valor do vetor*/
 void nextValor(int v[]){
 	//Dezena, Unidade, Dezena Futura, Unidade Futura; 
 	v[1] = v[1] + 1;        
-	v[3] = v[3] + 1;    
+	v[3] = v[3] + 1;   
+    /* Unidade Para selecao*/ 
 	if (v[1] >= 10){ // Se unidade chegar a 10
 	    v[0]= v[0]+1; // Adicione 1 em dezena
 	    v[1]= 0; // resete a unidade
@@ -898,13 +765,14 @@ void nextValor(int v[]){
 	    v[0] = 0; // resete dezena
 	    v[1] = 0; // resete unidade
 	}	
-	if(v[3] >= 10){
-	    v[2] = v[2]+1;
-	    v[3] = 0;
+    /* Unidade Futura*/
+	if(v[3] >= 10){ // Se o valor for maior ou igual a 10
+	    v[2] = v[2]+1;  // Adicione 1 em dezena
+	    v[3] = 0;  // resete a unidade
 	}	
 	else if(v[2]==3 && v[3]==3){ // Se Dezena for igual 3 e unidade for igual a 3
-	    v[2] = 0;
-	    v[3] = 0;
+	    v[2] = 0;// resete dezena
+	    v[3] = 0;// resete unidade
 	}
 }
 //========================================================================================
@@ -916,15 +784,15 @@ void previousValor(int v[]){
 		v[0] = 3; // Volta a dezena pra 3
 		v[1] = 2; // Volta a unidade pra 2 = 32
 	}
-	else if ( (v[0]) >= zero && (v[1] - 1) >=  zero){
-		v[1] = v[1] - 1;  
+	else if ( (v[0]) >= zero && (v[1] - 1) >=  zero){ // Se unidade maior ou igual a zero e dezena -1 for maior ou igual a zero
+		v[1] = v[1] - 1;  // Diminui 1 na unidade
 	}
-	else if ( (v[0]) > zero && (v[1] - 1) == negativo){
-		v[1] = 9;
-		v[0] = v[0] - 1;
+	else if ( (v[0]) > zero && (v[1] - 1) == negativo){ // Se unidade maior ou igual a zero e dezena -1 for maior ou igual a negativo
+		v[1] = 9; // Unidade = 9
+		v[0] = v[0] - 1; // Diminui 1 na dezena
 	}
 	
-	// Valor Futuro
+	// Valor Futuro = mesmo protocolo do valor atual
 	if((v[2]) == zero && (v[3] - 1) == negativo){
 		v[2] = 3;
 		v[3] = 2;
@@ -940,14 +808,12 @@ void previousValor(int v[]){
 		v[2] = v[2] - 1;
 	}
 }
-/*==========================================================================================*/
-
 //========================================================================================
-/*Função para limpar vetor*/
+/*Função para limpar vetor buffer de recebimento*/
 void limpaVetor (unsigned char v[], int tamanho){
     int i;
-    for(i=0; i < tamanho; i++){
-        v[i] = 0b00000000;
+    for(i=0; i < tamanho; i++){ // Enquanto i for menor que o tamanho passado como referencia:
+        v[i] = 0b00000000; // acrescenta o valor 0  em binario dentro do vetor para reseta-lo
     }
 }
 /*==========================================================================================*/

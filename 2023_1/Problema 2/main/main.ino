@@ -47,22 +47,17 @@ int dimmer_pin[] = {14, 5, 15};
 #define resposta_Analogica  0x12
 
 void setup() {
-  
-  /* definicoes de pinos*/
-
 
   Serial.begin(9600); // BaudRate
   //Led:
   pinMode(led_pin, OUTPUT);
   
-  //Serial.println("Booting");
   WiFi.mode(WIFI_STA);
 
   WiFi.begin(ssid, password);
 
   while (WiFi.waitForConnectResult() != WL_CONNECTED) {
     WiFi.begin(ssid, password);
-    //Serial.println("Tentando nova conexão...");
   }
   /* switch off led */
   digitalWrite(led_pin, HIGH);
@@ -98,20 +93,13 @@ void setup() {
 
   /* setup the OTA server */
   ArduinoOTA.begin();
-  //Serial.println("Tudo pronto.");
 
+  //Desliga a led
   digitalWrite(led_pin, HIGH);
   
   //Possiveis Botoes:
   pinMode(D0, INPUT);
   pinMode(D1, INPUT);
-  /*pinMode(D2, INPUT);
-  pinMode(D3, INPUT);
-  pinMode(D4, INPUT);
-  pinMode(D5, INPUT);
-  pinMode(D6, INPUT);
-  pinMode(D7, INPUT);
-  pinMode(D8, INPUT);*/
 }
 
 /*Variáveis*/
@@ -127,7 +115,7 @@ void loop() {
   /* ====================== Verifica se tem algo sendo recebido =========================*/
   if(Serial.available() > 0) {
     char c = Serial.read(); //Le o pino RX
-    /* ====================== Caso tenha e a unidade esteja desativada: =========================*/
+    /* ====================== Situação 1 -> Caso tenha e a unidade esteja desativada: =========================*/
     if (unidade == false){
     /* ====================== Se o que foi lido for igual ao código da unidade: =========================*/
       if (c == unidadeAtual){
@@ -141,7 +129,7 @@ void loop() {
         Serial.write(unidadeAtual);
       }    
     }
-    /*======================== Situação 5 -> Unidade já está ativa: =============================*/
+    /*======================== Situação 2 -> Unidade já está ativa: =============================*/
     else if (unidade == true){
       /*======================== Acende o LED =============================*/
       if(c == acende_led && digitalRead(led_pin) == HIGH){
@@ -160,30 +148,33 @@ void loop() {
         testeSensor[0] = digitalRead(D0);
         testeSensor[1] = digitalRead(D1);
 
+        /*===================== VERIFICACAO ===================*/
         /*Portas Analogica com Potenciometro*/
         if(valor < 0 || valor > 1024){
           sensorProblema = true;
         }
         /*Portas digitais com pushButton*/
-        else if(testeSensor[0] != HIGH){
+        else if(testeSensor[0] != HIGH){  // D0
           sensorProblema = true;
         }
-        else if(testeSensor[1] != HIGH){
+        else if(testeSensor[1] != HIGH){ // D1
           sensorProblema = true;
         }
         else{
           sensorProblema = false;
         }
-        if (sensorProblema == false){           
-          Serial.write(funcionando);     
+        /*=========== Envio da verificação ================*/
+        if (sensorProblema == false){  // Caso não tenha problema
+          Serial.write(funcionando);     // Envia 0x02
         }
         else{
-          Serial.write(problema);   
+          Serial.write(problema);   // Envia 0x01
         }
       } 
       /*======================== Le o potenciometro =============================*/          
       else if(c == entrada_analogica){
-        valor = analogRead(A0);
+        valor = analogRead(A0); // Le a porta analogica e salva o valor na variavel
+        // Particiona o int (12 bits) em três palavras de 8 bits
         dest[0] = valor         & 0xff;
         dest[1] = (valor >> 8)  & 0xff; 
         dest[2] = (valor >> 16)  & 0xff; 
@@ -192,7 +183,7 @@ void loop() {
         Serial.write(dest[1]);
         Serial.write(dest[2]);
       }
-      /*======================== Le as Entradas Digitais =============================*/    
+      /*================== Le as Entradas Digitais e envia os valores das portas ======================*/    
       else if(c == entrada_digital_0){
         dado_digital = digitalRead(D0);             // lendo da porta digital
         Serial.write(dado_digital);                 // enviando o valor pela serial
