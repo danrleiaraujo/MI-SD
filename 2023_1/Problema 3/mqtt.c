@@ -49,7 +49,8 @@ void publish(MQTTClient client, char* topic, char* payload) {
 }
  
 /* Funcao: callback de mensagens MQTT recebidas e echo para o broker
- * Parametros: contexto, ponteiro para nome do topico da mensagem recebida, tamanho do nome do topico e mensagem recebida
+ * Parametros: contexto, ponteiro para nome do topico da mensagem recebida, 
+ * tamanho do nome do topico e mensagem recebida
  * Retorno : 1: sucesso (fixo / nao ha checagem de erro neste exemplo)
 */
 int on_message(void *context, char *topicName, int topicLen, MQTTClient_message *message) {

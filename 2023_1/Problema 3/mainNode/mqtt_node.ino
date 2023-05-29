@@ -6,30 +6,12 @@
 #include <ArduinoOTA.h>
 
 
-    //////////////////// issso aq apaga ///////////////////
-// WiFi
-const char *ssid = "mousse"; // Digite seu nome WiFi 
-const char *password = "qweqweqwe";  // Digite a senha do Wi-Fi
-   //////////////////// issso aq apaga ///////////////////
-
 // MQTT Broker
 const char *mqtt_broker = "10.0.0.1";
 const char *topic = "esp8266/test";
 const char *mqtt_username = "aluno";
 const char *mqtt_password = "@luno*123";
 const int mqtt_port = 1883;
-
-// Abra uma conexão serial para facilitar a saída do resultado do programa e conectar-se à rede Wi-Fi.
-
-
-// Define a transmissão serial do software para 115200; 
-Serial.begin(115200);
-// conectando a uma rede WiFi 
-WiFi.begin(ssid, password);
-while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.println("Conectando ao WiFi..");
-}
 
 
 //Defina o agente MQTT, escreva a função de retorno de chamada e
