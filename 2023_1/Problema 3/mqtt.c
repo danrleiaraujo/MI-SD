@@ -8,12 +8,10 @@
 /*
 * Defines
 */
-/* Caso desejar utilizar outro broker MQTT, substitua o endereco abaixo */
-#define MQTT_ADDRESS   "tcp://10.0.0.1"
-/* Substitua este por um ID unico em sua aplicacao */
+#define MQTT_ADDRESS   "tcp://10.0.0.101:1883@@luno*123"
 #define CLIENTID       "aluno"  
- 
-/* Substitua aqui os topicos de publish e subscribe por topicos exclusivos de sua aplicacao */
+#define USERNAME	"aluno"
+#define PASSWORD	"@luno*123"
 #define MQTT_PUBLISH_TOPIC     "MQTTCClientPubTopic"
 #define MQTT_SUBSCRIBE_TOPIC   "MQTTCClientSubTopic"
  
@@ -33,8 +31,6 @@ int on_message(void *context, char *topicName, int topicLen, MQTTClient_message 
 */
  
 /* Funcao: publicacao de mensagens MQTT
- * Parametros: cleinte MQTT, topico MQTT and payload
- * Retorno: nenhum
 */
 void publish(MQTTClient client, char* topic, char* payload) {
     MQTTClient_message pubmsg = MQTTClient_message_initializer;
@@ -66,6 +62,7 @@ int on_message(void *context, char *topicName, int topicLen, MQTTClient_message 
     MQTTClient_free(topicName);
     return 1;
 }
+ 
  
 int main(int argc, char *argv[])
 {

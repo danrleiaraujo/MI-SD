@@ -2,6 +2,7 @@
 #include <ESP8266mDNS.h>
 #include <WiFiUdp.h>
 #include <ArduinoOTA.h>
+#include <PubSubClient.h>
 
 #ifndef STASSID
 #define STASSID "INTELBRAS"
@@ -11,6 +12,16 @@
 const char* ssid = STASSID;
 const char* password = STAPSK;
 const char* host = "ESP-10.0.0.108";
+
+const char *mqtt_broker = "10.0.0.1";
+const char *mqtt_username = "aluno";
+const char *mqtt_password = "@luno*123";
+
+const char *topic = "esp8266/test";
+
+WiFiClient espClient;
+PubSubClient client(espClient);
+
 
 int led_pin = LED_BUILTIN;
 #define N_DIMMERS 3
@@ -100,6 +111,12 @@ void setup() {
   //Possiveis Botoes:
   pinMode(D0, INPUT);
   pinMode(D1, INPUT);
+
+
+  //config mqtt   ///////////////////////////////////////////////////////////
+
+  client.setServer(mqtt_server, 1883); 
+  client.setCallback(callback);
 }
 
 /*Variáveis*/
