@@ -115,8 +115,8 @@ void setup() {
 
   //config mqtt   ///////////////////////////////////////////////////////////
 
-  client.setServer(mqtt_server, 1883); 
-  client.setCallback(callback);
+  // client.setServer(mqtt_server, 1883); 
+  // client.setCallback(callback);
 }
 
 /*Variáveis*/
