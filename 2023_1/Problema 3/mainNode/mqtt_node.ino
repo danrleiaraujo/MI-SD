@@ -60,6 +60,8 @@ int dimmer_pin[] = {14, 5, 15};
 
 /*Unidade 0*/
 #define unidade_1 0b11000001
+#define unidade_2 0b11000010
+#define unidade_3 0b11000011
 #define todas_unidades 0b11111110
 
 #define espera 1 //tem que ser referente ao valor da unidade
@@ -207,7 +209,7 @@ void callback(String topic, byte* message, unsigned int length) {
 
 
       /*======================== Situação Atual =============================*/ 
-      else if(c == situacao_sensor){
+      else if(messageTemp == situacao_sensor){
         /*Leitura dos sensores*/
         valor = analogRead(A0);
         testeSensor[0] = digitalRead(D0);
@@ -316,11 +318,11 @@ void callback(String topic, byte* message, unsigned int length) {
       }
 
       /*======== Situacao 3 -> desativa apenas a unidade ==================*/
-      if (c == unidadeAtual){
+      if (messageTemp == unidadeAtual){
         unidade = false;
       }    
       /*======== Situacao 4 -> desativa todas as unidades ==================*/
-      else if (c == todas_unidades){
+      else if (messageTemp == todas_unidades){
         unidade = false;
       }  
       /*

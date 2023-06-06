@@ -15,12 +15,13 @@
 #define MQTT_SUBSCRIBE_TOPIC   "respostas"
 
 /* binário */
-#define PAYLOAD     "0b00100001" // Alternar estado do led 
+#define PAYLOAD     "0b00100001" // Alternar estado do led (msg)
 
 #define QOS         1
 #define TIMEOUT     10000L
 
 volatile MQTTClient_deliveryToken deliveredtoken;
+
 
 void delivered(void *context, MQTTClient_deliveryToken dt);
 int msgarrvd(void *context, char *topicName, int topicLen, MQTTClient_message *message);
