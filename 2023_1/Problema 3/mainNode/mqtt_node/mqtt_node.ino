@@ -14,8 +14,6 @@ const char* ssid = STASSID;
 const char* password = STAPSK;
 const char* host = "ESP-10.0.0.107";
 
-int led_pin = LED_BUILTIN;
-
 int buttonD0 = D0; // push button is connected
 int buttonD1 = D1; // push button is connected
 int temp0 = 0;   // temporary variable for reading the button pin status

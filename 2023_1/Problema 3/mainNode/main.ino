@@ -4,15 +4,16 @@
 #include <ArduinoOTA.h>
 #include <PubSubClient.h>
 
+/*Bloco de Handle - > WI-FI*/
 #ifndef STASSID
 #define STASSID "INTELBRAS"
 #define STAPSK  "Pbl-Sistemas-Digitais"
 #endif
-
 const char* ssid = STASSID;
 const char* password = STAPSK;
 const char* host = "ESP-10.0.0.108";
 
+/* Bloco do MQTT - > Broker*/
 const char *mqtt_broker = "10.0.0.1";
 const char *mqtt_username = "aluno";
 const char *mqtt_password = "@luno*123";
