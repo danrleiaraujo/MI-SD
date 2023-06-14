@@ -1,0 +1,17 @@
+body{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgb(205, 205, 221);
+}
+
+.main{
+    width: 80%;
+    align-items: center;
+}
+
+
+.chart-container {
+	max-width: 800px;
+	margin: 0 auto;
+}

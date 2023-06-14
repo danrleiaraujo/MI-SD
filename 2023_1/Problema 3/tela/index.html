@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="app.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>Estação de sensoriamento</title>
+</head>
+<body> 
+    <div class="main">
+        <h2 align="center"> Problema 3 -  IoT: A Internet das Coisas</h2>
+        <h3 align="center"> Darnlei Araujo e Evelyn Suzarte</h3>   
+        <canvas id="myChart"></canvas>
+    </div> 
+
+    <script>        
+        const labels = [
+            'node1',
+            'node2'
+        ];
+
+        const data = {
+            labels,
+            datasets: [{
+                data: [0 , 1 , 50, 100, 200, 300, 400, 500, 600, 700, 800],
+                label: "Valor do sensor",
+                backgroundColor: "blue",
+                borderColor: "blue"
+            }]
+        };
+
+        function add_data(label, data) {
+            myChart.data.labels.push(label);
+            myChart.data.datasets.forEach((dataset) => {
+                dataset.data.push(data);
+            });
+            myChart.update();
+        }
+
+        function remove_firstData() {
+            myChart.data.labels.splice(0, 1);
+            myChart.data.datasets.forEach((dataset) => {
+                dataset.data.shift();
+            });
+        }
+        
+        const ctx = document.getElementById('myChart').getContext("2d");
+        const myChart = new Chart(ctx, {
+            type: 'line',
+            data,
+            options:{
+                resposive: true,
+ 
+            }
+        });
+
+    </script>
+
+</body>
+</html>
