@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include "MQTTClient.h"
 #include <netdb.h>
 
@@ -8,12 +9,29 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'donsky!'
 socketio = SocketIO(app, cors_allowed_origins='*');
 
+///////////         data/ Node x/ pino/ informação:
+
+
+
+time_t agora;
+char datahora[100];
+
+/* Recupera a quantidade de segundos desde 01/01/1970 */
+agora = time(NULL);
+
+/* Formata a data e a hora da forma desejada */
+strftime( datahora, sizeof(datahora), "%d.%m.%Y - %H:%M:%S", localtime( &agora ) );
+
+printf( "Data/Hora: %s\n", datahora );
+
+
+
 ////////////////////IMPORTANTE
-socketio.emit('resposta_node', {'node': listrosUtilizados, "data": dataH+' \ninformacao:'+vazao,  "pino": dataH+})
+socketio.emit('resposta_node', {'data': datahora, "node": dataH+, "pino":+vazao,  "informacacao": dataH+})
             socketio.sleep(1)   
 ////////////////////IMPORTANTE
 
-
+data/ Node x/ pino/ informação:
 """
 Ele chama a thread que se inscreve no tópico do hidrômetro
 """

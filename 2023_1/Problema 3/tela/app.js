@@ -39,18 +39,6 @@ const myChart = new Chart(ctx, {
 
 
 const contador_max = 10;
-//connect to the socket server.
-//   var socket = io.connect("http://" + document.domain + ":" + location.port);
-var socket = io.connect();
+console.log("Dado recebido: data/ Node x/ pino/ informação:", msg.data + " - " + msg.node + "----->"+ msg.pino + " :: " + msg.informacao);
+XMLDocument
 
-//receive details from server
-socket.on("resposta_node", function (msg) {
-  console.log("Recebendo :: " + msg.date + " :: " + msg.value);
-
-  // Show only MAX_DATA_COUNT data
-  if (myChart.data.labels.length > contador_max) {
-    removeFirstData();
-  }
-  addData(msg.date, msg.value);
-});
-});
