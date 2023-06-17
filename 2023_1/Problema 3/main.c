@@ -85,32 +85,44 @@
 /*-- MQTT --*/
 #define ADDRESS     "tcp://10.0.0.101:1883@@luno*123"
 #define CLIENTID    "SBC"
-#define TOPIC       "online"
-// #define PAYLOAD     "Hello World!"
+#define TOPICPUB    "requisicao"
+#define TOPICSUB    "resposta"
 #define QOS         1
 #define TIMEOUT     10000L
 #define USERNAME	"aluno"
 #define PASSWORD	"@luno*123"
+
+/* ================================== MQTT ========================================*/
+/*-------------- Criacao do objeto -----------*/
+MQTTClient client;
+MQTTClient_connectOptions conn_opts = MQTTClient_connectOptions_initializer;
+MQTTClient_message pubmsg = MQTTClient_message_initializer;
+MQTTClient_deliveryToken token;
+int rc;
+char respostaMQTT[100] = "0";
 /*-----------------------------------------------------*/
 
 /*--------------------------Funcoes--------------------*/
+/* ======================== LCD ==================== */
 void printaLCD(char linhaSup[], char linhaInf[], int lcd); //printa o lcd
 void printaLCDInt(char linhaSup[], int valorAnalog, int lcd); //printa o lcd
 void printaLCDHexa(char dadoSup[],char dadoInf, int lcd); //printa o lcd
+/* ======================== MQTT ==================== */
+void publisher (char topico[], char msg[]);
+void subscriber (void);
+int msgarrvd(void *context, char *topicName, int topicLen, MQTTClient_message *message);
+void connlost(void *context, char *cause);
+volatile MQTTClient_deliveryToken deliveredtoken;
+/* ======================== UART =================== */
 void writeUart (int uart0_filestream, unsigned char dado);
 void readUart (int uart0_filestream, unsigned char resposta[]);
+/* ================ Auxiliares do menu ============== */
 void atualizaLCD (char fraseSup[], char fraseInf[], int lcd);
 void atualizaLCDVetor (char fraseSup[], char fraseInf[], int valor[], int lcd);
 void nextValor(int v[]);
 void previousValor(int v[]);
 void limpaVetor(unsigned char v[], int tamanho);
- 
-/* -- FUNCOES MQTT -- */
-void delivered(void *context, MQTTClient_deliveryToken dt);
-int msgarrvd(void *context, char *topicName, int topicLen, MQTTClient_message *message);
-void connlost(void *context, char *cause);
-volatile MQTTClient_deliveryToken deliveredtoken;
-
+ /* ===================================================*/
 /*-------------------------------------MAIN------------------------------------------------------------*/
 int main(){
     wiringPiSetup();            // inicia biblioteca wiringPi
@@ -127,7 +139,6 @@ int main(){
     pinMode(previous, INPUT);           // configura pino como entrada
     pinMode(enter, INPUT);           // configura pino como entrada
 	/*==================================================================================*/
-    
     /*============================== Variaveis =================================*/
 	int valor[5] = {0,0,0,1}; //Dezena, Unidade, Dezena Futura, Unidade Futura;
     int opcoesSensores = 0, sensoresDigitais = 0;
@@ -148,8 +159,17 @@ int main(){
 		unidade_17, unidade_18, unidade_19,unidade_20,unidade_21,unidade_22,unidade_23,unidade_24,
 		unidade_25, unidade_26, unidade_27,unidade_28,unidade_29,unidade_30,unidade_31,unidade_32
 	};
+    char codigo_unidades[33][8] = {   // Vetor com os codigos de unidades em String
+        "11111110", "11000001", "11000010", "11000011", "11000100", "11000101",
+        "11000110", "11000111", "11001000", "11001001", "11001010", "11001011",
+        "11001100", "11001101", "11001110", "11001111", "11010000", "11010001",
+        "11010010", "11010011", "11010100", "11010101", "11010110", "11010111",
+        "11011000", "11011001", "11011010", "11011011", "11011100", "11011101",
+        "11011110", "11011111", "11100000";
+	};
 	/*==================================================================================*/
-    int uart0_filestream = -1; //Retorno de erro da função Open - 
+    /* ---------------- Abertura e configuracao do arquivo da UART -------------------- */
+    int uart0_filestream = -1; // Retorno de erro da função Open - 
     /*
         FLAGS:
         O_RDWR -> Lê e escreve
@@ -165,8 +185,8 @@ int main(){
     else{
         printf("Abertura do arquivo ttyS3 com êxito\n");
     }
-
-    /* Configuração da uart*/
+    /* ================================== UART ======================================== */
+    /* -------------------------- Configuração da UART -------------------------------- */
     struct termios options;
     tcgetattr(uart0_filestream, &options);
     options.c_cflag = B9600 | CS8 | CLOCAL | CREAD; //BaudRate, tamanho da palavra (CSIZE) -> 9600 8-N-1
@@ -179,51 +199,25 @@ int main(){
     /*============================== INICIA LCD =================================*/
     lcd = lcdInit (2, 16, 4, LCD_RS, LCD_E, LCD_D4, LCD_D5, LCD_D6, LCD_D7, 0, 0, 0, 0);
 	/*==================================================================================*/
-   
     /*============================== BEM VINDO =================================*/
     printaLCD("Menu-TEC499-P2", "Escolha a Opcao:", lcd);    // imprime estado do LED]
     delay(2000); // Espera 2 segundos para iniciar
     lcdClear(lcd); // Limpa o LCD
 	/*==================================================================================*/
-    /*
-    for(i=0; i<=32; i++){ // Zerando o vetor de unidades para saber qual está online.
-		unidadesOnline[i] = 0;
-	}
-
-    while( j <= 32 ){
-        //UART
-        writeUart(uart0_filestream, codigo_unidades[j]); //Manda via UART
-        delay(10); // Tempo minimo para retorno
-        readUart(uart0_filestream, resposta); //Recebe via UART
-
-        if(codigo_unidades[j] == resposta[0]){
-            unidadesOnline[j] = 1;
-        }
-        j++;
-	}*/
     /* ================================== MQTT ========================================*/
-    /*-------------- Criacao do objeto -----------*/
-    MQTTClient client;
-    MQTTClient_connectOptions conn_opts = MQTTClient_connectOptions_initializer;
-    MQTTClient_message pubmsg = MQTTClient_message_initializer;
-    MQTTClient_deliveryToken token;
-    int rc;
-    /*-------------- Criando o client -----------*/
-    if ((rc = MQTTClient_create(&client, ADDRESS, CLIENTID,
-        MQTTCLIENT_PERSISTENCE_NONE, NULL)) != MQTTCLIENT_SUCCESS){
-        //printf("Failed to create client, return code %d\n", rc);
-        exit(EXIT_FAILURE);
-    }
-    /*-------------- Conexao -----------*/
+    /*----------------------------- Criando o client ----------------------------------*/
+    MQTTClient_create (&client, ADDRESS, CLIENTID, MQTTCLIENT_PERSISTENCE_NONE, NULL);
+    /* =============================================================================== */
+    /*-------------------------------- Conexao ----------------------------------------*/
     conn_opts.keepAliveInterval = 20;
     conn_opts.cleansession = 1;
 	conn_opts.username = USERNAME;
 	conn_opts.password = PASSWORD;
+    MQTTClient_setCallbacks(client, NULL, NULL, msgarrvd, NULL);
     if ((rc = MQTTClient_connect(client, &conn_opts)) != MQTTCLIENT_SUCCESS){
-        printf("Failed to connect, return code %d\n", rc);
-        exit(EXIT_FAILURE);
+        printf("Falha para se conectar\n");
     }
-
+    subscriber();
     /*============================== PROGRAMA PRINCIPAL =================================*/
     while(1){
 		// Se nao foi selecionada uma unidade: ==============================================================
@@ -268,18 +262,7 @@ int main(){
                 /* ==========================================================================*/
                 
                 /* ================================== MQTT ========================================*/
-                /*-------------- Criacao da mensagem -----------*/
-                pubmsg.payload = unidadeEscolhida;
-                pubmsg.payloadlen = (int)strlen(unidadeEscolhida);
-                pubmsg.qos = QOS;
-                pubmsg.retained = 0;
-                /*-------------- Tentativa de publicacao -----------*/
-                if ((rc = MQTTClient_publishMessage(client, TOPIC, &pubmsg, &token)) != MQTTCLIENT_SUCCESS){
-                    printf("Falha no envio, tente novamente\n");
-                    //exit(EXIT_FAILURE);
-                }
-                /*-------------- TimeOut para envio -----------*/
-                rc = MQTTClient_waitForCompletion(client, token, TIMEOUT);
+                publisher(TOPICPUB, unidadeEscolhida);
                 /* =================================================================================*/
 
                 lcdClear(lcd); //Limpa o lcd
@@ -328,18 +311,7 @@ int main(){
                     
                     /* ================================== MQTT ========================================*/
                     strcpy(msg, "0x01");
-                    /*-------------- Criacao da mensagem -----------*/
-                    pubmsg.payload = msg;
-                    pubmsg.payloadlen = (int)strlen(msg);
-                    pubmsg.qos = QOS;
-                    pubmsg.retained = 0;
-                    /*-------------- Tentativa de publicacao -----------*/
-                    if ((rc = MQTTClient_publishMessage(client, TOPIC, &pubmsg, &token)) != MQTTCLIENT_SUCCESS){
-                        printf("Falha no envio, tente novamente\n");
-                        //exit(EXIT_FAILURE);
-                    }
-                    /*-------------- TimeOut para envio -----------*/
-                    rc = MQTTClient_waitForCompletion(client, token, TIMEOUT);
+                    publisher(TOPICPUB, msg);
                     /* =================================================================================*/
                     if(resposta[0] == 0x02){ // Caso seja o codigo de funcionando:
                         printaLCD("NodeMCU:","Funcionando",lcd);
@@ -383,20 +355,9 @@ int main(){
                     
                     /*Recebe codigo*/
                     readUart(uart0_filestream, resposta);
-                    strcpy(msg, "0x11");
                     /* ================================== MQTT ========================================*/
-                    /*-------------- Criacao da mensagem -----------*/
-                    pubmsg.payload = msg;
-                    pubmsg.payloadlen = (int)strlen(msg);
-                    pubmsg.qos = QOS;
-                    pubmsg.retained = 0;
-                    /*-------------- Tentativa de publicacao -----------*/
-                    if ((rc = MQTTClient_publishMessage(client, TOPIC, &pubmsg, &token)) != MQTTCLIENT_SUCCESS){
-                        printf("Falha no envio, tente novamente\n");
-                        //exit(EXIT_FAILURE);
-                    }
-                    /*-------------- TimeOut para envio -----------*/
-                    rc = MQTTClient_waitForCompletion(client, token, TIMEOUT);
+                    strcpy(msg, "0x11");
+                    publisher(TOPICPUB, msg);
                     /* =================================================================================*/
 
                     /* Vai ser recebido 3 bytes*/
@@ -461,18 +422,7 @@ int main(){
                     readUart(uart0_filestream, resposta);
                     /* ================================== MQTT ========================================*/
                     strcpy(msg, "0x21");
-                    /*-------------- Criacao da mensagem -----------*/
-                    pubmsg.payload = msg;
-                    pubmsg.payloadlen = (int)strlen(msg);
-                    pubmsg.qos = QOS;
-                    pubmsg.retained = 0;
-                    /*-------------- Tentativa de publicacao -----------*/
-                    if ((rc = MQTTClient_publishMessage(client, TOPIC, &pubmsg, &token)) != MQTTCLIENT_SUCCESS){
-                        printf("Falha no envio, tente novamente\n");
-                        //exit(EXIT_FAILURE);
-                    }
-                    /*-------------- TimeOut para envio -----------*/
-                    rc = MQTTClient_waitForCompletion(client, token, TIMEOUT);
+                    publisher(TOPICPUB, msg);
                     /* =================================================================================*/
                     lcdClear(lcd); //Limpa o lcd
                     if(resposta[0] == 0x01){ // Caso a resposta seja 0x01 = High
@@ -572,7 +522,9 @@ int main(){
                             /* Manda código*/
                             writeUart(uart0_filestream,codigo);
                             delay(10); // Tempo minimo para recepcao
-                            
+                            /*MQTT*/
+                            strcpy(msg, "0x11");
+                            publisher(TOPICPUB, msg);
                             /*Recebe codigo*/
                             readUart(uart0_filestream, resposta);
                             /* Vai ser recebido 3 bytes*/
@@ -616,35 +568,45 @@ int main(){
                         switch (sensoresDigitais){ // Faz um switch com o valor selecionado
                             case 0:
                                 codigo = entrada_digital_0;
+                                strcpy(msg, "0x12");
                                 break;
                             case 1:
                                 codigo = entrada_digital_1;
+                                strcpy(msg, "0x13");
                                 break;
                             case 2:
                                 codigo = entrada_digital_2;
+                                strcpy(msg, "0x14");
                                 break;
                             case 3:
                                 codigo = entrada_digital_3;
+                                strcpy(msg, "0x15");
                                 break;
                             case 4:
                                 codigo = entrada_digital_4;
+                                strcpy(msg, "0x16");
                                 break;
                             case 5:
                                 codigo = entrada_digital_5;
+                                strcpy(msg, "0x17");
                                 break;
                             case 6:
                                 codigo = entrada_digital_6;
+                                strcpy(msg, "0x18");
                                 break;
                             case 7:
                                 codigo = entrada_digital_7;
+                                strcpy(msg, "0x19");
                                 break;
                             case 8:
                                 codigo = entrada_digital_8;
+                                strcpy(msg, "0x1A");
                                 break;
                         }
                         while (digitalRead(enter) == HIGH){ // Enquanto o botão enter não for precionado
                             /* Manda código*/
                             writeUart(uart0_filestream, codigo);
+                            publisher(TOPICPUB, msg);
                             delay(10); // Tempo minimo para recepcao
                             /*Recebe codigo*/
                             readUart(uart0_filestream, resposta);
@@ -731,18 +693,7 @@ int main(){
                     
                     
                     /* ================================== MQTT ========================================*/
-                    /*-------------- Criacao da mensagem -----------*/
-                    pubmsg.payload = msg;
-                    pubmsg.payloadlen = (int)strlen(msg);
-                    pubmsg.qos = QOS;
-                    pubmsg.retained = 0;
-                    /*-------------- Tentativa de publicacao -----------*/
-                    if ((rc = MQTTClient_publishMessage(client, TOPIC, &pubmsg, &token)) != MQTTCLIENT_SUCCESS){
-                        printf("Falha no envio, tente novamente\n");
-                        //exit(EXIT_FAILURE);
-                    }
-                    /*-------------- TimeOut para envio -----------*/
-                    rc = MQTTClient_waitForCompletion(client, token, TIMEOUT);
+                    publisher(TOPICPUB, msg);
                     /* =================================================================================*/
 
                     delay(10); // Tempo minimo para recepcao
@@ -780,7 +731,6 @@ int main(){
             }
         }
     }
-
     /*-------------- Desconexao do MQTT -----------*/
     MQTTClient_destroy(&client);
 
@@ -789,29 +739,52 @@ int main(){
 }
 //===================================================================================================
 /*======================================== Funcoes ================================================*/
- 
-void delivered(void *context, MQTTClient_deliveryToken dt){
-    //printf("Message with token value %d delivery confirmed\n", dt);
-    deliveredtoken = dt;
+/* ========================================= MQTT =================================================*/
+/* ------------------------------- Função do PUBLISHER MQTT -------------------------------------- */
+void publisher (char topico[], char msg[]){
+    /*Criando o formato de mensagem para o envio*/
+    pubmsg.payload = msg;
+    pubmsg.payloadlen = (int)strlen(msg);
+    pubmsg.qos = QOS;
+    pubmsg.retained = 0;
+    /* ------------------------------ Tentativa de publicacao ----------------------------------- */
+    if (MQTTClient_publishMessage(client, TOPIC, &pubmsg, &token) != MQTTCLIENT_SUCCESS){
+        printf("Falha no envio, tente novamente\n");    
+        if ((rc = MQTTClient_connect(client, &conn_opts)) != MQTTCLIENT_SUCCESS){
+            printf("Failed to connect, return code %d\n", rc);
+        }
+    }    
 }
- 
+//===================================================================================================
+/* ------------------------------- Função do SUBSCRIBE MQTT -------------------------------------- */
+void subscriber (void){
+    printf(" Subscrevendo no topico %s\n para o cliente %s usando QoS%d\n\n", TOPIC, CLIENTID, QOS);
+    if (MQTTClient_subscribe(client, TOPICSUB, QOS) != MQTTCLIENT_SUCCESS){
+        printf("Falha em realizar o subscribe!\n");
+    }
+    else{
+        printf("Inscrito no topico!\n");
+    }
+}
+/* =================================================================================================== */
+/* --------------------------- Função mensagem recebida do SUBSCRIBE --------------------------------- */
 int msgarrvd(void *context, char *topicName, int topicLen, MQTTClient_message *message){
-    /*
-        printf("Message arrived\n");
-        printf("     topic: %s\n", topicName);
-        printf("   message: %.*s\n", message->payloadlen, (char*)message->payload);
-    */
+    // Copia o valor recebido para a variável respostaMQTT que é Global
+    strncpy(respostaMQTT, (char*)message->payload, sizeof(respostaMQTT) - 1);
+    respostaMQTT[sizeof(respostaMQTT) - 1] = '\0';
     MQTTClient_freeMessage(&message);
     MQTTClient_free(topicName);
     return 1;
 }
- 
+/* =================================================================================================== */
+/* --------------------------------- Funcao de conexao perdida --------------------------------------- */
 void connlost(void *context, char *cause){
     printf("\nConnection lost\n");
     printf("     cause: %s\n", cause);
 }
- 
-/* Função para mostrar String na LCD   -> Funciona como um printf */
+/* =================================================================================================== */
+/* =========================================== LCD =================================================== */
+/* ------------------------------ Função para mostrar String na LCD ---------------------------------- */
 void printaLCD(char dadoSup[],char dadoInf[], int lcd){ //ImpressÃ£o no lcd
     lcdPosition(lcd, 0, 0); //Seleciona a linha superior;
     lcdPrintf(lcd, "%s", dadoSup);
@@ -819,8 +792,8 @@ void printaLCD(char dadoSup[],char dadoInf[], int lcd){ //ImpressÃ£o no lcd
     lcdPosition(lcd, 0, 1);//Seleciona a linha inferior;
     lcdPrintf(lcd, "%s", dadoInf);
 }
-//==========================================================
-/* Função para mostrar Hexadecimal na LCD */
+/* =================================================================================================== */
+/* --------------------------- Funcao para mostrar Hexadecimal na LCD -------------------------------- */
 void printaLCDHexa(char dadoSup[],char dadoInf, int lcd){ //ImpressÃ£o no lcd
     lcdPosition(lcd, 0, 0); //Seleciona a linha superior;
     lcdPrintf(lcd, "%s", dadoSup);
@@ -828,8 +801,8 @@ void printaLCDHexa(char dadoSup[],char dadoInf, int lcd){ //ImpressÃ£o no lcd
     lcdPosition(lcd, 0, 1);//Seleciona a linha inferior;
     lcdPrintf(lcd, "Codigo: 0x%x", dadoInf);
 }
-//==========================================================
-/* Função para mostrar na int LCD */
+/* =================================================================================================== */
+/* ------------------------------ Funcao para mostrar na int LCD ------------------------------------ */
 void printaLCDInt(char dadoSup[],int valorAnalog, int lcd){ //ImpressÃ£o no lcd
     lcdPosition(lcd, 0, 0); //Seleciona a linha superior;
     lcdPrintf(lcd, "%s", dadoSup);
@@ -837,8 +810,21 @@ void printaLCDInt(char dadoSup[],int valorAnalog, int lcd){ //ImpressÃ£o no lc
     lcdPosition(lcd, 0, 1);//Seleciona a linha inferior;
     lcdPrintf(lcd, "%d", valorAnalog);
 }
-//==========================================================
-/* Função pra Escrever na UART */
+/* =================================================================================================== */
+/* ---------------------------- Funcao para colocar a chave de seleção ------------------------------- */
+void atualizaLCD (char fraseSup[], char fraseInf[], int lcd){
+	// Variaveis auxiliares
+	char selecao[16] = "->", prox[16]; 
+	
+	//Adiciona a seta na parte de selecao
+	strcat(selecao,fraseSup); // Adiciona a Seta na opcao que pode ser selecionada
+	strcpy(prox, fraseInf); // Copia a mensagem da frase para a variavel auxiliar
+
+    printaLCD(selecao, prox, lcd); // Mostra na LCD
+}
+/* =================================================================================================== */
+/* =========================================== UART ================================================== */
+/* ---------------------------------- Funcao pra Escrever na UART ------------------------------------ */
 void writeUart (int uart0_filestream, unsigned char dado){
 
     unsigned char tx_buffer[10]; // Variavel para buffer
@@ -855,8 +841,8 @@ void writeUart (int uart0_filestream, unsigned char dado){
         printf("Erro no envio de dados - TX\n"); // Mostra Erro no console
     }
 }
-//==========================================================
-/* Função pra Ler a UART */
+/* =================================================================================================== */
+/* ------------------------------------ Funcao pra Ler na UART --------------------------------------- */
 void readUart(int uart0_filestream, unsigned char rx_buffer[]){
     // Recebimento do RX - Uart
     int rx_length = 0;
@@ -869,19 +855,8 @@ void readUart(int uart0_filestream, unsigned char rx_buffer[]){
         printf("Nenhum dado disponível\n");
     }
 }
-//==========================================================
-/*Função para colocar a chave de seleção*/
-void atualizaLCD (char fraseSup[], char fraseInf[], int lcd){
-	// Variaveis auxiliares
-	char selecao[16] = "->", prox[16]; 
-	
-	//Adiciona a seta na parte de selecao
-	strcat(selecao,fraseSup); // Adiciona a Seta na opcao que pode ser selecionada
-	strcpy(prox, fraseInf); // Copia a mensagem da frase para a variavel auxiliar
-
-    printaLCD(selecao, prox, lcd); // Mostra na LCD
-}
-//==========================================================
+/* =================================================================================================== */
+/* ===================================== Auxiliares do menu ========================================== */
 /*Função para colocar a chave de seleção antes da unidade e acrescentar o valor da unidade no fim da linha*/
 void atualizaLCDVetor (char fraseSup[], char fraseInf[], int valor[], int lcd){
 	// Variaveis auxiliares
@@ -920,8 +895,8 @@ void atualizaLCDVetor (char fraseSup[], char fraseInf[], int valor[], int lcd){
 	}
     printaLCD(selecao, prox, lcd); // Mostra na lcd
 }
-//==========================================================
-/*Função para passar o valor do vetor*/
+/* =================================================================================================== */
+/* ----------------------------- Função para passar o valor do vetor --------------------------------- */
 void nextValor(int v[]){
 	//Dezena, Unidade, Dezena Futura, Unidade Futura; 
 	v[1] = v[1] + 1;        
@@ -945,8 +920,8 @@ void nextValor(int v[]){
 	    v[3] = 0;// resete unidade
 	}
 }
-//========================================================================================
-/*Função para voltar o valor do vetor*/
+/* =================================================================================================== */
+/* ----------------------------- Função para voltar o valor do vetor --------------------------------- */
 void previousValor(int v[]){
 	int negativo = -1, zero =0;
 	//Valor Atual
@@ -978,12 +953,12 @@ void previousValor(int v[]){
 		v[2] = v[2] - 1;
 	}
 }
-//========================================================================================
-/*Função para limpar vetor buffer de recebimento*/
+/* =================================================================================================== */
+/* ----------------------- Função para limpar vetor buffer de recebimento ---------------------------- */
 void limpaVetor (unsigned char v[], int tamanho){
     int i;
     for(i=0; i < tamanho; i++){ // Enquanto i for menor que o tamanho passado como referencia:
         v[i] = 0b00000000; // acrescenta o valor 0  em binario dentro do vetor para reseta-lo
     }
 }
-/*==========================================================================================*/
+/* =================================================================================================== */
