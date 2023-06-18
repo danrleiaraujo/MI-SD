@@ -87,6 +87,7 @@
 #define CLIENTID    "SBC"
 #define TOPICPUB    "requisicao"
 #define TOPICSUB    "resposta"
+#define TOPICFRONT  "front"
 #define QOS         1
 #define TIMEOUT     10000L
 #define USERNAME	"aluno"
@@ -148,10 +149,15 @@ int main(){
 	char unidade[16]= "Unidade = ";
     char opcao0[16] = "Situacaoatual", opcao1[16]="ValorAnalogic"; 
     char opcao2[16] = "ValorDigital", opcao3[16] ="Acende_Led", opcao4[16] ="Monitoramento";
-    char u, d, msg[5];;
+    char u, d, msg[5], entradaD[10];;
     unsigned char resposta[8];
     unsigned char codigo, codigoUni, dest[3];
-    int unidadeSelecionada = 0, opcaoSelecionada = 0;     
+    int unidadeSelecionada = 0, opcaoSelecionada = 0;
+    time_t agora;
+    char datahora[100];
+    char msg_front[50]; 
+    int valorLED;   
+    
     
     unsigned char codigo_unidades[33] = {   // Vetor com os codigos de unidades
 		todas_unidades, unidade_1, unidade_2, unidade_3,unidade_4,unidade_5,unidade_6,unidade_7,unidade_8,
@@ -264,6 +270,7 @@ int main(){
                 /* ================================== MQTT ========================================*/
                 publisher(TOPICPUB, unidadeEscolhida);
                 /* =================================================================================*/
+                
 
                 lcdClear(lcd); //Limpa o lcd
 
@@ -360,6 +367,7 @@ int main(){
                     publisher(TOPICPUB, msg);
                     /* =================================================================================*/
 
+
                     /* Vai ser recebido 3 bytes*/
                     dest[0] = resposta[0]; 
                     dest[1] = resposta[1];
@@ -371,6 +379,25 @@ int main(){
                     printaLCDInt("Valor A0:", valorAnalog, lcd); // Mostra o valor da entrada analógica
                     limpaVetor(resposta, 8); //Limpa o vetor de resposta
                     delay(2000); // Espera 2s
+
+                    /* ========================= MQTT -  ENVIO PARA O FRONT =============================*/
+                    agora = time(NULL);
+                    strftime( datahora, sizeof(datahora), "%d.%m.%Y - %H:%M:%S", localtime( &agora ));
+
+                    char aux_unidEscolhida = unidadeSelecionada+'0';
+                    char valorSensor = valorAnalog +'0';
+                    
+                    concatenar(msg_front, datahora);
+		            concatenar(msg_front, ",");
+                    concatenar(msg_front, aux_unidEscolhida);
+                    concatenar(msg_front, ",A0,");
+                    concatenar(msg_front, valorSensor);    
+                    
+                    publisher(TOPICFRONT, msg_front);
+
+                    limpaVetor_comum (msg_front,100);
+                    limpaVetor_comum (datahora,100);
+                    /* =================================================================================*/
 				}
 				else if(digitalRead(next) == LOW){ 
 					op++; // Aumenta o valor da opcao
@@ -427,15 +454,37 @@ int main(){
                     lcdClear(lcd); //Limpa o lcd
                     if(resposta[0] == 0x01){ // Caso a resposta seja 0x01 = High
                         printaLCD("Led","Acesa",lcd);
+                        valorLED = 1;
                     }
                     else if(resposta[0] == 0x00){ // Caso a resposta seja 0x0 = LOW
                         printaLCD("Led","Apagada",lcd);
+                        valorLED = 0;
                     }
                     else{ // Caso não tenha resposta
                         printaLCD("Led","Sem resposta",lcd);
                     }
                     limpaVetor(resposta, 8); //Limpa o vetor de resposta
                     delay(2000); // Espera 2s
+
+                    /* ========================= MQTT -  ENVIO PARA O FRONT =============================*/
+                    agora = time(NULL);
+                    strftime( datahora, sizeof(datahora), "%d.%m.%Y - %H:%M:%S", localtime( &agora ));
+
+                    char aux_unidEscolhida = unidadeSelecionada+'0';
+                    char valorSensor = valorLED +'0';
+                    
+                    concatenar(msg_front, datahora);
+		            concatenar(msg_front, ",");
+                    concatenar(msg_front, aux_unidEscolhida);
+                    concatenar(msg_front, ",Led,");
+                    concatenar(msg_front, valorSensor);    
+                    
+                    publisher(TOPICFRONT, msg_front);
+
+                    limpaVetor_comum (msg_front,100);
+                    limpaVetor_comum (datahora,100);
+                    /* =================================================================================*/
+
 				}
 				else if(digitalRead(next) == LOW){ 
 					op++; // Aumenta o valor da opcao
@@ -538,7 +587,29 @@ int main(){
                             
                             lcdClear(lcd); //Limpa o lcd
                             printaLCDInt("Valor A0:", valorAnalog, lcd); // Mostra o valor do sensor
+
+                            
                             delay(1000);
+
+                            /* ========================= MQTT -  ENVIO PARA O FRONT =============================*/
+                            agora = time(NULL);
+                            strftime( datahora, sizeof(datahora), "%d.%m.%Y - %H:%M:%S", localtime( &agora ));
+
+                            char aux_unidEscolhida = unidadeSelecionada+'0';
+                            char valorSensor = valorAnalog +'0';
+                            
+                            concatenar(msg_front, datahora);
+                            concatenar(msg_front, ",");
+                            concatenar(msg_front, aux_unidEscolhida);
+                            concatenar(msg_front, ",A0,");
+                            concatenar(msg_front, valorSensor);    
+                            
+                            publisher(TOPICFRONT, msg_front);
+
+                            limpaVetor_comum (msg_front,100);
+                            limpaVetor_comum (datahora,100);
+                            /* =================================================================================*/                           
+
                         }
                         limpaVetor(resposta, 8);
                         op2 =0;
@@ -569,38 +640,47 @@ int main(){
                             case 0:
                                 codigo = entrada_digital_0;
                                 strcpy(msg, "0x12");
+                                strcpy(entradaD, "D0");
                                 break;
                             case 1:
                                 codigo = entrada_digital_1;
                                 strcpy(msg, "0x13");
+                                strcpy(entradaD, "D1");
                                 break;
                             case 2:
                                 codigo = entrada_digital_2;
                                 strcpy(msg, "0x14");
+                                strcpy(entradaD, "D2");
                                 break;
                             case 3:
                                 codigo = entrada_digital_3;
                                 strcpy(msg, "0x15");
+                                strcpy(entradaD, "D3");
                                 break;
                             case 4:
                                 codigo = entrada_digital_4;
                                 strcpy(msg, "0x16");
+                                strcpy(entradaD, "D4");
                                 break;
                             case 5:
                                 codigo = entrada_digital_5;
                                 strcpy(msg, "0x17");
+                                strcpy(entradaD, "D5");
                                 break;
                             case 6:
                                 codigo = entrada_digital_6;
                                 strcpy(msg, "0x18");
+                                strcpy(entradaD, "D6");
                                 break;
                             case 7:
                                 codigo = entrada_digital_7;
                                 strcpy(msg, "0x19");
+                                strcpy(entradaD, "D7");
                                 break;
                             case 8:
                                 codigo = entrada_digital_8;
                                 strcpy(msg, "0x1A");
+                                strcpy(entradaD, "D8");
                                 break;
                         }
                         while (digitalRead(enter) == HIGH){ // Enquanto o botão enter não for precionado
@@ -613,6 +693,27 @@ int main(){
                             // lcdClear(lcd); //Limpa o lcd
                             printaLCDInt("Valor:", resposta[0], lcd);
                             delay(500); // Espera um tempo de 0,5s para nova atualizacao de valor
+
+                            /* ========================= MQTT -  ENVIO PARA O FRONT =============================*/
+                            agora = time(NULL);
+                            strftime( datahora, sizeof(datahora), "%d.%m.%Y - %H:%M:%S", localtime( &agora ));
+
+                            char aux_unidEscolhida = unidadeSelecionada+'0';
+                            
+                            concatenar(msg_front, datahora);
+                            concatenar(msg_front, ",");
+                            concatenar(msg_front, aux_unidEscolhida);
+                            concatenar(msg_front, ",");
+                            concatenar(msg_front, entradaD);
+                            concatenar(msg_front, ",");
+                            concatenar(msg_front, resposta[0]);    
+                            
+                            publisher(TOPICFRONT, msg_front);
+
+                            limpaVetor_comum (msg_front,100);
+                            limpaVetor_comum (datahora,100);
+                            /* =================================================================================*/                           
+
                         }
                         limpaVetor(resposta, 8);
                         op2 =0; // Volta para o primeiro submenu
@@ -654,38 +755,47 @@ int main(){
                         case 0:
                             codigo = entrada_digital_0;
                             strcpy(msg, "0x12");
+                            strcpy(entradaD, "D0");
                             break;
                         case 1:
                             codigo = entrada_digital_1;
                             strcpy(msg, "0x13");
+                            strcpy(entradaD, "D1");
                             break;
                         case 2:
                             codigo = entrada_digital_2;
                             strcpy(msg, "0x14");
+                            strcpy(entradaD, "D2");
                             break;
                         case 3:
                             codigo = entrada_digital_3;
                             strcpy(msg, "0x15");
+                            strcpy(entradaD, "D3");
                             break;
                         case 4:
                             codigo = entrada_digital_4;
                             strcpy(msg, "0x16");
+                            strcpy(entradaD, "D4");
                             break;
                         case 5:
                             codigo = entrada_digital_5;
                             strcpy(msg, "0x17");
+                            strcpy(entradaD, "D5");
                             break;
                         case 6:
                             codigo = entrada_digital_6;
                             strcpy(msg, "0x18");
+                            strcpy(entradaD, "D6");
                             break;
                         case 7:
                             codigo = entrada_digital_7;
                             strcpy(msg, "0x19");
+                            strcpy(entradaD, "D7");
                             break;
                         case 8:
                             codigo = entrada_digital_8;
                             strcpy(msg, "0x1A");
+                            strcpy(entradaD, "D8");
                             break;
                     }
                     /* Manda código*/
@@ -704,6 +814,28 @@ int main(){
                     lcdClear(lcd); //Limpa o lcd
                     printaLCDInt("Valor:", resposta[0], lcd);
                     delay(2000); // Espera 2s
+
+                    /* ========================= MQTT -  ENVIO PARA O FRONT =============================*/
+                    agora = time(NULL);
+                    strftime( datahora, sizeof(datahora), "%d.%m.%Y - %H:%M:%S", localtime( &agora ));
+
+                    char aux_unidEscolhida = unidadeSelecionada+'0';
+                    
+                    concatenar(msg_front, datahora);
+                    concatenar(msg_front, ",");
+                    concatenar(msg_front, aux_unidEscolhida);
+                    concatenar(msg_front, ",");
+                    concatenar(msg_front, entradaD);
+                    concatenar(msg_front, ",");
+                    concatenar(msg_front, resposta[0]);    
+                    
+                    publisher(TOPICFRONT, msg_front);
+
+                    limpaVetor_comum (msg_front,100);
+                    limpaVetor_comum (datahora,100);
+                    /* =================================================================================*/
+
+
                     limpaVetor(resposta, 8); // Limpa o vetor de resposta
                     op2 =1; // Volta pro primeiro subMenu
                     delay(300); //Tempo para o botao
@@ -962,3 +1094,24 @@ void limpaVetor (unsigned char v[], int tamanho){
     }
 }
 /* =================================================================================================== */
+
+void limpaVetor_comum ( char str[], int tamanho){
+	int i;
+	for(i = 0; i < tamanho; i++){
+    	str[i] = "\0";
+    }
+}
+/* =================================================================================================== */
+/* ----------------------- Função para concatenar as msgs do front ---------------------------- */
+
+void concatenar (char *original, char *add) {
+    while (*original)
+        original++;
+
+    while (*add) {
+        *original = *add;
+        add++;
+        original++;
+    }
+    *original = '\0';
+}
