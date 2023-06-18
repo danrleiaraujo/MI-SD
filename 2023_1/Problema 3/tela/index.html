@@ -74,7 +74,7 @@
 
             client.on(topic, function (message) {
                 console.log(message.toString());
-                let messageTemp = message.toString();
+                const messageTemp = message.toString();
 
                 resultado = messageTemp.split(",", 4);  //data/ Node x/ pino/ informação
                 // var data = resultado[0]
@@ -84,11 +84,13 @@
 
                 console.log("Recebendo:", + resultado[0] + "Node: " + 
                             resultado[1] + "----->" + resultado[2] + " : " + resultado[3]);
-
+                
+                const message_x = resultado[1]+resultado[2]+"-->"+resultado[3];             
                 if(myChart.data.labels.length > contador_max) {
                     remove_firstData();
                 }
-                add_data(resultado[0], resultado[3]);
+                
+                add_data(resultado[0], message_x);
 
                 client.end();
             });

@@ -257,7 +257,6 @@
 	<h1>Referências</h1>
 	<li align="justify">UFRJ. Protocolo MQTT - Redes 1. Ufrj.br. Disponível em: https://www.gta.ufrj.br/ensino/eel878/redes1-2019-1/vf/mqtt/#:~:text=MQTT(Message%20Queuing%20Telemetry%20Transport,cima%20do%20protocolo%20TCP%2FIP. Acesso em: 18 jun. 2023.‌</li>
 	<li align="justify"> AWS - Amazon Web Services. O que é MQTT? – Explicação sobre o protocolo MQTT. Disponível em: https://aws.amazon.com/pt/what-is/mqtt/. Acesso em: 18 jun. 2023</li>
-	<li align="justify">ROHDE. Compreender UART. Rohde-schwarz.com. Disponível em: https://www.rohde-schwarz.com/br/produtos/teste-e-medicao/essentials-test-equipment/digital-oscilloscopes/compreender-uart_254524.html#:~:text=UART%20significa%20%22universal%20asynchronous%20receiver,dados%20seriais%20entre%20dois%20dispositivos. Acesso em: 21 maio 2023.</li>
 </div>
 
 ### 🎲 Rodando o código:
