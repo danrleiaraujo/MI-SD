@@ -155,7 +155,7 @@ int main(){
     unsigned char codigo, codigoUni, dest[3];
     time_t agora;
     char datahora[100];
-    char msg_front[50]; 
+    char msg_front[100]; 
     int valorLED;   
     
     
