@@ -51,6 +51,7 @@
         <li><a>NodeMCU</a></li>
         <li><a href="https://components101.com/sites/default/files/component_datasheet/Push-Button.pdf">Button</a></li>
         <li><a href="https://www.farnell.com/datasheets/1498852.pdf">Led</a></li>
+		<li>Biblioteca Paho-mqtt instalada em sua máquina</li>
 		<li>Uma protoboard</li>
 		<li>Jumpers</li>
 		<li>Dois potênciometros</li>
@@ -60,6 +61,7 @@
 
 <div id="requisitos">
     <h1>Requisitos Atendidos</h1>
+	<p align="justify">Requisitos correspondentes ao problema 2 necessários no problema 3:</p>
 	<ul>
 		<li>Sequência de instruções em linguagem C :heavy_check_mark:</li>
 		<li>Códigos comentados:heavy_check_mark:</li>
@@ -82,17 +84,32 @@
 			</ul>
 		</ul>
 	</ul>
+	<p align="justify">Requisitos correspondentes ao problema 3:</p>
+	<ul>
+		<li>Código deverá ser escrito em linguagem C :heavy_check_mark:</li>
+		<li>Usar protocolo MQTT.:heavy_check_mark:</li>
+		<li>O sistema mantém a IHM local com interface baseada em display LCD, botões e chaves. Mas alterações podem ser realizadas para adaptação das novas funcionalidades :heavy_check_mark:</li>
+		<li>O sistema deverá implementar uma IHM em forma de aplicativo para Desktop ou Smartphone. Esta interface deve ser capaz de apresentar as medições coletadas:heavy_check_mark:</li>
+		<li>O sistema deve implementar uma unidade de sensoriamento sem fio utilizando uma segunda NodeMCU.:</li>
+		</ul>
+	</ul>
 </div>
 
 <div id="fundamentacao">
 	<h1>Fundamentação teórica</h1>
-	<p align="justify">Para construção do sistema, tivemos que estudar algunms conceitos importantes para o entendimento do funcionamento.</p>
-	<p align="justify">Precisamos utilizar um protocolo de programação para fazer a conexão entre a SBC e a NodeMCU. Segundo Celso Kitamura (2022), "o protocolo de comunicação é uma convenção que controla e possibilita uma conexão, comunicação ou transferência de dados entre dois sistemas computacionais", neste caso, utlizamos o protocolo Universal Asynchronous Receiver/Transmitter (UART), que utilizamos um fio para conectar o transmissor e o receptor para enviar os dados (ROHDE, 2023). Ele utiliza do envio de dados de forma serial com um conjunto de bits referentes ao "start bit", para sinalizar que o envio de dados começou, bits de dados e o "stop bit" , para indicar que terminou o envio de dados, além de também pode conter um bit opcional de paridade para detecção de erros que por padrão é nível lógico baixo (0). </p> 
-	<p align ="center"><img src="https://cdn.rohde-schwarz.com/pws/solution/research___education_1/educational_resources_/oscilloscope_and_probe_fundamentals/05_Understanding-UART_04_w1280_hX.png" width="600"/></p>
-	<h6 align="center">Figura 1 - Estrutura de envio de dados via UART</h6>
-	<p align="justify">Utilizamos uma placa chamada NodeMCU(ESP8266) para fazer a conexão com a SBC. A NodeMCU é um "um SoC (System-on-a-Chip ou Sistema-em-um-Chip) com a pilha do protocolo TCP/IP integrada, que permite que você possa implementar o acesso a rede WiFi com qualquer microcontrolador [...] onde a programação pode ser feita usando LUA ou a própria IDE do Arduino"(HU,2019). Utilizamos o mapa de pinagem, como da Figura 2, para controlar a placa.</p>
-	<p align ="center"><img src="https://www.make-it.ca/wp-content/uploads/2021/09/nodemcu-pinout-functions.jpg" width="600"/></p>
-	<h6 align="center">Figura 2 - Pinagem da NodeMCU(ESP8266)</h6>
+	<p align="justify">No problema anterior foi necessário o estudo sobre como funciona a NodeMCU e o envio de dados via UART. Neste problema tivemos que estudar como funciona o envio de informações através do protocolo de comunicação Message Queuing Telemetry Transport (MQTT), já que é a funcionalidade implementada de forma adicional em relação ao problema 2.</p>
+	<p align="justify"> O MQTT é um protocolo de comunicação, onde é possível transmitir e receber dados de máquina para máquina através do protocolo TCP/IP. Ele funciona por meio do princípio de Publish-Subscribe , que se parecem muito com o padrão de projeto Observer, onde existem observadores (observer) e o sujeito(subject),  onde "os observadores irão realizar uma requisição para se inscrever no subject e dessa forma ser notificado quando houver alguma mudança de estado, o sujeito irá possuir uma lista dos seus observadores para que ele saiba para quem enviar as notificações quando houver a mudança de estado" (UFRJ,2019).</p> 
+	<p align="justify"> No Publish-Subscribe, além das características principais do padrão Obserser, adicionamos o Broker, que é um servidor responsável por encaminhar as mensagens para quem deve recebê-las, sendo assim, o Publisher não precisa saber quem é o Subscriber e vice-versa, ele deve apenas conhecer o Broker, sendo feita a conexão entre eles. </p> 
+	<p align="justify"> Para o Broker identificar para onde se deve enviar cada mensagem, existe uma palavra chave chamada Tópico, que se refere ao grupo de mensagens que aquele Cliente está inscrito para receber. O Cliente pode atuar como aquele que publica ou aquele que recebe uma informação, de qualquer forma, terá que haver a conexão com o Broker para que isso aconteça.</p>
+	<p align="justify"> A Figura 1 mostra um exemplo de como funciona o Tópico. Após o Cliente se inscrever no Tópico "temperatura" ele vai receber mensagens sobre o tema, como o dado de um sensor de temperatura, e caso ele deseje não receber mais essas mensagens, a inscrição no tópico pode ser desfeita.</p> 
+	<p align ="center"><img src="https://curtocircuito.com.br/pub/media/wysiwyg/blog/MQTT_Parte4/MQTT_01-720x425.png" width="600"/></p>
+	<h6 align="center">Figura 1 - Exemplo de envio de mensagens via MQTT</h6>
+	<p align="justify">De forma resumida, podemos dizer que o MQTT funciona da seguinte forma: </p>
+	<ol>
+		<li>Um cliente MQTT estabelece uma conexão com o Broker.</li>
+		<li>Depois de conectado, o cliente pode publicar mensagens, assinar mensagens específicas ou fazer as duas coisas.</li>
+		<li>Ao receber uma mensagem, o Broker a encaminha aos assinantes interessados. (AWS,2023) </li>
+	</ol>
 </div>
 
 <div id="implementacao">
@@ -100,7 +117,7 @@
 	<p>Para implementação do código foi utilizado a linguagem C.</p>
 	<h2>Para a programação da SBC</h2>
 	<p > 
-		No arquivo "main.c" na pasta principal, é o arquivo que programa a SBC. Lá fizemos a importação de diversas bibliotecas necessárias, inicialização de variáveis e funções para conexão com a NodeMCU.
+		No arquivo "main.c" na pasta principal, fizemos a importação de diversas bibliotecas necessárias, inicialização de variáveis e funções para conexão com a NodeMCU, com a conexão UART e MQTT.
 		<ul>
 			<li>Funções</li>
 			<h align="justify"> As funções para funcionamento da SBC são:</h>
@@ -125,6 +142,10 @@
 					<ul><li>Função para voltar o valor do vetor do menu rotativo.</ul></li>
 				<li>limpaVetor</li>
 					<ul><li>Função para limpar o vetor do buffer de recebimento de dados.</ul></li>
+				<li>limpaVetor_comum</li>
+					<ul><li>Função para limpar vetores para dados comuns.</ul></li>	
+				<li>concatenar</li>
+					<ul><li>Função para juntar duas strings de forma específica.</ul></li>	
 			</ul>
 			<li>Constantes:</li>
 			<h7> Dentro desse arquivo existem macros para a configuração dos pinos da GPIO, sendo eles:</h7>
@@ -133,14 +154,16 @@
 					<ul><li align="justify">Constantes definidas com o nome "unidade_x" e "todas_unidades" são referentes as unidades de sensoriamento.</ul></li>
 				<li>Defines de requisição</li>
 					<ul><li align="justify">Constantes definidas com o nome "entrada_digital_x", "entrada_analogica", "situação_atual "e "acende_led" são referentes as entradas da NodeMCU.</ul></li>
+				<li>Criação da conexão MQTT</li>
+					<ul><li align="justify">Foram criadas constantes e feita a chamada de funções correspondentes a criação da conexão do MQTT e envio e recebimento de mensagens através da biblioteca PAHO-mqtt. Desta forma, existe um tópico para recebimento de mensagens (subscriber), chamado "respostas", e um tópico de envio (publisher) chamado "requisicao" </ul></li>	
 				<li>Outras</li>
-					<ul><li align="justify">É feita a declaração de constantes com a pinagem da LCD, botões e dipswitch.</ul></li>	
+					<ul><li align="justify">É feita a declaração de constantes com a pinagem da LCD, botões, dipswitch e variáveis auxiliares.</ul></li>	
 			</ul>
 		</ul>
     </p>
 	<h2>Para a programação da NodeMCU</h2>
 	<p align="justify"> 
-		No arquivo "main.ino" na pasta "main", é o arquivo que programa a NodeMCU. Lá fizemos a importação de diversas bibliotecas necessárias, inicialização de variáveis e funções para conexão com a SBC.
+		O arquivo "main.ino" na pasta "mainNode", é o arquivo que programa a NodeMCU. Lá fizemos a importação de diversas bibliotecas necessárias, inicialização de variáveis e funções para conexão com a SBC.
 		<ul>
 			<li>Defines de seleção de unidade</li>
 				<ul><li align="justify">Constantes definidas assim como na SBC.</ul></li>
@@ -149,11 +172,22 @@
 			<li>Outras</li>
 				<ul><li align="justify">É feita a declaração de constantes com respostas para as solicitações para status das entradas, são eles: proble,a funcionando, resposta_digital, resposta_analogica.</ul></li>	
 			<li>Função void setup()</li>
-				<ul><li align="justify">Lá é feita a inicialização dos botões e outras constantes para o processamento do sistema.</ul></li>	
+				<ul><li align="justify">Nessa função é feita a inicialização dos botões e outras constantes para o processamento do sistema.</ul></li>	
 			<li>Função void loop()</li>
-				<ul><li align="justify">Lá é feito o tratamento das requisições e respostas recebidas e enviadas.</ul></li>
+				<ul><li align="justify">Nessa função é feita o tratamento das requisições e respostas recebidas e enviadas.</ul></li>
+			<li>Conexão com MQTT</li>
+				<ul><li align="justify">Foram criadas constantes e feita a chamada de funções correspondentes a criação da conexão do MQTT e envio e recebimento de mensagens através da biblioteca PubSubClient.h. Existe um tópico para recebimento de mensagens (subscriber), chamado "respostas", e um tópico de envio (publisher) chamado "requisicao".</ul></li>
 		</ul>
 	</p>
+	<h2>Para a programação do FrontEnd</h2>
+	<p align="justify"> O arquivo "index.html" na pasta "tela", é o arquivo que programa o FrontEnd. Foi criado uma tela para exibição dos dados utilizando Charts.js, uma ferramenta em Java Script para criação de gráficos. Também foi utilizado CSS para estilização da tela.</p>
+	<p align ="center"><img src="Referencias\tela sem dados.JPG"/></p>
+	<h6 align="center">Figura 4 - Tela sem dados </h6>
+	<p align="justify"> Foi utilizado o protocolo MQTT para envio de dados para a tela. Existe um tópico chamado "front" onde a tela está inscrita para recebimento de informações em determinado formato para exibição que será processado no script js.</p>
+	<p align ="center"><img src="Referencias\tela sem dados.JPG"/></p>
+	<h6 align="center">Figura 4 - Tela com dados</h6>
+	
+	
 </div>
 
 <div id="metodologia">
@@ -167,7 +201,7 @@
 		<h6 align="center">Figura 4 - Fluxograma do sub-menu</h6>
 	<h2>Na NodeMCU</h2>
 	<p align="justify">
-		É feita a leitura de dados por meio da conexão serial via UART, onde a comunicação é feita por até 8 bits de cada vez. O byte recebido é interpretado através de um protocolo pré-estasbelecido e acontece uma ação a partir da requisição recebida, fazendo uma comparação com suas constantes já definidas. </p> 
+		É feita a leitura de dados por meio da conexão serial via UART ou MQTT (de acordo com a configuração da NodeMCU), onde a comunicação é feita por até 8 bits de cada vez. O byte recebido é interpretado através de um protocolo pré-estabelecido e acontece uma ação a partir da requisição recebida, fazendo uma comparação com suas constantes já definidas. </p> 
 	<p align="justify">
 		As requisições recebidas são:
 		<li>Acender led: Se a unidade selecionada já estiver ativa ele acende ou apaga a led.</li>
@@ -180,7 +214,7 @@
 		<h6 align="center">Tabela 1 - Códigos de resposta da NodeMCU</h6>
 	</p>
 	<h2>Na SBC</h2>
-		<h7 align="justify"> A SBC é quem controla a NodeMCU fazendo as requisições, sendo assim, é feito o envio de dados por meio da conexão serial via UART, assim como também processa as respostas recebidas também em 1 byte. </h7>
+		<h7 align="justify"> A SBC é quem controla a NodeMCU fazendo as requisições, sendo assim, é feito o envio de dados por meio da conexão serial via UART e também MQTT, assim como processa as respostas recebidas em 1 byte de dados. </h7>
 		<p align="justify">A SBC envia as solicitações por meio dos 8 bits de protocolo pré-estabelecido no arquivo de programação da placa. Ao receber a resposta da NodeMCU, a SBC processa para que seja exibido na LCD, inclusive, a entrada do usuário é feita através dos botões conectados na placa, que funcionam respectivamente como: anterior, enter e próximo, visto que é exibido na LCD um menu para escolha das opções.</p>
 		<p align ="center"><img src="https://github.com/danrleiaraujo/MI-SD/blob/main/2023_1/Problema%202/Referencias/unidades.PNG?raw=true"/></p>
 		<h6 align="center">Figura 5 - Conjunto de bits para a unidade</h6>
@@ -214,16 +248,16 @@
 	<h6 align="center">Figura 11 - Requisição de status de funcionamento da NodeMCU</h6>
 	<p align="justify"> 
 	Apesar da dificuldade de acesso ao laboatório conseguimos implementar um sistema funcional cumprindo quase todas as requisições impostas pelo problema. </p>
-	<p align="justify"> O nosso sistema funciona quase por completo, exceto pela interação com as 32 unidades de uma vez, onde existe a opção para selecionar todas, porém, o tratamento da resposta não foi feito. </p>
-	<p align="justify"> Acreditamos que tivessemos mais tempo teríamos concluido com excelência o problema imposto.</p>
+	<p align="justify"> O nosso sistema funciona por completo, com interação com as 32 unidades de uma vez, ocorrendo o recebimento e envio de informações através do protocolo UART e MQTT. </p>
+	<p align="justify"> Apesar de ter sido concluído, futuramente ele pode ser melhorado, pensando em um código projetado de forma mais simples e otimizada.</p>
 	</p>
 </div>
 
 <div id="referencias"> 
 	<h1>Referências</h1>
-	<li align="justify">O Que É Protocolo De Comunicação? - Celso Kitamura. Celso Kitamura. Disponível em: https://celsokitamura.com.br/o-que-e-protocolo-de-comunicacao/. Acesso em: 21 maio 2023</li>
+	<li align="justify">UFRJ. Protocolo MQTT - Redes 1. Ufrj.br. Disponível em: https://www.gta.ufrj.br/ensino/eel878/redes1-2019-1/vf/mqtt/#:~:text=MQTT(Message%20Queuing%20Telemetry%20Transport,cima%20do%20protocolo%20TCP%2FIP. Acesso em: 18 jun. 2023.‌</li>
+	<li align="justify"> AWS - Amazon Web Services. O que é MQTT? – Explicação sobre o protocolo MQTT. Disponível em: https://aws.amazon.com/pt/what-is/mqtt/. Acesso em: 18 jun. 2023</li>
 	<li align="justify">ROHDE. Compreender UART. Rohde-schwarz.com. Disponível em: https://www.rohde-schwarz.com/br/produtos/teste-e-medicao/essentials-test-equipment/digital-oscilloscopes/compreender-uart_254524.html#:~:text=UART%20significa%20%22universal%20asynchronous%20receiver,dados%20seriais%20entre%20dois%20dispositivos. Acesso em: 21 maio 2023.</li>
-	<li align="justify">HU. O que é NodeMCU? -. Hu Infinito Componentes Eletrônicos. Disponível em: https://www.huinfinito.com.br/blog/artigos/o-que-e-nodemcu. Acesso em: 21 maio 2023.</li>
 </div>
 
 ### 🎲 Rodando o código:

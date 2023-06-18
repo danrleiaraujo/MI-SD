@@ -121,6 +121,8 @@ void atualizaLCDVetor (char fraseSup[], char fraseInf[], int valor[], int lcd);
 void nextValor(int v[]);
 void previousValor(int v[]);
 void limpaVetor(unsigned char v[], int tamanho);
+void limpaVetor_comum ( char str[], int tamanho);
+void concatenar (char *original, char *add);
  /* ===================================================*/
 /*-------------------------------------MAIN------------------------------------------------------------*/
 int main(){
