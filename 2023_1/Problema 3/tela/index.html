@@ -16,6 +16,7 @@
 
     <script>        
 
+            //função para adicionar e remover informações
             function add_data(label, data) {
                 myChart.data.labels.push(label);
                 myChart.data.datasets.forEach((dataset) => {
@@ -31,6 +32,7 @@
                 });
             }
 
+            //construção do gráfico
             const ctx = document.getElementById('myChart').getContext("2d");
             const myChart = new Chart(ctx, {
                 type: 'line',
@@ -44,7 +46,7 @@
                 }
             });
 
-
+            //configuração do mqtt
             const contador_max = 10;
 
             const mqtt = require('mqtt')
@@ -54,10 +56,10 @@
 
             // Cria configuração de conexão mqtt
             const options = {
-            clean: true,
-            clientId: 'SBC',
-            username: 'aluno',
-            password: '@luno*123',
+                clean: true,
+                clientId: 'SBC',
+                username: 'aluno',
+                password: '@luno*123',
             }
             const client  = mqtt.connect(url, options)
 
@@ -86,14 +88,10 @@
                 if(myChart.data.labels.length > contador_max) {
                     remove_firstData();
                 }
-                add_data(msg.date, msg.value);
+                add_data(resultado[0], resultado[3]);
 
                 client.end();
             });
-
-
-
-                
 
     </script>
 

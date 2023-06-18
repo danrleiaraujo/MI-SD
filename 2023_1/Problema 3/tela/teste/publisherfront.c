@@ -3,14 +3,13 @@
 #include <string.h>
 #include "MQTTClient.h"
  
-#define ADDRESS     "tcp://10.0.0.101:1883@@luno*123"
+#define ADDRESS     "tcp://localhost:1883"
 #define CLIENTID    "ExampleClientPub"
 #define TOPIC       "front"
-#define PAYLOAD     " 18.06.2023 - 15:26:51,1,a0,teste"
+#define PAYLOAD     "18.06.2023 - 15:26:51,1,a0,teste"
 #define QOS         1
 #define TIMEOUT     10000L
-#define USERNAME	"aluno"
-#define PASSWORD	"@luno*123"
+
  
 int main(int argc, char* argv[])
 {
@@ -29,8 +28,7 @@ int main(int argc, char* argv[])
  
     conn_opts.keepAliveInterval = 20;
     conn_opts.cleansession = 1;
-	conn_opts.username = USERNAME;
-	conn_opts.password = PASSWORD;
+
     if ((rc = MQTTClient_connect(client, &conn_opts)) != MQTTCLIENT_SUCCESS)
     {
         printf("Failed to connect, return code %d\n", rc);
