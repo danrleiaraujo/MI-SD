@@ -2,7 +2,6 @@
 #include <ESP8266WiFi.h>
 #include <ESP8266mDNS.h>
 #include <PubSubClient.h>
-#include <Timer.h>
 #include <WiFiUdp.h>
 #include <string.h> 
 
@@ -16,8 +15,8 @@ const char* ssid = STASSID;
 const char* password = STAPSK;
 
 //ESP na rede
-const char* host = "ESP-10.0.0.111";
-IPAddress local_IP(10, 0, 0, 111);
+const char* host = "ESP-10.0.0.109";
+IPAddress local_IP(10, 0, 0, 109);
 IPAddress gateway(10, 0, 0, 1);
 IPAddress subnet(255, 255, 0, 0);
 
@@ -34,34 +33,35 @@ WiFiClient wifiClient;
 PubSubClient MQTT(wifiClient);   // Instancia o Cliente MQTT passando o objeto espClient
 
 // Topicos a serem subescritos
-#define SBC_ESP    "requisicoes"
+#define TOPICSUB    "requisicoes"
 
 // Topicos a serem publicados
-#define SENSORES   "respostas"
+#define TOPICPUB   "respostas"
 
 /*Unidade 0*/
 #define unidade_1 "11000001"
+#define unidade_2 "11000010"
 #define todas_unidades "11111110"
 
 #define espera 1 //tem que ser referente ao valor da unidade
 
 /*Valores da led*/
-#define ledOn  "00000001"
-#define ledOff  "00000000"
+#define ledOn  "0x01"
+#define ledOff  "0x00"
 
 /* Tabela de REQUISICAO*/
-#define situacao_sensor  "00000001"
-#define entrada_analogica  "00010001"
-#define entrada_digital_0  "00010010"
-#define entrada_digital_1  "00010011"
-#define entrada_digital_2  "00010100"
-#define entrada_digital_3  "00010101"
-#define entrada_digital_4  "00010110"
-#define entrada_digital_5  "00010111"
-#define entrada_digital_6  "00011000"
-#define entrada_digital_7  "00011001"
-#define entrada_digital_8  "00011010"
-#define acende_led  "00100001"
+#define situacao_sensor  "0x02"
+#define entrada_analogica  "0x11"
+#define entrada_digital_0  "0x12"
+#define entrada_digital_1  "0x13"
+#define entrada_digital_2  "0x14"
+#define entrada_digital_3  "0x15"
+#define entrada_digital_4  "0x16"
+#define entrada_digital_5  "0x17"
+#define entrada_digital_6  "0x18"
+#define entrada_digital_7  "0x19"
+#define entrada_digital_8  "0x1A"
+#define acende_led  "0x21"
 
 /*Script do problema - Exemplos respostas*/
 #define problema  "0x01"
@@ -70,9 +70,11 @@ PubSubClient MQTT(wifiClient);   // Instancia o Cliente MQTT passando o objeto e
 #define resposta_Analogica  "0x12"
 
 /*Variáveis*/
+int led_pin = LED_BUILTIN;
 bool unidade = false, opcao = false, sensorProblema = false;
 int valor = 0, testeSensor[9];
-unsigned char dado_digital, unidadeAtual = unidade_1;
+unsigned char dado_digital; 
+String unidadeAtual = unidade_1;
 byte dest[4];
 
 
@@ -85,7 +87,7 @@ void reconnectMQTT() {
       delay(2000);
     }
   }
-  MQTT.subscribe(SBC_ESP, 1); 
+  MQTT.subscribe(TOPICSUB, 1); 
 }
 
 /**
@@ -120,17 +122,12 @@ void checkMQTTConnection(void) {
 */
 void config_connect(){
   Serial.begin(9600);
-  Serial.println("Booting");
-
   // Configuração do IP fixo no roteador, se não conectado, imprime mensagem de falha
   if (!WiFi.config(local_IP, gateway, subnet)) {
-    Serial.println("STA Failed to configure");
   }
-  
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
   while (WiFi.waitForConnectResult() != WL_CONNECTED) {
-    Serial.println("Connection Failed! Rebooting...");
     delay(5000);
     ESP.restart();
   }
@@ -145,32 +142,20 @@ void config_connect(){
     } else { // U_FS
       type = "filesystem";
     }
-    // NOTE: if updating FS this would be the place to unmount FS using FS.end()
-    Serial.println("Start updating " + type);
   });
   ArduinoOTA.onEnd([]() {
-    Serial.println("\nEnd");
   });
   ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
-    Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
   });
   ArduinoOTA.onError([](ota_error_t error) {
-    Serial.printf("Error[%u]: ", error);
     if (error == OTA_AUTH_ERROR) {
-      Serial.println("Auth Failed");
     } else if (error == OTA_BEGIN_ERROR) {
-      Serial.println("Begin Failed");
     } else if (error == OTA_CONNECT_ERROR) {
-      Serial.println("Connect Failed");
     } else if (error == OTA_RECEIVE_ERROR) {
-      Serial.println("Receive Failed");
     } else if (error == OTA_END_ERROR) {
-      Serial.println("End Failed");
     }
   });
   ArduinoOTA.begin();
-  Serial.println("Ready");
-  Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
 }
 
@@ -182,43 +167,40 @@ void config_connect(){
  * @param length - Tamanho da mensagem
 */
 void on_message(char* topic, byte* payload, unsigned int length){
-  String recvd; //Recebido
+  String recvd; 
+  char value[2]; //Recebido
+
   if(length){ // Caso a mensagem nao seja nula:
+
     for(int i = 0; i < length; i++) {
       char c = (char) payload[i];
       recvd += c;
     }
+
     /* ====================== Situação 1 -> Caso tenha e a unidade esteja desativada: =========================*/
     if (unidade == false){
     /* ====================== Se o que foi lido for igual ao código da unidade: =========================*/
-      if (recvd == unidadeAtual){
+      if (recvd == unidade_2){
         unidade = true;
-        value = unidadeAtual;
-        delay(1500);
-        client.publish("respostas", String(value).c_str());
+        MQTT.publish(TOPICPUB, unidade_2);
       }    
     /* ====================== Se o que foi lido for igual ao código de todas unidades: =========================*/
       else if (recvd == todas_unidades){
         unidade = true;
-        delay(espera);
-        value = unidadeAtual;
-        
-        delay(1500);
-        client.publish("respostas", String(value).c_str());
+        MQTT.publish(TOPICPUB, unidade_2);
       }    
     }
     else if (unidade == true){
       /*======================== Acende ou apaga a LED =============================*/
-      if(recvd == "00100001"){ 
+      if(recvd == acende_led){ 
         if(digitalRead(led_pin) == HIGH){
           digitalWrite(led_pin, LOW);
-          value = "00000000"; 
+          MQTT.publish(TOPICPUB, ledOn);
         }
         else if(digitalRead(led_pin) == LOW){
           digitalWrite(led_pin, HIGH);
-          value = "00000001";
+          MQTT.publish(TOPICPUB, ledOff);
         }
-        client.publish("respostas", String(value).c_str());
       }
       /*======================== Situação Atual =============================*/ 
       else if(recvd == situacao_sensor){
@@ -244,80 +226,65 @@ void on_message(char* topic, byte* payload, unsigned int length){
         }
         /*=========== Envio da verificação ================*/
         if (sensorProblema == false){  // Caso não tenha problema
-          value = funcionando;
-          delay(1500);
-          client.publish("respostas", String(value).c_str());
+          MQTT.publish(TOPICPUB, funcionando);
         }
         else{
-          value = problema;
-          delay(1500);
-          client.publish("respostas", String(value).c_str());
+          MQTT.publish(TOPICPUB, problema);
         }
       } 
       /*======================== Le o potenciometro =============================*/          
       else if(recvd == entrada_analogica){
-        value = analogRead(A0);
-        delay(1500);
-        client.publish("respostas", String(value).c_str());
+        sprintf(value, "%d", analogRead(A0));
+        MQTT.publish(TOPICPUB, value);
       }
       /*================== Le as Entradas Digitais e envia os valores das portas ======================*/ 
       else if (recvd == entrada_digital_0){
-        value = digitalRead(D0);
-        delay(1500);
-        client.publish("respostas", String(value).c_str());
+        sprintf(value, "%d", digitalRead(D0));
+        MQTT.publish(TOPICPUB, value);
       }
       else if (recvd == entrada_digital_1){
-        value = digitalRead(D1);
-        delay(1500);
-        client.publish("respostas", String(value).c_str());
+        sprintf(value, "%d", digitalRead(D1));
+        MQTT.publish(TOPICPUB, value);
       }
       else if (recvd == entrada_digital_2){
-        value = digitalRead(D2);
-        delay(1500);
-        client.publish("respostas", String(value).c_str());
+        sprintf(value, "%d", digitalRead(D2));
+        MQTT.publish(TOPICPUB, value);
       }
       else if (recvd == entrada_digital_3){
-        value = digitalRead(D3);
-        delay(1500);
-        client.publish("respostas", String(value).c_str());
+        sprintf(value, "%d", digitalRead(D3));
+        MQTT.publish(TOPICPUB, value);
       }
       else if (recvd == entrada_digital_4){
-        value = digitalRead(D4);
-        delay(1500);
-        client.publish("respostas", String(value).c_str());
+        sprintf(value, "%d", digitalRead(D4));
+        MQTT.publish(TOPICPUB, value);
       }
       else if (recvd == entrada_digital_5){
-        value = digitalRead(D5);
-        delay(1500);
-        client.publish("respostas", String(value).c_str());
+        sprintf(value, "%d", digitalRead(D5));
+        MQTT.publish(TOPICPUB, value);
       }
       else if (recvd == entrada_digital_6){
-        value = digitalRead(D6);
-        delay(1500);
-        client.publish("respostas", String(value).c_str());
+        sprintf(value, "%d", digitalRead(D6));
+        MQTT.publish(TOPICPUB, value);
       }
       else if (recvd == entrada_digital_7){
-        value = digitalRead(D7);
-        delay(1500);
-        client.publish("respostas", String(value).c_str());
+        sprintf(value, "%d", digitalRead(D7));
+        MQTT.publish(TOPICPUB, value);
       }
       else if (recvd == entrada_digital_8){
-        value = digitalRead(D8);
-        delay(1500);
-        client.publish("respostas", String(value).c_str());
+        sprintf(value, "%d", digitalRead(D8));
+        MQTT.publish(TOPICPUB, value);
       }
-
       /*======== Situacao 3 -> desativa apenas a unidade ==================*/
-      if (recvd == unidadeAtual){
+      if (recvd == unidade_2){
         unidade = false;
       }    
       /*======== Situacao 4 -> desativa todas as unidades ==================*/
       else if (recvd == todas_unidades){
         unidade = false;
       }  
-  } // if se mensagem não for nula
+    } 
+  }// if se mensagem não for nula
 }// end on_message
-
 
 /**
  * Inicia as configuracoes no momento do upload 
@@ -328,13 +295,11 @@ void setup() {
   //Serial.begin(9600);
 
   // definicao dos pinos
-  pinMode(LED_BUILTIN, OUTPUT);  
+  pinMode(led_pin, OUTPUT);  
 
   // inicia a comunicacao mqtt
   MQTT.setServer(BROKER_MQTT, BROKER_PORT); 
   MQTT.setCallback(on_message);
-
-  //timer.every(tempo_medicoes * 1000, medicoes); 
 
   // pisca o led do nodemcu no momento da execucao
   for(int i=0; i<10; i++){
@@ -344,7 +309,6 @@ void setup() {
     delay(50);
   }
 }
-
 
 void loop() {
   ArduinoOTA.handle();

@@ -18,6 +18,7 @@ int dimmer_pin[] = {14, 5, 15};
 
 /*Unidade 0*/
 #define unidade_1 0b11000001
+#define unidade_2 0b11000010
 #define todas_unidades 0b11111110
 
 #define espera 1 //tem que ser referente ao valor da unidade
@@ -105,7 +106,7 @@ void setup() {
 /*Variáveis*/
 bool unidade = false, opcao = false, sensorProblema = false;
 int valor = 0, testeSensor[9];
-unsigned char dado_digital, unidadeAtual = unidade_1;
+unsigned char dado_digital, unidadeAtual = unidade_2;
 byte dest[4];
 
 
