@@ -301,7 +301,7 @@ void on_message(char* topic, byte* payload, unsigned int length){
         MQTT.publish(TOPICPUB, value);
       }
       /*======== Situacao 3 -> desativa apenas a unidade ==================*/
-      if (recvd == unidade_2){
+      if (recvd == unidadeAtual){
         unidade = false;
       }    
       /*======== Situacao 4 -> desativa todas as unidades ==================*/

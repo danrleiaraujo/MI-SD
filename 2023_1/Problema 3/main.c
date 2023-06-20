@@ -316,12 +316,16 @@ int main(){
                         
 		            }
                     if(qtdOnline == 0){
+                        lcdClear(lcd); //Limpa o lcd
                         printf("Node UART: Sem resposta.\n");
                         printaLCD("Node UART:","Sem resposta.", lcd);
+                        delay(1500);
                     }
                     if(qtdOnlineMqtt == 0){
+                        lcdClear(lcd); //Limpa o lcd
                         printf("Node MQTT: Sem resposta.\n");
                         printaLCD("Node MQTT:","Sem resposta.", lcd);
+                        delay(1500);
                     }
                     if(qtdOnlineMqtt == 0 && qtdOnline == 0){
                         tds_unidades = 0;
@@ -329,6 +333,7 @@ int main(){
                     /* ================================================================================= */
                 }
                 else{
+                    mqtt = 0;
                     /* Mostra na LCD a unidade selecionada*/
                     printaLCD(uniSel, unidadeEscolhida, lcd);
                     delay(1000); // Espera 1s
@@ -342,7 +347,7 @@ int main(){
                     /* Manda código*/
                     writeUart(uart0_filestream, codigoUni);                
 
-                    delay(40); // Tempo minimo para retorno
+                    delay(100); // Tempo minimo para retorno
                     
                     limpaVetor(resposta, 8);
                     /*Recebe codigo*/
@@ -351,26 +356,29 @@ int main(){
                     lcdClear(lcd); //Limpa o lcd
                     /* ==========================================================================*/
                     if (resposta[0] != codigo_unidades[i]){ // Caso não tenha resposta da node
+                        lcdClear(lcd); //Limpa o lcd
                         printf("Node UART: Sem resposta.\n");
                         printaLCD("Node UART:","Sem resposta.",lcd);
                         delay(1500);
                     }
                     else{ // Caso tenha resposta da node
+                        lcdClear(lcd); //Limpa o lcd
                         printaLCDHexa("Node UART Selec", resposta[0], lcd);
                         printf("Node UART: Selec.\n");
                         unidadeSelecionada = 1;
-                        mqtt = 0;
                         delay(1500);
                     } 
                 
                     printf("Resposta MQTT = %s",respostaMQTT);
                     printf("CODIGO = %s", codigo_unidade[unid-1]);
-                    if (unidadeSelecionada==0 && strcmp(respostaMQTT, codigo_unidade[unid-1]) != 0){ // Caso não tenha resposta da node
+                    if (strcmp(respostaMQTT, codigo_unidade[unid-1]) != 0){ // Caso não tenha resposta da node
+                        lcdClear(lcd); //Limpa o lcd
                         printf("Node MQTT: Sem resposta.\n");
                         printaLCD("Node MQTT:","Sem resposta.",lcd);
                         delay(1500);
                     }
                     else{ // Caso tenha resposta da node
+                        lcdClear(lcd); //Limpa o lcd
                         printaLCD("Node MQTT Selec", respostaMQTT, lcd);
                         printf("Node MQTT: Selec.\n");
                         unidadeSelecionada = 1;
@@ -587,7 +595,7 @@ int main(){
                         
                         /*Recebe codigo*/
                         readUart(uart0_filestream, resposta);
-
+                        printf("MQTT = %i\n",mqtt);
                         if(mqtt){
                             lcdClear(lcd); //Limpa o lcd
                             printaLCD("Valor A0:", respostaMQTT, lcd); // Mostra o valor da entrada analógica
@@ -617,13 +625,13 @@ int main(){
                     //itoa(unidadeSelecionada,aux_unidEscolhida,10);
                     //itoa(valorSensor,valorAnalog,10);
                     sprintf(aux_unidEscolhida,"%d",unidadeSelecionada);
-                    sprintf(valorSensor,"%d",valorAnalog);
+                    //sprintf(valorSensor,"%d",valorAnalog);
                     
                     strcat(msg_front, data_hora);
 		            strcat(msg_front, ",");
                     strcat(msg_front, aux_unidEscolhida);
                     strcat(msg_front, ",A0,");
-                    strcat(msg_front, valorSensor);
+                    strcat(msg_front, respostaMQTT);
                     strcat(msg_front, ",");
 
                     publisher(TOPICFRONT, msg_front);
@@ -838,15 +846,16 @@ int main(){
                         qtdOnlineMqtt = 0;
                         tds_unidades=0;
                     }else{
-                        writeUart(uart0_filestream, codigoUni);
-                        strcpy(msg, codigo_unidade[unid]);
-                        /* ================================== MQTT ========================================*/
-                        publisher(TOPICPUB, msg);
-                        delay(100);
-                        /* =================================================================================*/
+                        if(mqtt){
+                            strcpy(msg, codigo_unidade[unid]);
+                            /* ================================== MQTT ========================================*/
+                            publisher(TOPICPUB, msg);
+                            /* =================================================================================*/
+                        }else{
+                            writeUart(uart0_filestream, codigoUni);
+                        }
                         printf("Node deselecionada MQTT: %s\n",respostaMQTT);
                         printf("Node deselecionada UART: 0x%x\n",resposta[0]);
-
                     }
 
                     delay(300); //tempo para tirar o dedo do botão
@@ -971,7 +980,7 @@ int main(){
                                     printaLCDInt("Valor A0:", valorAnalog, lcd); // Mostra o valor da entrada analógica
                                     delay(1000);
                                 }
-
+                            }
                             /* ========================= MQTT -  ENVIO PARA O FRONT =============================*/
                             time(&data_hora_segundos); // preenche a variável data_hora_segundos
                             timeinfo = localtime(&data_hora_segundos);
@@ -1378,7 +1387,7 @@ void publisher (char topico[], char msg[]){
     pubmsg.qos = QOS;
     pubmsg.retained = 0;
     /* ------------------------------ Tentativa de publicacao ----------------------------------- */
-    if (MQTTClient_publishMessage(client, TOPICPUB, &pubmsg, &token) != MQTTCLIENT_SUCCESS){
+    if (MQTTClient_publishMessage(client, topico, &pubmsg, &token) != MQTTCLIENT_SUCCESS){
         printf("Falha no envio, tente novamente\n");    
         if ((rc = MQTTClient_connect(client, &conn_opts)) != MQTTCLIENT_SUCCESS){
             printf("Failed to connect, return code %d\n", rc);
