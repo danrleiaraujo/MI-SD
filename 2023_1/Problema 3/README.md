@@ -80,7 +80,7 @@
 				<li>Os comandos serão compostos por palavras de 8 bits:heavy_check_mark:</li>
 				<li>A informação medida deve ter a maior precisão possível:heavy_check_mark:</li>
 				<li>As requisições do SBC podem ser direcionadas para uma unidade específica ou a todas.:heavy_check_mark:</li>
-				<li>Apresentação na LCD :heavy_check_mark:</li>
+				<li>Apresentação na LCD :heavy_multiplication_x:</li>
 			</ul>
 		</ul>
 	</ul>
@@ -97,7 +97,7 @@
 
 <div id="fundamentacao">
 	<h1>Fundamentação teórica</h1>
-	<p align="justify">No problema anterior foi necessário o estudo sobre como funciona a NodeMCU e o envio de dados via UART. Neste problema tivemos que estudar como funciona o envio de informações através do protocolo de comunicação Message Queuing Telemetry Transport (MQTT), já que é a funcionalidade implementada de forma adicional em relação ao problema 2.</p>
+	<p align="justify">No problema anterior foi necessário o estudo sobre como funciona a NodeMCU e o envio de dados via UART. Neste problema, tivemos que estudar como funciona o envio de informações através do protocolo de comunicação Message Queuing Telemetry Transport (MQTT), já que é a funcionalidade implementada de forma adicional em relação ao problema 2.</p>
 	<p align="justify"> O MQTT é um protocolo de comunicação, onde é possível transmitir e receber dados de máquina para máquina através do protocolo TCP/IP. Ele funciona por meio do princípio de Publish-Subscribe , que se parecem muito com o padrão de projeto Observer, onde existem observadores (observer) e o sujeito(subject),  onde "os observadores irão realizar uma requisição para se inscrever no subject e dessa forma ser notificado quando houver alguma mudança de estado, o sujeito irá possuir uma lista dos seus observadores para que ele saiba para quem enviar as notificações quando houver a mudança de estado" (UFRJ,2019).</p> 
 	<p align="justify"> No Publish-Subscribe, além das características principais do padrão Obserser, adicionamos o Broker, que é um servidor responsável por encaminhar as mensagens para quem deve recebê-las, sendo assim, o Publisher não precisa saber quem é o Subscriber e vice-versa, ele deve apenas conhecer o Broker, sendo feita a conexão entre eles. </p> 
 	<p align="justify"> Para o Broker identificar para onde se deve enviar cada mensagem, existe uma palavra chave chamada Tópico, que se refere ao grupo de mensagens que aquele Cliente está inscrito para receber. O Cliente pode atuar como aquele que publica ou aquele que recebe uma informação, de qualquer forma, terá que haver a conexão com o Broker para que isso aconteça.</p>
@@ -117,7 +117,7 @@
 	<p>Para implementação do código foi utilizado a linguagem C.</p>
 	<h2>Para a programação da SBC</h2>
 	<p > 
-		No arquivo "main.c" na pasta principal, fizemos a importação de diversas bibliotecas necessárias, inicialização de variáveis e funções para conexão com a NodeMCU, com a conexão UART e MQTT.
+		No arquivo "main.c" na pasta principal, fizemos a importação de diversas bibliotecas necessárias, inicialização de variáveis e funções para conexão com a NodeMCU, via UART e via MQTT.
 		<ul>
 			<li>Funções</li>
 			<h align="justify"> As funções para funcionamento da SBC são:</h>
@@ -142,10 +142,6 @@
 					<ul><li>Função para voltar o valor do vetor do menu rotativo.</ul></li>
 				<li>limpaVetor</li>
 					<ul><li>Função para limpar o vetor do buffer de recebimento de dados.</ul></li>
-				<li>limpaVetor_comum</li>
-					<ul><li>Função para limpar vetores para dados comuns.</ul></li>	
-				<li>concatenar</li>
-					<ul><li>Função para juntar duas strings de forma específica.</ul></li>	
 			</ul>
 			<li>Constantes:</li>
 			<h7> Dentro desse arquivo existem macros para a configuração dos pinos da GPIO, sendo eles:</h7>
@@ -176,16 +172,16 @@
 			<li>Função void loop()</li>
 				<ul><li align="justify">Nessa função é feita o tratamento das requisições e respostas recebidas e enviadas.</ul></li>
 			<li>Conexão com MQTT</li>
-				<ul><li align="justify">Foram criadas constantes e feita a chamada de funções correspondentes a criação da conexão do MQTT e envio e recebimento de mensagens através da biblioteca PubSubClient.h. Existe um tópico para recebimento de mensagens (subscriber), chamado "respostas", e um tópico de envio (publisher) chamado "requisicao".</ul></li>
+				<ul><li align="justify">Foram criadas constantes e feita a chamada de funções correspondentes a criação da conexão do MQTT, envio e recebimento de mensagens através da biblioteca PubSubClient.h. Existe um tópico para recebimento de mensagens (subscriber), chamado "respostas", e um tópico de envio (publisher) chamado "requisicao, já que a NodeMCU recebe e envia informações.</ul></li>
 		</ul>
 	</p>
 	<h2>Para a programação do FrontEnd</h2>
 	<p align="justify"> O arquivo "index.html" na pasta "tela", é o arquivo que programa o FrontEnd. Foi criado uma tela para exibição dos dados utilizando Charts.js, uma ferramenta em Java Script para criação de gráficos. Também foi utilizado CSS para estilização da tela.</p>
 	<p align ="center"><img src="Referencias\tela sem dados.JPG"/></p>
 	<h6 align="center">Figura 2 - Tela sem dados </h6>
-	<p align="justify"> Foi utilizado o protocolo MQTT para envio de dados para a tela. Existe um tópico chamado "front" onde a tela está inscrita para recebimento de informações em determinado formato para exibição que será processado no script js.</p>
-	<p align ="center"><img src="Referencias\tela sem dados.JPG"/></p>
-	<h6 align="center">Figura 3 - Tela com dados</h6>
+	<p align="justify"> A SBC faz a conexão com o front através do MQTT, ela prepara o envio de uma mensagem para a tela no formato "data/hora, node, pino,valor do sensor" e publica no tópico "front", como na Figura 3, assim, no arquivo principal do front, é feito o processamento da mensagem.</p>
+	<p align ="center"><img src="Referencias\exemplo saida front.JPG"/></p>
+	<h6 align="center">Figura 3 - Exemplo de formato de envio de mensagens</h6>
 	
 	
 </div>
@@ -194,7 +190,8 @@
 	<h1>Metodologia</h1>
 		<h7 align="justify"> O fluxo do nosso sistema ficou da seguinte forma: temos 32 unidades de sensoriamento (referente a 32 NodeMCUs) e cada uma unidade com a possibilidade de interação com todas as suas entradas digitais, analógica e a LED.</p>
 		<p align="justify">De forma que a SBC interaja com a NodeMCU, são enviadas requisições com códigos de 1 byte (8 bits), assim como também é recebido a mesma quantidade de bits como resposta.</p>
-		<p align="justify">Para declaração dos bits para indicar as unidades e as entradas, foram declaradas variáveis para as unidades referenciando as unidades de 1 a 32, além da opção de escolha de todas as unidades, com bits declarados também para cada uma das entradas. </p>
+		<p align="justify">Independente da origem dos dados recebidos, via MQTT ou via UART, a SBC faz a verificação do remetente das mensagens para encaminhar o que fazer em seguida.</p>
+		<p align="justify">Para declaração dos bits para indicar as unidades e as entradas, foram declaradas constantes para as unidades referenciando as unidades de 1 a 32, além da opção de escolha de todas as unidades, também existem bits declarados para cada uma das entradas digitais, analógica e da LED. </p>
 		<p align ="center"><img src="Referencias\diagrama1.jpg"/></p>
 		<h6 align="center">Figura 4 - Fluxograma do menu principal</h6>
 		<p align ="center"><img src="Referencias\diagrama2.jpg"/></p>
@@ -208,13 +205,14 @@
 		<li>Situação atual da unidade de sensoriamento: Retorna se a unidade está ativa ou não, se está funcionando normalmente. </li>
 		<li>Valor de entrada analógico: Informa o dado capturado da entrada analógica com o potenciômetro. </li>
 		<li>Valor de entrada digital: Informa o dado capturado da entrada digital.</li>
-		<p align="justify">
-		A NodeMCU retorna para a SBC com um código referente a solicitação do usuário, como na Tabela 1. </p> 
-		<p align ="center"><img src="Referencias\respostanode.jpg"/></p>
-		<h6 align="center">Tabela 1 - Códigos de resposta da NodeMCU</h6>
+		<p align ="center"><img src="Referencias\mqtt2.jpg"/></p>
+		<h6 align="center">Figura 1 - Conjunto de bits para envio de respostas</h6>
+		<p align ="center"><img src="Referencias\mqtt.jpg"/></p>
+		<h6 align="center">Figura 1 - Bits em string definidos para identificação</h6>
+		<p align="justify">Quando uma mensagem é enviada da NodeMCU com comunicação via MQTT, os dados são enviados como na Figura, são enviados em formato de string e as requisições são processadas com um código pré-definido, já na UART, é enviado e recebido diretamente o byte da informação, como na figura 6 e 7.</p> 
 	</p>
 	<h2>Na SBC</h2>
-		<h7 align="justify"> A SBC é quem controla a NodeMCU fazendo as requisições, sendo assim, é feito o envio de dados por meio da conexão serial via UART e também MQTT, assim como processa as respostas recebidas em 1 byte de dados. </h7>
+		<h7 align="justify"> A SBC é quem controla a NodeMCU enviando requisições e recebendo respostas, sendo assim, é feito o envio de dados por meio da conexão serial via UART e também MQTT, assim como processa as respostas recebidas em 1 byte de dados (via UART) e uma string de bits (via MQTT). </h7>
 		<p align="justify">A SBC envia as solicitações por meio dos 8 bits de protocolo pré-estabelecido no arquivo de programação da placa. Ao receber a resposta da NodeMCU, a SBC processa para que seja exibido na LCD, inclusive, a entrada do usuário é feita através dos botões conectados na placa, que funcionam respectivamente como: anterior, enter e próximo, visto que é exibido na LCD um menu para escolha das opções.</p>
 		<p align ="center"><img src="https://github.com/danrleiaraujo/MI-SD/blob/main/2023_1/Problema%202/Referencias/unidades.PNG?raw=true"/></p>
 		<h6 align="center">Figura 6 - Conjunto de bits para a unidade</h6>
@@ -229,15 +227,20 @@
 	<p align ="center"><img src="Referencias\menugif2.gif"></p>
 	<h6 align="center">Figura 8 - Menu de seleção de unidades</h6>
 	<p align="justify">
-	É necessário fazer a escolha de qual unidade da NodeMCU o usuário deseja acessar, então o menu mostra as opções de 1 a 32, incluindo o acesso a todas as unidades, como mostrado na Figura 7, sendo que aquelas que não estão conectadas ao SBC, é mostrado um código de erro.</p>
-	<p align ="center"><img src="Referencias\collage.png"  width="500"></p>
-	<h6 align="center">Figura 9 - Requisição de acender/apagar LED</h6>
+	É necessário fazer a escolha de qual unidade da NodeMCU o usuário deseja acessar, então o menu mostra as opções de 1 a 32, incluindo o acesso a todas as unidades, como mostrado na Figura 7, sendo que aquelas que não estão conectadas ao SBC, é mostrado um código de erro. Nós configuramos a unidade 1 para a NodeMCU com conexão via UART e a unidade 2 e 3 com conexão MQTT.</p>
+	<p align="justify"> Ao escolher uma unidade, ela retorna uma mensagem para o  usuário sinalizando o status de conexão.</p>
+	<p align ="center"><img src="Referencias\uart sem conexão.jpg"  width="500"></p>
+	<h6 align="center">Figura 9 - Erro ao solicitar NodeMCU 1 via UART </h6>
+	<p align ="center"><img src="Referencias\mqttunid2.jpg"  width="500"></p>
+	<h6 align="center">Figura 9 - NodeMCU 2 conectada ao MQTT</h6>
+	<p align ="center"><img src="Referencias\todas.jpg"  width="500"></p>
+	<h6 align="center">Figura 9 - Conexão a todas NodeMCU</h6>
 	<p align="justify">
 	É mostrado na Figura 89 a solicitação de acender ou apagar a LED na NodeMCU.</p>
 	<p align ="center"><img src="Referencias\sensordigital.gif"></p>
 	<h6 align="center">Figura 10 - Requisição de entrada digital</h6>
 	<p align="justify">
-	O usuário escolhe qual entrada digital deseja ver os dados, então é retornado "1" no exemplo da Figura 10 com a porta D0, porque o botão indica "high" ou "1" no momento em que ele não está pressionado, caso contrário, ele indica "low" ou "0".</p>
+	O usuário escolhe qual entrada digital deseja ver os dados, então é retornado "1" ,no exemplo da Figura 10 com a porta D0, porque o botão indica "high" ou "1" no momento em que ele não está pressionado, caso contrário, ele indica "low" ou "0".</p>
 	<p align ="center"><img src="Referencias\valoranalogico.gif"></p>
 	<h6 align="center">Figura 11 - Requisição de entrada analógica</h6>
 	<p align="justify">
@@ -246,9 +249,13 @@
 	Na opção de solicitação de situação atual da unidade, a NodeMCU retorna se está funcionando ou não, no exemplo da Figura 12 é mostrado que a NodeMCU se encontra funcionando.</p>
 	<p align ="center"><img src="Referencias\status.gif"></p>
 	<h6 align="center">Figura 12 - Requisição de status de funcionamento da NodeMCU</h6>
+	<p align="justify"> No menu de monitoramento de dados de um pino da NodeMCU, é mostrado de forma sequencial ao usuário todos os valores capturados pelo sensor de cada placa.</p>
+	<p align="justify"> Para melhor visualização dos testes, utilizamos a ferramenta da biblioteca Mosquitto para observar o que está sendo enviado e recebido nos tópicos de requisições, respostas e front.</p>
+	<p align ="center"><img src="Referencias\mosquitto2.jpg"></p>
+	<h6 align="center">Figura 12 - Requisição de status de funcionamento da NodeMCU</h6>
 	<p align="justify"> 
-	Apesar da dificuldade de acesso ao laboatório conseguimos implementar um sistema funcional cumprindo quase todas as requisições impostas pelo problema. </p>
-	<p align="justify"> O nosso sistema funciona por completo, com interação com as 32 unidades de uma vez, ocorrendo o recebimento e envio de informações através do protocolo UART e MQTT. </p>
+	Apesar da dificuldade de acesso ao laboratório conseguimos implementar um sistema funcional cumprindo quase todas as requisições impostas pelo problema, exceto pela visualização dos dados pelo FrontEnd. </p>
+	<p align="justify"> O nosso sistema funciona por completo, com interação com as 32 unidades uma de cada vez ou todas de uma vez, ocorrendo o recebimento e envio de informações através do protocolo UART e MQTT de acordo com a configuração da NodeMCU. </p>
 	<p align="justify"> Apesar de ter sido concluído, futuramente ele pode ser melhorado, pensando em um código projetado de forma mais simples e otimizada.</p>
 	</p>
 </div>
