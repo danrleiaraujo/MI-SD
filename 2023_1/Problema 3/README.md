@@ -159,7 +159,7 @@
     </p>
 	<h2>Para a programação da NodeMCU</h2>
 	<p align="justify"> 
-		O arquivo "main.ino" na pasta "mainNode", é o arquivo que programa a NodeMCU. Lá fizemos a importação de diversas bibliotecas necessárias, inicialização de variáveis e funções para conexão com a SBC.
+		O arquivo "main.ino" na pasta "mainUart" e os arquivos da pasta "mainMqtt", são os arquivo que programam a NodeMCU, inicializando cada código de acordo com o protocolo de envio, se caso ela for conectada via UART ou MQTT. Nesses arquivos fizemos a importação de diversas bibliotecas necessárias, inicialização de variáveis e funções para conexão com a SBC.
 		<ul>
 			<li>Defines de seleção de unidade</li>
 				<ul><li align="justify">Constantes definidas assim como na SBC.</ul></li>
