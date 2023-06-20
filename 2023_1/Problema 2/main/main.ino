@@ -10,7 +10,7 @@
 
 const char* ssid = STASSID;
 const char* password = STAPSK;
-const char* host = "ESP-10.0.0.108";
+const char* host = "ESP-10.0.0.107";
 
 int led_pin = LED_BUILTIN;
 #define N_DIMMERS 3
@@ -106,7 +106,7 @@ void setup() {
 /*Variáveis*/
 bool unidade = false, opcao = false, sensorProblema = false;
 int valor = 0, testeSensor[9];
-unsigned char dado_digital, unidadeAtual = unidade_2;
+unsigned char dado_digital, unidadeAtual = unidade_1;
 byte dest[4];
 
 
