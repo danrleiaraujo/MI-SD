@@ -7,6 +7,7 @@
 #include <termios.h> // A biblioteca contém as definições usadas pelas interfaces de E/S do terminal 
 #include <time.h>   // Uso da funcao delay
 #include <string.h> //Manipulacao de string
+#include <locale.h>
 #include "MQTTClient.h"
 
 /*-------------------------MACROS--------------------*/
@@ -88,6 +89,7 @@
 #define TOPICPUB    "requisicoes"
 #define TOPICSUB    "respostas"
 #define TOPICFRONT  "front"
+#define TOPICFRONT  "front"
 #define QOS         1
 #define TIMEOUT     10000L
 #define USERNAME	"aluno"
@@ -122,7 +124,6 @@ void atualizaLCDVetor (char fraseSup[], char fraseInf[], int valor[], int lcd);
 void nextValor(int v[]);
 void previousValor(int v[]);
 void limpaVetor(unsigned char v[], int tamanho);
-void limpaVetor_comum ( char str[], int tamanho);
  /* ===================================================*/
 /*-------------------------------------MAIN------------------------------------------------------------*/
 int main(){
@@ -152,16 +153,19 @@ int main(){
 	char unidade[16]= "Unidade = ";
     char opcao0[16] = "Situacaoatual", opcao1[16]="ValorAnalogic"; 
     char opcao2[16] = "ValorDigital", opcao3[16] ="Acende_Led", opcao4[16] ="Monitoramento";
-    char u, d, msg[16], entradaD[10];
-    char datahora[100];
-    char msg_front[100];
-    char valorSensor, aux_unidEscolhida;
+    char u, d, msg[16], entradaD[10];;
     /*Type: unsigned char*/
     unsigned char resposta[8];
     unsigned char codigo, codigoUni, dest[3];
+    /*Type: outros*/
+    time_t data_hora_segundos; // guarda os segundos deste 01/01/1970
+    struct tm *timeinfo; // declara uma estrutura tm
+    
+      
+    
 
-    /*Type: time_t*/
-    time_t agora;
+    
+    
     /* Vetor com os codigos de unidades*/
     unsigned char codigo_unidades[33] = {   
 		todas_unidades, unidade_1, unidade_2, unidade_3,unidade_4,unidade_5,unidade_6,unidade_7,unidade_8,
@@ -412,23 +416,30 @@ int main(){
                     limpaVetor(resposta, 8); //Limpa o vetor de resposta
                     delay(2000); // Espera 2s
 
-                    /* ========================= MQTT -  ENVIO PARA O FRONT =============================
-                    agora = time(NULL);
-                    strftime( datahora, sizeof(datahora), "%d.%m.%Y - %H:%M:%S", localtime( &agora ));
+                    /* ========================= MQTT -  ENVIO PARA O FRONT =============================*/
+                    time(&data_hora_segundos); // preenche a variável data_hora_segundos
+                    timeinfo = localtime(&data_hora_segundos);
+                    strftime(data_hora, 100, "%d.%m.%Y-%H:%M", timeinfo);
 
-                    aux_unidEscolhida = unidadeSelecionada+'0';
-                    valorSensor= valorAnalog +'0';
-
-                    strcat(msg_front, datahora);
+                    //itoa(unidadeSelecionada,aux_unidEscolhida,10);
+                    //itoa(valorSensor,valorAnalog,10);
+                    sprintf(aux_unidEscolhida,"%d",unidadeSelecionada);
+                    sprintf(valorSensor,"%d",valorAnalog);
+                    
+                    strcat(msg_front, data_hora);
 		            strcat(msg_front, ",");
                     strcat(msg_front, aux_unidEscolhida);
                     strcat(msg_front, ",A0,");
-                    strcat(msg_front, valorSensor);    
-                    
+                    strcat(msg_front, valorSensor);
+                    strcat(msg_front, ",");
+
                     publisher(TOPICFRONT, msg_front);
 
-                    limpaVetor_comum (msg_front,100);
-                    limpaVetor_comum (datahora,100);
+                    memset(msg_front,'\0',100);
+                    memset(data_hora,'\0',100);
+                    memset(aux_unidEscolhida,'\0',10);
+                    memset(valorSensor,'\0',10);
+
                     /* =================================================================================*/
 				}
 				else if(digitalRead(next) == LOW){ 
@@ -495,23 +506,31 @@ int main(){
                     }
                     limpaVetor(resposta, 8); //Limpa o vetor de resposta
                     delay(2000); // Espera 2s
-                    /* ========================= MQTT -  ENVIO PARA O FRONT =============================
-                    agora = time(NULL);
-                    strftime( datahora, sizeof(datahora), "%d.%m.%Y - %H:%M:%S", localtime( &agora ));
 
-                    aux_unidEscolhida = unidadeSelecionada+'0';
-                    valorSensor= valorLED +'0';
+                    /* ========================= MQTT -  ENVIO PARA O FRONT =============================*/
+                    time(&data_hora_segundos); // preenche a variável data_hora_segundos
+                    timeinfo = localtime(&data_hora_segundos);
+                    strftime(data_hora, 100, "%d.%m.%Y-%H:%M", timeinfo);
+
+                    //itoa(unidadeSelecionada,aux_unidEscolhida,10);
+                    //itoa(valorSensor,valorAnalog,10);
+                    sprintf(aux_unidEscolhida,"%d",unidadeSelecionada);
+                    sprintf(valorSensor,"%d",valorLED);
                     
-                    strcat(msg_front, datahora);
+                    strcat(msg_front, data_hora);
 		            strcat(msg_front, ",");
                     strcat(msg_front, aux_unidEscolhida);
-                    strcat(msg_front, ",Led,");
-                    strcat(msg_front, valorSensor);    
-                    
+                    strcat(msg_front, ",LED,");
+                    strcat(msg_front, valorSensor);
+                    strcat(msg_front, ",");
+
                     publisher(TOPICFRONT, msg_front);
 
-                    limpaVetor_comum (msg_front,100);
-                    limpaVetor_comum (datahora,100);
+                    memset(msg_front,'\0',100);
+                    memset(data_hora,'\0',100);
+                    memset(aux_unidEscolhida,'\0',10);
+                    memset(valorSensor,'\0',10);
+
                     /* =================================================================================*/
 
 				}
@@ -629,23 +648,30 @@ int main(){
                             lcdClear(lcd); //Limpa o lcd
                             delay(1000);
 
-                            /* ========================= MQTT -  ENVIO PARA O FRONT =============================
-                            agora = time(NULL);
-                            strftime( datahora, sizeof(datahora), "%d.%m.%Y - %H:%M:%S", localtime( &agora ));
+                            /* ========================= MQTT -  ENVIO PARA O FRONT =============================*/
+                            time(&data_hora_segundos); // preenche a variável data_hora_segundos
+                            timeinfo = localtime(&data_hora_segundos);
+                            strftime(data_hora, 100, "%d.%m.%Y-%H:%M", timeinfo);
 
-                            aux_unidEscolhida = unidadeSelecionada+'0';
-                            valorSensor= valorAnalog +'0';
+                            //itoa(unidadeSelecionada,aux_unidEscolhida,10);
+                            //itoa(valorSensor,valorAnalog,10);
+                            sprintf(aux_unidEscolhida,"%d",unidadeSelecionada);
+                            sprintf(valorSensor,"%d",valorAnalog);
                             
-                            strcat(msg_front, datahora);
+                            strcat(msg_front, data_hora);
                             strcat(msg_front, ",");
                             strcat(msg_front, aux_unidEscolhida);
                             strcat(msg_front, ",A0,");
-                            strcat(msg_front, valorSensor);    
-                            
+                            strcat(msg_front, valorSensor);
+                            strcat(msg_front, ",");
+
                             publisher(TOPICFRONT, msg_front);
 
-                            limpaVetor_comum (msg_front,100);
-                            limpaVetor_comum (datahora,100);
+                            memset(msg_front,'\0',100);
+                            memset(data_hora,'\0',100);
+                            memset(aux_unidEscolhida,'\0',10);
+                            memset(valorSensor,'\0',10);
+
                             /* =================================================================================*/                           
 
                         }
@@ -735,25 +761,33 @@ int main(){
                                 printaLCDInt("Valor:", resposta[0], lcd);
                             }
                             delay(500); // Espera um tempo de 0,5s para nova atualizacao de valor
-                        
-                            /* ========================= MQTT -  ENVIO PARA O FRONT =============================
-                            agora = time(NULL);
-                            strftime( datahora, sizeof(datahora), "%d.%m.%Y - %H:%M:%S", localtime( &agora ));
 
-                            aux_unidEscolhida = unidadeSelecionada+'0';
+                            /* ========================= MQTT -  ENVIO PARA O FRONT =============================*/
+                            time(&data_hora_segundos); // preenche a variável data_hora_segundos
+                            timeinfo = localtime(&data_hora_segundos);
+                            strftime(data_hora, 100, "%d.%m.%Y-%H:%M", timeinfo);
+
+                            //itoa(unidadeSelecionada,aux_unidEscolhida,10);
+                            //itoa(valorSensor,valorAnalog,10);
+                            sprintf(aux_unidEscolhida,"%d",unidadeSelecionada);
+                            sprintf(valorSensor,"%d",resposta[0]);
                             
-                            strcat(msg_front, datahora);
+                            strcat(msg_front, data_hora);
                             strcat(msg_front, ",");
                             strcat(msg_front, aux_unidEscolhida);
                             strcat(msg_front, ",");
                             strcat(msg_front, entradaD);
                             strcat(msg_front, ",");
-                            strcat(msg_front, resposta);    
-                            
+                            strcat(msg_front, valorSensor);
+                            strcat(msg_front, ",");
+
                             publisher(TOPICFRONT, msg_front);
 
-                            limpaVetor_comum (msg_front,100);
-                            limpaVetor_comum (datahora,100);
+                            memset(msg_front,'\0',100);
+                            memset(data_hora,'\0',100);
+                            memset(aux_unidEscolhida,'\0',10);
+                            memset(valorSensor,'\0',10);
+
                             /* =================================================================================*/                           
                         }
                         limpaVetor(resposta, 8);
@@ -860,25 +894,33 @@ int main(){
                         printaLCDInt("Valor:", resposta[0], lcd);
                     }
                     delay(2000); // Espera 2s
-                    
-                    /* ========================= MQTT -  ENVIO PARA O FRONT =============================
-                    agora = time(NULL);
-                    strftime( datahora, sizeof(datahora), "%d.%m.%Y - %H:%M:%S", localtime( &agora ));
 
-                    aux_unidEscolhida = unidadeSelecionada+'0';
+                    /* ========================= MQTT -  ENVIO PARA O FRONT =============================*/
+                    time(&data_hora_segundos); // preenche a variável data_hora_segundos
+                    timeinfo = localtime(&data_hora_segundos);
+                    strftime(data_hora, 100, "%d.%m.%Y-%H:%M", timeinfo);
+
+                    //itoa(unidadeSelecionada,aux_unidEscolhida,10);
+                    //itoa(valorSensor,valorAnalog,10);
+                    sprintf(aux_unidEscolhida,"%d",unidadeSelecionada);
+                    sprintf(valorSensor,"%d",resposta[0]);
                     
-                    strcat(msg_front, datahora);
+                    strcat(msg_front, data_hora);
                     strcat(msg_front, ",");
                     strcat(msg_front, aux_unidEscolhida);
                     strcat(msg_front, ",");
                     strcat(msg_front, entradaD);
                     strcat(msg_front, ",");
-                    strcat(msg_front, resposta);    
-                    
+                    strcat(msg_front, valorSensor);
+                    strcat(msg_front, ",");
+
                     publisher(TOPICFRONT, msg_front);
 
-                    limpaVetor_comum (msg_front,100);
-                    limpaVetor_comum (datahora,100);
+                    memset(msg_front,'\0',100);
+                    memset(data_hora,'\0',100);
+                    memset(aux_unidEscolhida,'\0',10);
+                    memset(valorSensor,'\0',10);
+
                     /* =================================================================================*/
 
                     limpaVetor(resposta, 8); // Limpa o vetor de resposta
@@ -1131,14 +1173,6 @@ void limpaVetor (unsigned char v[], int tamanho){
     int i;
     for(i=0; i < tamanho; i++){ // Enquanto i for menor que o tamanho passado como referencia:
         v[i] = 0b00000000; // acrescenta o valor 0  em binario dentro do vetor para reseta-lo
-    }
-}
-/* =================================================================================================== */
-
-void limpaVetor_comum ( char str[], int tamanho){
-	int i;
-	for(i = 0; i < tamanho; i++){
-    	str[i] = "\0";
     }
 }
 /* =================================================================================================== */
