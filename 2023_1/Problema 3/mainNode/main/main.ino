@@ -25,7 +25,7 @@ const char* BROKER_MQTT = "10.0.0.101";        // broker MQTT
 int BROKER_PORT = 1883;
               
 // Definições do ID
-#define ID_MQTT   "ESP-111"  // ID desta nodeMCU (ID Client)
+#define ID_MQTT   "ESP-109"  // ID desta nodeMCU (ID Client)
 #define USER      "aluno"
 #define PASSWORD  "@luno*123"
 #define QOS       1
@@ -38,16 +38,44 @@ PubSubClient MQTT(wifiClient);   // Instancia o Cliente MQTT passando o objeto e
 // Topicos a serem publicados
 #define TOPICPUB   "respostas"
 
-/*Unidade 0*/
-#define unidade_1 "11000001"
-#define unidade_2 "11000010"
+/*Unidades*/
 #define todas_unidades "11111110"
-
-#define espera 1 //tem que ser referente ao valor da unidade
+#define unidade_1  "11000001"
+#define unidade_2  "11000010"
+#define unidade_3  "11000011"
+#define unidade_4  "11000100"
+#define unidade_5  "11000101"
+#define unidade_6  "11000110"
+#define unidade_7  "11000111"
+#define unidade_8  "11001000"
+#define unidade_9  "11001001"
+#define unidade_10 "11001010"
+#define unidade_11 "11001011"
+#define unidade_12 "11001100"
+#define unidade_13 "11001101"
+#define unidade_14 "11001110"
+#define unidade_15 "11001111"
+#define unidade_16 "11010000"
+#define unidade_17 "11010001"
+#define unidade_18 "11010010"
+#define unidade_19 "11010011"
+#define unidade_20 "11010100"
+#define unidade_21 "11010101"
+#define unidade_22 "11010110"
+#define unidade_23 "11010111"
+#define unidade_24 "11011000"
+#define unidade_25 "11011001"
+#define unidade_26 "11011010"
+#define unidade_27 "11011011"
+#define unidade_28 "11011100"
+#define unidade_29 "11011101"
+#define unidade_30 "11011110"
+#define unidade_31 "11011111"
+#define unidade_32 "11100000"
 
 /*Valores da led*/
-#define ledOn  "0x01"
 #define ledOff  "0x00"
+#define ledOn  "0x01"
 
 /* Tabela de REQUISICAO*/
 #define situacao_sensor  "0x02"
@@ -74,9 +102,8 @@ int led_pin = LED_BUILTIN;
 bool unidade = false, opcao = false, sensorProblema = false;
 int valor = 0, testeSensor[9];
 unsigned char dado_digital; 
-String unidadeAtual = unidade_1;
+const char unidadeAtual[] = unidade_2;
 byte dest[4];
-
 
 /**
  * Reconecta-se ao broker Tenta se conectar ao broker constantemente
@@ -159,7 +186,6 @@ void config_connect(){
   Serial.println(WiFi.localIP());
 }
 
-
 /**
  * Recebe as mensagens via mqtt 
  * @param topic - Topico que enviou a mensagem
@@ -180,14 +206,14 @@ void on_message(char* topic, byte* payload, unsigned int length){
     /* ====================== Situação 1 -> Caso tenha e a unidade esteja desativada: =========================*/
     if (unidade == false){
     /* ====================== Se o que foi lido for igual ao código da unidade: =========================*/
-      if (recvd == unidade_2){
+      if (recvd == unidadeAtual){
         unidade = true;
-        MQTT.publish(TOPICPUB, unidade_2);
+        MQTT.publish(TOPICPUB, unidadeAtual);
       }    
     /* ====================== Se o que foi lido for igual ao código de todas unidades: =========================*/
       else if (recvd == todas_unidades){
         unidade = true;
-        MQTT.publish(TOPICPUB, unidade_2);
+        MQTT.publish(TOPICPUB, unidadeAtual);
       }    
     }
     else if (unidade == true){
