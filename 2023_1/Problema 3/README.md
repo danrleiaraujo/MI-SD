@@ -80,7 +80,7 @@
 				<li>Os comandos serão compostos por palavras de 8 bits:heavy_check_mark:</li>
 				<li>A informação medida deve ter a maior precisão possível:heavy_check_mark:</li>
 				<li>As requisições do SBC podem ser direcionadas para uma unidade específica ou a todas.:heavy_check_mark:</li>
-				<li>Apresentação na LCD :heavy_multiplication_x:</li>
+				<li>Apresentação na LCD :heavy_check_mark:</li>
 			</ul>
 		</ul>
 	</ul>
@@ -89,8 +89,8 @@
 		<li>Código deverá ser escrito em linguagem C :heavy_check_mark:</li>
 		<li>Usar protocolo MQTT.:heavy_check_mark:</li>
 		<li>O sistema mantém a IHM local com interface baseada em display LCD, botões e chaves. Mas alterações podem ser realizadas para adaptação das novas funcionalidades :heavy_check_mark:</li>
-		<li>O sistema deverá implementar uma IHM em forma de aplicativo para Desktop ou Smartphone. Esta interface deve ser capaz de apresentar as medições coletadas:heavy_check_mark:</li>
-		<li>O sistema deve implementar uma unidade de sensoriamento sem fio utilizando uma segunda NodeMCU.:</li>
+		<li>O sistema deverá implementar uma IHM em forma de aplicativo para Desktop ou Smartphone. Esta interface deve ser capaz de apresentar as medições coletadas :heavy_multiplication_x:</li>
+		<li>O sistema deve implementar uma unidade de sensoriamento sem fio utilizando uma segunda NodeMCU.:heavy_check_mark:</li>
 		</ul>
 	</ul>
 </div>
@@ -193,12 +193,12 @@
 		<p align="justify">Independente da origem dos dados recebidos, via MQTT ou via UART, a SBC faz a verificação do remetente das mensagens para encaminhar o que fazer em seguida.</p>
 		<p align="justify">Para declaração dos bits para indicar as unidades e as entradas, foram declaradas constantes para as unidades referenciando as unidades de 1 a 32, além da opção de escolha de todas as unidades, também existem bits declarados para cada uma das entradas digitais, analógica e da LED. </p>
 		<p align ="center"><img src="Referencias\diagrama1.jpg"/></p>
-		<h6 align="center">Figura 4 - Fluxograma do menu principal</h6>
+		<h6 align="center">Figura 6 - Fluxograma do menu principal</h6>
 		<p align ="center"><img src="Referencias\diagrama2.jpg"/></p>
-		<h6 align="center">Figura 5 - Fluxograma do sub-menu</h6>
+		<h6 align="center">Figura 7 - Fluxograma do sub-menu</h6>
 	<h2>Na NodeMCU</h2>
 	<p align="justify">
-		É feita a leitura de dados por meio da conexão serial via UART ou MQTT (de acordo com a configuração da NodeMCU), onde a comunicação é feita por até 8 bits de cada vez. O byte recebido é interpretado através de um protocolo pré-estabelecido e acontece uma ação a partir da requisição recebida, fazendo uma comparação com suas constantes já definidas. </p> 
+		É feita a leitura de dados por meio da conexão via UART ou via MQTT (de acordo com a configuração da NodeMCU), onde a comunicação é feita por até 8 bits de cada vez. O byte recebido é interpretado através de um protocolo pré-estabelecido e acontece uma ação a partir da requisição recebida, fazendo uma comparação com suas constantes já definidas. </p> 
 	<p align="justify">
 		As requisições recebidas são:
 		<li>Acender led: Se a unidade selecionada já estiver ativa ele acende ou apaga a led.</li>
@@ -206,18 +206,18 @@
 		<li>Valor de entrada analógico: Informa o dado capturado da entrada analógica com o potenciômetro. </li>
 		<li>Valor de entrada digital: Informa o dado capturado da entrada digital.</li>
 		<p align ="center"><img src="Referencias\mqtt2.jpg"/></p>
-		<h6 align="center">Figura 1 - Conjunto de bits para envio de respostas</h6>
+		<h6 align="center">Figura 8 - Conjunto de bits para envio de respostas</h6>
 		<p align ="center"><img src="Referencias\mqtt.jpg"/></p>
-		<h6 align="center">Figura 1 - Bits em string definidos para identificação</h6>
-		<p align="justify">Quando uma mensagem é enviada da NodeMCU com comunicação via MQTT, os dados são enviados como na Figura, são enviados em formato de string e as requisições são processadas com um código pré-definido, já na UART, é enviado e recebido diretamente o byte da informação, como na figura 6 e 7.</p> 
+		<h6 align="center">Figura 9 - Bits em string definidos para identificação</h6>
+		<p align="justify">Quando uma mensagem é enviada da NodeMCU com comunicação via MQTT, os dados são enviados como na Figura 9, eles são enviados em formato de string e as requisições são processadas com um código pré-definido, já na UART, é enviado e recebido diretamente o byte da informação, como na figura 8.</p> 
 	</p>
 	<h2>Na SBC</h2>
 		<h7 align="justify"> A SBC é quem controla a NodeMCU enviando requisições e recebendo respostas, sendo assim, é feito o envio de dados por meio da conexão serial via UART e também MQTT, assim como processa as respostas recebidas em 1 byte de dados (via UART) e uma string de bits (via MQTT). </h7>
 		<p align="justify">A SBC envia as solicitações por meio dos 8 bits de protocolo pré-estabelecido no arquivo de programação da placa. Ao receber a resposta da NodeMCU, a SBC processa para que seja exibido na LCD, inclusive, a entrada do usuário é feita através dos botões conectados na placa, que funcionam respectivamente como: anterior, enter e próximo, visto que é exibido na LCD um menu para escolha das opções.</p>
 		<p align ="center"><img src="https://github.com/danrleiaraujo/MI-SD/blob/main/2023_1/Problema%202/Referencias/unidades.PNG?raw=true"/></p>
-		<h6 align="center">Figura 6 - Conjunto de bits para a unidade</h6>
+		<h6 align="center">Figura 10 - Conjunto de bits para a unidade</h6>
 		<p align ="center"><img src="https://github.com/danrleiaraujo/MI-SD/blob/main/2023_1/Problema%202/Referencias/entradas.PNG?raw=true"/></p>
-		<h6 align="center">Figura 7 - Conjunto de bits para as entradas</h6>
+		<h6 align="center">Figura 11 - Conjunto de bits para as entradas</h6>
 </div>
 
 <div id="conclusoes">
@@ -225,34 +225,36 @@
 	<p align="justify">
 	A seguir serão apresentados alguns dos principais resultados que obtivemos na criação do sistema:</p>
 	<p align ="center"><img src="Referencias\menugif2.gif"></p>
-	<h6 align="center">Figura 8 - Menu de seleção de unidades</h6>
+	<h6 align="center">Figura 12 - Menu de seleção de unidades</h6>
 	<p align="justify">
-	É necessário fazer a escolha de qual unidade da NodeMCU o usuário deseja acessar, então o menu mostra as opções de 1 a 32, incluindo o acesso a todas as unidades, como mostrado na Figura 7, sendo que aquelas que não estão conectadas ao SBC, é mostrado um código de erro. Nós configuramos a unidade 1 para a NodeMCU com conexão via UART e a unidade 2 e 3 com conexão MQTT.</p>
-	<p align="justify"> Ao escolher uma unidade, ela retorna uma mensagem para o  usuário sinalizando o status de conexão.</p>
+	É necessário fazer a escolha de qual unidade da NodeMCU o usuário deseja acessar, então o menu mostra as opções de 1 a 32, incluindo o acesso a todas as unidades, como mostrado na Figura 12, sendo que aquelas que não estão conectadas ao SBC, é mostrado um código de erro. Nós configuramos a unidade 1 para a NodeMCU com conexão via UART e a unidade 2 e 3 com conexão MQTT.</p>
+	<p align="justify"> Ao escolher uma unidade, ela retorna uma mensagem para o  usuário sinalizando o status de conexão, como visto da Figura 13, 14 e 15.</p>
 	<p align ="center"><img src="Referencias\uart sem conexão.jpg"  width="500"></p>
-	<h6 align="center">Figura 9 - Erro ao solicitar NodeMCU 1 via UART </h6>
+	<h6 align="center">Figura 13 - Erro ao solicitar NodeMCU 1 via UART </h6>
 	<p align ="center"><img src="Referencias\mqttunid2.jpg"  width="500"></p>
-	<h6 align="center">Figura 9 - NodeMCU 2 conectada ao MQTT</h6>
+	<h6 align="center">Figura 14 - NodeMCU 2 conectada ao MQTT</h6>
 	<p align ="center"><img src="Referencias\todas.jpg"  width="500"></p>
-	<h6 align="center">Figura 9 - Conexão a todas NodeMCU</h6>
+	<h6 align="center">Figura 15 - Conexão a todas NodeMCU</h6>
 	<p align="justify">
-	É mostrado na Figura 89 a solicitação de acender ou apagar a LED na NodeMCU.</p>
+	É mostrado na Figura 16 a solicitação de acender ou apagar a LED na NodeMCU.</p>
+	<p align ="center"><img src="Referencias\collage.png"></p>
+	<h6 align="center">Figura 16 - Requisição de acender LED</h6>
 	<p align ="center"><img src="Referencias\sensordigital.gif"></p>
-	<h6 align="center">Figura 10 - Requisição de entrada digital</h6>
+	<h6 align="center">Figura 17 - Requisição de entrada digital</h6>
 	<p align="justify">
-	O usuário escolhe qual entrada digital deseja ver os dados, então é retornado "1" ,no exemplo da Figura 10 com a porta D0, porque o botão indica "high" ou "1" no momento em que ele não está pressionado, caso contrário, ele indica "low" ou "0".</p>
+	O usuário escolhe qual entrada digital deseja ver os dados, então é retornado "1" ,no exemplo da Figura 17 com a porta D0, porque o botão indica "high" ou "1" no momento em que ele não está pressionado, caso contrário, ele indica "low" ou "0".</p>
 	<p align ="center"><img src="Referencias\valoranalogico.gif"></p>
-	<h6 align="center">Figura 11 - Requisição de entrada analógica</h6>
+	<h6 align="center">Figura 18 - Requisição de entrada analógica</h6>
 	<p align="justify">
-	Assim como na entrada digital, o usuário pode escolher qual entrada analógica acessar, a que temos ativa fica conectada ao potenciômetro para simular um sensor, no momento que solicitamos os dados, é mostrado na tela o valor como na Figura 11.</p>
+	Assim como na entrada digital, o usuário pode escolher qual entrada analógica acessar, a que temos ativa fica conectada ao potenciômetro para simular um sensor, no momento que solicitamos os dados, é mostrado na tela o valor como na Figura 18.</p>
 	<p align="justify">
-	Na opção de solicitação de situação atual da unidade, a NodeMCU retorna se está funcionando ou não, no exemplo da Figura 12 é mostrado que a NodeMCU se encontra funcionando.</p>
+	Na opção de solicitação de situação atual da unidade, a NodeMCU retorna se está funcionando ou não, no exemplo da Figura 19 é mostrado que a NodeMCU se encontra funcionando.</p>
 	<p align ="center"><img src="Referencias\status.gif"></p>
-	<h6 align="center">Figura 12 - Requisição de status de funcionamento da NodeMCU</h6>
+	<h6 align="center">Figura 19 - Requisição de status de funcionamento da NodeMCU</h6>
 	<p align="justify"> No menu de monitoramento de dados de um pino da NodeMCU, é mostrado de forma sequencial ao usuário todos os valores capturados pelo sensor de cada placa.</p>
-	<p align="justify"> Para melhor visualização dos testes, utilizamos a ferramenta da biblioteca Mosquitto para observar o que está sendo enviado e recebido nos tópicos de requisições, respostas e front.</p>
+	<p align="justify"> Para melhor visualização dos testes, utilizamos a ferramenta da biblioteca Mosquitto para observar o que está sendo enviado e recebido nos tópicos de requisições, respostas e front, como na Figura 20.</p>
 	<p align ="center"><img src="Referencias\mosquitto2.jpg"></p>
-	<h6 align="center">Figura 12 - Requisição de status de funcionamento da NodeMCU</h6>
+	<h6 align="center">Figura 20 - Requisição de status de funcionamento da NodeMCU</h6>
 	<p align="justify"> 
 	Apesar da dificuldade de acesso ao laboratório conseguimos implementar um sistema funcional cumprindo quase todas as requisições impostas pelo problema, exceto pela visualização dos dados pelo FrontEnd. </p>
 	<p align="justify"> O nosso sistema funciona por completo, com interação com as 32 unidades uma de cada vez ou todas de uma vez, ocorrendo o recebimento e envio de informações através do protocolo UART e MQTT de acordo com a configuração da NodeMCU. </p>
@@ -262,7 +264,7 @@
 
 <div id="referencias"> 
 	<h1>Referências</h1>
-	<li align="justify">UFRJ. Protocolo MQTT - Redes 1. Ufrj.br. Disponível em: https://www.gta.ufrj.br/ensino/eel878/redes1-2019-1/vf/mqtt/#:~:text=MQTT(Message%20Queuing%20Telemetry%20Transport,cima%20do%20protocolo%20TCP%2FIP. Acesso em: 18 jun. 2023.‌</li>
+	<li align="justify">UFRJ. Protocolo MQTT - Redes 1. Ufrj.br. Disponível em: https://www.gta.ufrj.br/ensino/eel878/redes1-2019-1/vf/mqtt/#:~:text=MQTT (Message%20Queuing%20Telemetry%20Transport,cima%20do%20protocolo%20TCP%2FIP. Acesso em: 18 jun. 2023.‌</li>
 	<li align="justify"> AWS - Amazon Web Services. O que é MQTT? – Explicação sobre o protocolo MQTT. Disponível em: https://aws.amazon.com/pt/what-is/mqtt/. Acesso em: 18 jun. 2023</li>
 </div>
 
@@ -270,11 +272,11 @@
 
 ```bash
 # Clone este repositório
-$ git clone <https://github.com/danrleiaraujo/MI-SD/tree/973d18d14ae7fc1250ef5ff3b43c846092dd19c7/2023_1/Problema%202>
+$ git clone <https://github.com/danrleiaraujo/MI-SD/tree/main/2023_1/Problema%203>
 
 #Para inicializar o SBC:
 # Acesse a pasta do projeto no terminal/cmd
-$ cd Problema 2
+$ cd Problema 3
 
 #Dê o comando para compilar:
 $ make
@@ -284,7 +286,7 @@ $ sudo ./main
 
 #Para inicializar o NodeMCU:
 # Acesse o arquivo na IDE do Arduíno com as configurações de acesso a NodeMCU
-Acess a pasta: Problema 2/main
+Acess a pasta: Problema 3/main
 
 e abra o arquivo: main.ino
 
