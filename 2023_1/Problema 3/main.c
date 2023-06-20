@@ -88,7 +88,6 @@
 #define TOPICPUB    "requisicoes"
 #define TOPICSUB    "respostas"
 #define TOPICFRONT  "front"
-#define TOPICFRONT  "front"
 #define QOS         1
 #define TIMEOUT     10000L
 #define USERNAME	"aluno"
@@ -154,6 +153,9 @@ int main(){
     char opcao0[16] = "Situacaoatual", opcao1[16]="ValorAnalogic"; 
     char opcao2[16] = "ValorDigital", opcao3[16] ="Acende_Led", opcao4[16] ="Monitoramento";
     char u, d, msg[16], entradaD[10];;
+    char data_hora[100];
+    char aux_unidEscolhida[20], valorSensor[20];
+    char msg_front[100];
     /*Type: unsigned char*/
     unsigned char online[32] ={}, resposta[8];
     char onlineMqtt[32][100] ={};
@@ -607,7 +609,7 @@ int main(){
                     limpaVetor(resposta, 8); //Limpa o vetor de resposta
                     delay(2000); // Espera 2s
 
-                    /* ========================= MQTT -  ENVIO PARA O FRONT =============================
+                    /* ========================= MQTT -  ENVIO PARA O FRONT =============================*/
                     time(&data_hora_segundos); // preenche a variável data_hora_segundos
                     timeinfo = localtime(&data_hora_segundos);
                     strftime(data_hora, 100, "%d.%m.%Y-%H:%M", timeinfo);
@@ -631,7 +633,7 @@ int main(){
                     memset(aux_unidEscolhida,'\0',10);
                     memset(valorSensor,'\0',10);
 
-                     =================================================================================*/
+                    /**=================================================================================*/
 				}
 				else if(digitalRead(next) == LOW){ 
 					op++; // Aumenta o valor da opcao
@@ -761,7 +763,7 @@ int main(){
                     limpaVetor(resposta, 8); //Limpa o vetor de resposta
                     delay(2000); // Espera 2s
 
-                    /* ========================= MQTT -  ENVIO PARA O FRONT =============================
+                    /* ========================= MQTT -  ENVIO PARA O FRONT =============================*/
                     time(&data_hora_segundos); // preenche a variável data_hora_segundos
                     timeinfo = localtime(&data_hora_segundos);
                     strftime(data_hora, 100, "%d.%m.%Y-%H:%M", timeinfo);
@@ -785,7 +787,7 @@ int main(){
                     memset(aux_unidEscolhida,'\0',10);
                     memset(valorSensor,'\0',10);
 
-                     =================================================================================*/
+                    /* =================================================================================*/
 
 				}
 				else if(digitalRead(next) == LOW){ 
@@ -970,8 +972,7 @@ int main(){
                                     delay(1000);
                                 }
 
-                            }
-                            /* ========================= MQTT -  ENVIO PARA O FRONT =============================
+                            /* ========================= MQTT -  ENVIO PARA O FRONT =============================*/
                             time(&data_hora_segundos); // preenche a variável data_hora_segundos
                             timeinfo = localtime(&data_hora_segundos);
                             strftime(data_hora, 100, "%d.%m.%Y-%H:%M", timeinfo);
@@ -995,7 +996,7 @@ int main(){
                             memset(aux_unidEscolhida,'\0',10);
                             memset(valorSensor,'\0',10);
 
-                             =================================================================================*/                           
+                            /* =================================================================================*/                           
 
                         }
                         limpaVetor(resposta, 8);
@@ -1133,7 +1134,7 @@ int main(){
                                 delay(2000); // Espera 2s
                             }
 
-                            /* ========================= MQTT -  ENVIO PARA O FRONT =============================
+                            /* ========================= MQTT -  ENVIO PARA O FRONT =============================*/
                             time(&data_hora_segundos); // preenche a variável data_hora_segundos
                             timeinfo = localtime(&data_hora_segundos);
                             strftime(data_hora, 100, "%d.%m.%Y-%H:%M", timeinfo);
@@ -1159,7 +1160,7 @@ int main(){
                             memset(aux_unidEscolhida,'\0',10);
                             memset(valorSensor,'\0',10);
 
-                             =================================================================================*/                           
+                            /*=================================================================================*/                           
                         }
                         limpaVetor(resposta, 8);
                         op2 =0; // Volta para o primeiro submenu
@@ -1306,7 +1307,7 @@ int main(){
                         delay(2000); // Espera 2s
                     }
 
-                    /* ========================= MQTT -  ENVIO PARA O FRONT =============================
+                    /* ========================= MQTT -  ENVIO PARA O FRONT =============================*/
                     time(&data_hora_segundos); // preenche a variável data_hora_segundos
                     timeinfo = localtime(&data_hora_segundos);
                     strftime(data_hora, 100, "%d.%m.%Y-%H:%M", timeinfo);
@@ -1332,7 +1333,7 @@ int main(){
                     memset(aux_unidEscolhida,'\0',10);
                     memset(valorSensor,'\0',10);
 
-                     =================================================================================*/
+                    /*=================================================================================*/
                     limpaVetor(resposta, 8); // Limpa o vetor de resposta
                     op2 =1; // Volta pro primeiro subMenu
                     delay(300); //Tempo para o botao
