@@ -10,7 +10,7 @@
 
 const char* ssid = STASSID;
 const char* password = STAPSK;
-const char* host = "ESP-10.0.0.107";
+const char* host = "ESP-10.0.0.108";
 
 int led_pin = LED_BUILTIN;
 #define N_DIMMERS 3
