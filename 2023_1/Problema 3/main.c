@@ -348,8 +348,7 @@ int main(){
                     writeUart(uart0_filestream, codigoUni);                
 
                     delay(100); // Tempo minimo para retorno
-                    
-                    limpaVetor(resposta, 8);
+                
                     /*Recebe codigo*/
                     readUart(uart0_filestream, resposta);
                     
@@ -423,34 +422,24 @@ int main(){
                             /* =================================================================================*/
                             /*Ativa a node*/
                             writeUart(uart0_filestream, online[i]); // Manda o codigo
-                            delay(30); // Aguarda um tempo para retorno da Orange
+                            delay(50); // Aguarda um tempo para retorno da Orange
                             readUart(uart0_filestream, resposta); // Le o que foi recebido
-                            limpaVetor(resposta, 8); //Limpa o vetor de resposta
 
                             /* =================================================================================*/
                             /*Manda o codigo*/
                             writeUart(uart0_filestream, codigo); // Manda o codigo
-                            delay(30); // Aguarda um tempo para retorno da Orange
+                            delay(50); // Aguarda um tempo para retorno da Orange
                             readUart(uart0_filestream, resposta); // Le o que foi recebido
 
                             if(resposta[0] == 0x02){ // Caso seja o codigo de funcionando:
-                                lcdPosition(lcd, 0, 0); //Seleciona a linha superior;
-                                lcdPrintf(lcd, "Node: %s", online[i]);
-
-                                lcdPosition(lcd, 0, 1);//Seleciona a linha inferior;
-                                lcdPrintf(lcd, "Funcionando");
+                                printaLCDHexa("Funcionando",online[i], lcd);
                             }
-                            else if(resposta[0] == 0x01 || strcmp(respostaMQTT, respostas[0]) == 0){ // Caso seja o código de Problema
-                                lcdPosition(lcd, 0, 0); //Seleciona a linha superior;
-                                lcdPrintf(lcd, "Node: %s", online[i]);
-
-                                lcdPosition(lcd, 0, 1);//Seleciona a linha inferior;
-                                lcdPrintf(lcd, "Com problemas");
+                            else if(resposta[0] == 0x01){ // Caso seja o código de Problema
+                                printaLCDHexa("Com problemas", online[i], lcd);
                             }
                             else{ // Caso não tenha resposta:
                                 printaLCD("NodeMCU", "Sem resposta",lcd);
                             }
-                            limpaVetor(resposta, 8); //Limpa o vetor de resposta
                             /* =================================================================================*/
                             /*Desativa a node*/
                             writeUart(uart0_filestream, online[i]); // Manda o codigo
@@ -469,18 +458,10 @@ int main(){
                             delay(100); // Aguarda um tempo para retorno da Orange
                             /* =================================================================================*/
                             if(strcmp(respostaMQTT, respostas[1]) == 0){ // Caso seja o codigo de funcionando:
-                                lcdPosition(lcd, 0, 0); //Seleciona a linha superior;
-                                lcdPrintf(lcd, "Node: 0x%x", online[i]);
-
-                                lcdPosition(lcd, 0, 1);//Seleciona a linha inferior;
-                                lcdPrintf(lcd, "Funcionando");
+                                printaLCD(onlineMqtt[i],"Funcionando", lcd);
                             }
                             else if(strcmp(respostaMQTT, respostas[0]) == 0){ // Caso seja o código de Problema
-                                lcdPosition(lcd, 0, 0); //Seleciona a linha superior;
-                                lcdPrintf(lcd, "Node: 0x%x", online[i]);
-
-                                lcdPosition(lcd, 0, 1);//Seleciona a linha inferior;
-                                lcdPrintf(lcd, "Com problemas");
+                                printaLCD(onlineMqtt[i],"Com problemas", lcd);
                             }
                             else{ // Caso não tenha resposta:
                                 printaLCD("NodeMCU","Sem resposta",lcd);
@@ -567,6 +548,33 @@ int main(){
                             delay(30); // Aguarda um tempo para retorno da Orange
                             readUart(uart0_filestream, resposta); // Le o que foi recebido
                             limpaVetor(resposta, 8); //Limpa o vetor de resposta
+                            
+                            /* ========================= MQTT -  ENVIO PARA O FRONT =============================*/
+                            time(&data_hora_segundos); // preenche a variável data_hora_segundos
+                            timeinfo = localtime(&data_hora_segundos);
+                            strftime(data_hora, 100, "%d.%m.%Y-%H:%M", timeinfo);
+
+                            //itoa(unidadeSelecionada,aux_unidEscolhida,10);
+                            //itoa(valorSensor,valorAnalog,10);
+                            sprintf(aux_unidEscolhida,"%d",unidadeSelecionada);
+                            sprintf(valorSensor,"%d",valorAnalog);
+                            
+                            strcat(msg_front, data_hora);
+                            strcat(msg_front, ",");
+                            strcat(msg_front, aux_unidEscolhida);
+                            strcat(msg_front, ",A0,");
+                            strcat(msg_front, valorSensor);
+                            strcat(msg_front, ",");
+
+                            publisher(TOPICFRONT, msg_front);
+
+                            memset(msg_front,'\0',100);
+                            memset(data_hora,'\0',100);
+                            memset(aux_unidEscolhida,'\0',10);
+                            memset(valorSensor,'\0',10);
+
+                            /**=================================================================================*/
+                            
                         }
                         for(i=0; i < qtdOnlineMqtt; i++){
                             /* =================================================================================*/
@@ -583,6 +591,31 @@ int main(){
                             /*Desativa a node*/
                             publisher(TOPICPUB, onlineMqtt[i]);
                             delay(100); // Aguarda um tempo para retorno da Orange
+                            /* ========================= MQTT -  ENVIO PARA O FRONT =============================*/
+                            time(&data_hora_segundos); // preenche a variável data_hora_segundos
+                            timeinfo = localtime(&data_hora_segundos);
+                            strftime(data_hora, 100, "%d.%m.%Y-%H:%M", timeinfo);
+
+                            //itoa(unidadeSelecionada,aux_unidEscolhida,10);
+                            //itoa(valorSensor,valorAnalog,10);
+                            sprintf(aux_unidEscolhida,"%d",unidadeSelecionada);
+                            //sprintf(valorSensor,"%d",valorAnalog);
+                            
+                            strcat(msg_front, data_hora);
+                            strcat(msg_front, ",");
+                            strcat(msg_front, aux_unidEscolhida);
+                            strcat(msg_front, ",A0,");
+                            strcat(msg_front, respostaMQTT);
+                            strcat(msg_front, ",");
+
+                            publisher(TOPICFRONT, msg_front);
+
+                            memset(msg_front,'\0',100);
+                            memset(data_hora,'\0',100);
+                            memset(aux_unidEscolhida,'\0',10);
+                            memset(valorSensor,'\0',10);
+
+                            /**=================================================================================*/
                         }
                     }
                     else{
@@ -599,6 +632,32 @@ int main(){
                         if(mqtt){
                             lcdClear(lcd); //Limpa o lcd
                             printaLCD("Valor A0:", respostaMQTT, lcd); // Mostra o valor da entrada analógica
+                            
+                            /* ========================= MQTT -  ENVIO PARA O FRONT =============================*/
+                            time(&data_hora_segundos); // preenche a variável data_hora_segundos
+                            timeinfo = localtime(&data_hora_segundos);
+                            strftime(data_hora, 100, "%d.%m.%Y-%H:%M", timeinfo);
+
+                            //itoa(unidadeSelecionada,aux_unidEscolhida,10);
+                            //itoa(valorSensor,valorAnalog,10);
+                            sprintf(aux_unidEscolhida,"%d",unidadeSelecionada);
+                            //sprintf(valorSensor,"%d",valorAnalog);
+                            
+                            strcat(msg_front, data_hora);
+                            strcat(msg_front, ",");
+                            strcat(msg_front, aux_unidEscolhida);
+                            strcat(msg_front, ",A0,");
+                            strcat(msg_front, respostaMQTT);
+                            strcat(msg_front, ",");
+
+                            publisher(TOPICFRONT, msg_front);
+
+                            memset(msg_front,'\0',100);
+                            memset(data_hora,'\0',100);
+                            memset(aux_unidEscolhida,'\0',10);
+                            memset(valorSensor,'\0',10);
+
+                            /**=================================================================================*/
                         }
                         else{
                             /* Vai ser recebido 3 bytes*/
@@ -611,37 +670,38 @@ int main(){
                 
                             lcdClear(lcd); //Limpa o lcd
                             printaLCDInt("Valor A0:", valorAnalog, lcd); // Mostra o valor da entrada analógica
+                            
+                            /* ========================= MQTT -  ENVIO PARA O FRONT =============================*/
+                            time(&data_hora_segundos); // preenche a variável data_hora_segundos
+                            timeinfo = localtime(&data_hora_segundos);
+                            strftime(data_hora, 100, "%d.%m.%Y-%H:%M", timeinfo);
+
+                            //itoa(unidadeSelecionada,aux_unidEscolhida,10);
+                            //itoa(valorSensor,valorAnalog,10);
+                            sprintf(aux_unidEscolhida,"%d",unidadeSelecionada);
+                            sprintf(valorSensor,"%d",valorAnalog);
+                            
+                            strcat(msg_front, data_hora);
+                            strcat(msg_front, ",");
+                            strcat(msg_front, aux_unidEscolhida);
+                            strcat(msg_front, ",A0,");
+                            strcat(msg_front, valorSensor);
+                            strcat(msg_front, ",");
+
+                            publisher(TOPICFRONT, msg_front);
+
+                            memset(msg_front,'\0',100);
+                            memset(data_hora,'\0',100);
+                            memset(aux_unidEscolhida,'\0',10);
+                            memset(valorSensor,'\0',10);
+
+                            /**=================================================================================*/
                         }
 
                     }
                     limpaVetor(resposta, 8); //Limpa o vetor de resposta
                     delay(2000); // Espera 2s
 
-                    /* ========================= MQTT -  ENVIO PARA O FRONT =============================*/
-                    time(&data_hora_segundos); // preenche a variável data_hora_segundos
-                    timeinfo = localtime(&data_hora_segundos);
-                    strftime(data_hora, 100, "%d.%m.%Y-%H:%M", timeinfo);
-
-                    //itoa(unidadeSelecionada,aux_unidEscolhida,10);
-                    //itoa(valorSensor,valorAnalog,10);
-                    sprintf(aux_unidEscolhida,"%d",unidadeSelecionada);
-                    //sprintf(valorSensor,"%d",valorAnalog);
-                    
-                    strcat(msg_front, data_hora);
-		            strcat(msg_front, ",");
-                    strcat(msg_front, aux_unidEscolhida);
-                    strcat(msg_front, ",A0,");
-                    strcat(msg_front, respostaMQTT);
-                    strcat(msg_front, ",");
-
-                    publisher(TOPICFRONT, msg_front);
-
-                    memset(msg_front,'\0',100);
-                    memset(data_hora,'\0',100);
-                    memset(aux_unidEscolhida,'\0',10);
-                    memset(valorSensor,'\0',10);
-
-                    /**=================================================================================*/
 				}
 				else if(digitalRead(next) == LOW){ 
 					op++; // Aumenta o valor da opcao
@@ -703,9 +763,11 @@ int main(){
 
                             if(resposta[0] == 0x01){ // Caso a resposta seja 0x01 = High
                                 printaLCD("Led","Acesa",lcd);
+                                valorLED = 1;
                             }
                             else if(resposta[0] == 0x00){ // Caso a resposta seja 0x0 = LOW
                                 printaLCD("Led","Apagada",lcd);
+                                valorLED = 0;
                             }
                             else{ // Caso não tenha resposta
                                 printaLCD("Led","Sem resposta",lcd);
@@ -718,6 +780,32 @@ int main(){
                             delay(30); // Aguarda um tempo para retorno da Orange
                             readUart(uart0_filestream, resposta); // Le o que foi recebido
                             limpaVetor(resposta, 8); //Limpa o vetor de resposta
+                            
+                            /* ========================= MQTT -  ENVIO PARA O FRONT =============================*/
+                            time(&data_hora_segundos); // preenche a variável data_hora_segundos
+                            timeinfo = localtime(&data_hora_segundos);
+                            strftime(data_hora, 100, "%d.%m.%Y-%H:%M", timeinfo);
+
+                            //itoa(unidadeSelecionada,aux_unidEscolhida,10);
+                            //itoa(valorSensor,valorAnalog,10);
+                            sprintf(aux_unidEscolhida,"%d",unidadeSelecionada);
+                            sprintf(valorSensor,"%d",valorLED);
+                            
+                            strcat(msg_front, data_hora);
+                            strcat(msg_front, ",");
+                            strcat(msg_front, aux_unidEscolhida);
+                            strcat(msg_front, ",LED,");
+                            strcat(msg_front, valorSensor);
+                            strcat(msg_front, ",");
+
+                            publisher(TOPICFRONT, msg_front);
+
+                            memset(msg_front,'\0',100);
+                            memset(data_hora,'\0',100);
+                            memset(aux_unidEscolhida,'\0',10);
+                            memset(valorSensor,'\0',10);
+
+                            /* =================================================================================*/
                         }
                         for(i=0; i < qtdOnlineMqtt; i++){
                             /* =================================================================================*/
@@ -730,9 +818,11 @@ int main(){
                             lcdClear(lcd); //Limpa o lcd
                             if(strcmp(respostaMQTT, respostas[0]) == 0){ // Caso a resposta seja 0x01 = High
                                 printaLCD("Led","Acesa",lcd);
+                                valorLED = 1;
                             }
                             else if(strcmp(respostaMQTT, respostas[4]) == 0){ // Caso a resposta seja 0x0 = LOW
                                 printaLCD("Led","Apagada",lcd);
+                                valorLED = 0;
                             }
                             else{ // Caso não tenha resposta
                                 printaLCD("Led","Sem resposta",lcd);
@@ -742,6 +832,32 @@ int main(){
                             /*Desativa a node*/
                             publisher(TOPICPUB, onlineMqtt[i]);
                             delay(100); // Aguarda um tempo para retorno da Orange
+                            /* ========================= MQTT -  ENVIO PARA O FRONT =============================*/
+                            time(&data_hora_segundos); // preenche a variável data_hora_segundos
+                            timeinfo = localtime(&data_hora_segundos);
+                            strftime(data_hora, 100, "%d.%m.%Y-%H:%M", timeinfo);
+
+                            //itoa(unidadeSelecionada,aux_unidEscolhida,10);
+                            //itoa(valorSensor,valorAnalog,10);
+                            sprintf(aux_unidEscolhida,"%d",unidadeSelecionada);
+                            sprintf(valorSensor,"%d",valorLED);
+                            
+                            strcat(msg_front, data_hora);
+                            strcat(msg_front, ",");
+                            strcat(msg_front, aux_unidEscolhida);
+                            strcat(msg_front, ",LED,");
+                            strcat(msg_front, valorSensor);
+                            strcat(msg_front, ",");
+
+                            publisher(TOPICFRONT, msg_front);
+
+                            memset(msg_front,'\0',100);
+                            memset(data_hora,'\0',100);
+                            memset(aux_unidEscolhida,'\0',10);
+                            memset(valorSensor,'\0',10);
+
+                            /* =================================================================================*/
+
                         }
                     }
                     else{
@@ -758,9 +874,11 @@ int main(){
                         lcdClear(lcd); //Limpa o lcd
                         if(resposta[0] == 0x01 || strcmp(respostaMQTT, respostas[0]) == 0){ // Caso a resposta seja 0x01 = High
                             printaLCD("Led","Acesa",lcd);
+                            valorLED = 1;
                         }
                         else if(resposta[0] == 0x00 || strcmp(respostaMQTT, respostas[4]) == 0){ // Caso a resposta seja 0x0 = LOW
                             printaLCD("Led","Apagada",lcd);
+                            valorLED = 0;
                         }
                         else{ // Caso não tenha resposta
                             printaLCD("Led","Sem resposta",lcd);
@@ -1019,6 +1137,33 @@ int main(){
                                 if(mqtt){
                                     lcdClear(lcd); //Limpa o lcd
                                     printaLCD("Valor A0:", respostaMQTT, lcd); // Mostra o valor da entrada analógica
+                                    
+                                    /* ========================= MQTT -  ENVIO PARA O FRONT =============================*/
+                                    time(&data_hora_segundos); // preenche a variável data_hora_segundos
+                                    timeinfo = localtime(&data_hora_segundos);
+                                    strftime(data_hora, 100, "%d.%m.%Y-%H:%M", timeinfo);
+
+                                    //itoa(unidadeSelecionada,aux_unidEscolhida,10);
+                                    //itoa(valorSensor,valorAnalog,10);
+                                    sprintf(aux_unidEscolhida,"%d",unidadeSelecionada);
+                                    //sprintf(valorSensor,"%d",valorAnalog);
+                                    
+                                    strcat(msg_front, data_hora);
+                                    strcat(msg_front, ",");
+                                    strcat(msg_front, aux_unidEscolhida);
+                                    strcat(msg_front, ",A0,");
+                                    strcat(msg_front, respostaMQTT);
+                                    strcat(msg_front, ",");
+
+                                    publisher(TOPICFRONT, msg_front);
+
+                                    memset(msg_front,'\0',100);
+                                    memset(data_hora,'\0',100);
+                                    memset(aux_unidEscolhida,'\0',10);
+                                    memset(valorSensor,'\0',10);
+
+                                    /* =================================================================================*/ 
+
                                 }
                                 else{
                                     /* Vai ser recebido 3 bytes*/
@@ -1060,8 +1205,7 @@ int main(){
                                     /* =================================================================================*/ 
 
                                 }
-
-
+                            }
                         }
                         limpaVetor(resposta, 8);
                         op2 =0;

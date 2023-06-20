@@ -15,8 +15,8 @@ const char* ssid = STASSID;
 const char* password = STAPSK;
 
 //ESP na rede
-const char* host = "ESP-10.0.0.109";
-IPAddress local_IP(10, 0, 0, 109);
+const char* host = "ESP-10.0.0.111";
+IPAddress local_IP(10, 0, 0, 111);
 IPAddress gateway(10, 0, 0, 1);
 IPAddress subnet(255, 255, 0, 0);
 
@@ -25,7 +25,7 @@ const char* BROKER_MQTT = "10.0.0.101";        // broker MQTT
 int BROKER_PORT = 1883;
               
 // Definições do ID
-#define ID_MQTT   "ESP-109"  // ID desta nodeMCU (ID Client)
+#define ID_MQTT   "ESP-111"  // ID desta nodeMCU (ID Client)
 #define USER      "aluno"
 #define PASSWORD  "@luno*123"
 #define QOS       1
@@ -102,7 +102,7 @@ int led_pin = LED_BUILTIN;
 bool unidade = false, opcao = false, sensorProblema = false;
 int valor = 0, testeSensor[9];
 unsigned char dado_digital; 
-const char unidadeAtual[] = unidade_2;
+const char unidadeAtual[] = unidade_3;
 byte dest[4];
 
 /**
