@@ -146,7 +146,8 @@ int main(){
     int opcoesSensores = 0, sensoresDigitais = 0;
 	int op = 0, op2 = 0, unid = 0, lcd, valorAnalog = 0, i=0;
     int unidadeSelecionada = 0, opcaoSelecionada = 0;
-    int valorLED, mqtt=0;   
+    int valorLED, mqtt=0; 
+    int n = 0, i = 0, j=0, qtdOnline = 0, tds_unidades = 0;   //Auxiliares
     /*Type: char*/
 	char uniSel[16] = "UniSelecionada", opSel[16] = "OpSelecionada";
 	char unidade[16]= "Unidade = ";
@@ -157,7 +158,7 @@ int main(){
     char msg_front[100];
     char valorSensor, aux_unidEscolhida;
     /*Type: unsigned char*/
-    unsigned char resposta[8];
+    unsigned char online[32] ={}, resposta[8];
     unsigned char codigo, codigoUni, dest[3];
 
     /*Type: time_t*/
@@ -259,7 +260,33 @@ int main(){
                 /*Se a unidade selecionada for 00, vai para todas unidades*/
                 if(valor[0] == 0 && valor[1] == 0){ // Faz uma verificação do valor 00 e se for verdadeira
                 	strcpy(unidadeEscolhida,"->Todas Unid.s"); //Muda o conteudo da unidade escolhida para todas as unidades
+                    tds_unidades = 1;
 				}
+                if(tds_unidades){
+                    /* Mostra na LCD a unidade selecionada*/
+                    printaLCD(uniSel, unidadeEscolhida, lcd);
+                    delay(1000); // Espera 1s
+
+                    /* ================================== MQTT ========================================*/
+                    publisher(TOPICPUB, msg);
+                    /* =================================================================================*/
+                    for(i=0; i<32; i++){
+                        /* Manda código*/
+                        writeUart(uart0_filestream, codigoUni);                
+
+                        delay(40); // Tempo minimo para retorno
+                        
+                        /*Recebe codigo*/
+                        readUart(uart0_filestream, resposta);
+                        
+                        if(resposta[n] == codigo_unidades[i]){
+                            printf("Entrou, resposta = %d e codigo =%d",resposta[0], codigo_unidades[i]);
+                            online[j] = codigo_unidades[i];
+                            j++;
+                        }
+		            }
+                    
+                }
 
                 /* Mostra na LCD a unidade selecionada*/
                 printaLCD(uniSel, unidadeEscolhida, lcd);
@@ -281,6 +308,7 @@ int main(){
                 /* ==========================================================================*/
                 
                 lcdClear(lcd); //Limpa o lcd
+
                 for(i=0;i<33;i++){                
                     if (resposta[0] != codigo_unidades[i]){ // Caso não tenha resposta da node
                         printf("Node UART: Sem resposta.\n");
